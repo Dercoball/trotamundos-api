@@ -25,3 +25,6 @@ def get_query_result():
     result_list = df.to_dict(orient="records")
 
     return result_list[0]
+
+if __name__ == '__main__':
+    app.run()
