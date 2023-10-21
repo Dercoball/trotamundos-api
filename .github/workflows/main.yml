@@ -28,5 +28,5 @@ jobs:
         with:
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/medusa-api:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/medusa-api:0.0.1
+            ${{ secrets.DOCKERHUB_USERNAME }}/trotamundos:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/trotamundos:0.0.1
