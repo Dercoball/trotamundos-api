@@ -3,9 +3,10 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden
 from fastapi.responses import JSONResponse
 import json
+from typing import List
 
 app = FastAPI()
 
@@ -44,6 +45,7 @@ def getcliente(idCliente = 0):
   "ID": idCliente
 })
 
+
 @app.post(
         path="/api/cliente",
         name='Guardar cliente',
@@ -55,6 +57,29 @@ def getcliente(payload: SaveCliente ):
     dumpp = ResponseModel(id_resultado=1,respuesta="El cliente se guardo de manera correcta")
     dict = dumpp.model_dump()
     return JSONResponse(status_code=200, content=dict)
+
+
+@app.get(
+        path="/api/vehiculos",
+        name='Obtener vehiculos',
+        tags=['Vehiculo'],
+        description='Método para obtener la informacion de los vehiculos del cliente',
+        response_model=List[GetVehiculo]
+)
+def getvehiculos(idCliente = 0):
+    pass
+
+
+@app.get(
+    path="/api/vehiculo",
+        name='Obtener vehiculo',
+        tags=['Vehiculo'],
+        description='Método para obtener la informacion de un vehiculo',
+        response_model=GetVehiculo
+)
+def getvehiculos(idVehiculo = 0):
+    pass
+
 
 # @app.get("/api/query/")
 # def get_query_result():

@@ -36,7 +36,6 @@ class GetOrden(SaveOrden):
     ID : int
 
 class Vehiculo(BaseModel):
-    ID : int
     Marca : str
     Modelo : str
     Color : str
@@ -64,3 +63,6 @@ class Vehiculo(BaseModel):
     Tapones_gasolina : int
     Calaveras_rotas : int
     Molduras_completas : int
+
+class GetVehiculo(Vehiculo):
+    ID : int
