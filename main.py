@@ -25,7 +25,7 @@ app.add_middleware(
 )
 
 @app.post(
-    path="/seguridad/iniciarsesion",
+    path="/api/seguridad/iniciarsesion",
     name='Inicio de sesion',
     tags=['Seguridad'],
     description='Metodo para iniciar sesion',
@@ -104,22 +104,29 @@ def getvehiculos(idVehiculo = 0):
     pass
 
 
-# @app.get("/api/query/")
-# def get_query_result():
-#     query = text("SELECT * FROM tabla1")
+@app.put(
+        path="/api/vehiculo",
+        name='Actualizar vehiculo',
+        tags=['Vehiculo'],
+        description='Método para actualizar la informacion de los vehiculos del cliente',
+    response_model=ResponseModel
+)
+def updateVehiculo(payload: GetVehiculo):
+    dumpp = ResponseModel(id_resultado=1,respuesta="Se actualizó la información del vehiculo de manera correcta")
+    dict = dumpp.model_dump()
+    return JSONResponse(status_code=200, content=dict)
 
-#     # Ejecutar la consulta utilizando el motor de conexión
-#     with engine.connect() as connection:
-#         result = connection.execute(query)
-#         rows = result.fetchall()
-
-#     # Convierte los resultados en un DataFrame de Pandas
-#     df = pd.DataFrame(rows, columns=result.keys())
-
-#     # Convierte el DataFrame en una lista de diccionarios
-#     result_list = df.to_dict(orient="records")
-
-#     return result_list[0]
+@app.put(
+        path="/api/cliente",
+        name='Guardar cliente',
+        tags=['Cliente'],
+        description='Método para actualizar la informacion del cliente',
+        response_model=ResponseModel
+)
+def getcliente(payload: GetCliente ):
+    dumpp = ResponseModel(id_resultado=1,respuesta="El cliente se actualizo de manera correcta")
+    dict = dumpp.model_dump()
+    return JSONResponse(status_code=200, content=dict)
 
 if __name__ == '__main__':
     app.run()
