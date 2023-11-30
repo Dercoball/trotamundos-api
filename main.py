@@ -3,10 +3,14 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token
 from fastapi.responses import JSONResponse
 import json
 from typing import List
+from negocios import Negocios
+from datetime import timedelta
+from utils import utilsclass
+ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
 app = FastAPI()
 
@@ -20,6 +24,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.post(
+    path="/seguridad/iniciarsesion",
+    name='Inicio de sesion',
+    tags=['Seguridad'],
+    description='Metodo para iniciar sesion',
+    response_model=Token
+)
+async def login(payload: DatosLogin):
+    _negocios = Negocios()
+    user = await _negocios.getusuario(payload)
+    # if not user:
+    #     return JSONResponse(status_code=401, content={"Id_Resultado": 0, "Respuesta": "Datos de acceso incorrectos"})
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = await utilsclass.create_access_token(
+        # data={"sub": payload.usuario}, expires_delta=access_token_expires
+        data={"sub": payload.usuario, "idUsuario": 1, "idRol": 1}, expires_delta=access_token_expires
+
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @app.get(
         path="/api/cliente",

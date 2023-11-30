@@ -66,3 +66,22 @@ class Vehiculo(BaseModel):
 
 class GetVehiculo(Vehiculo):
     ID : int
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
+class DatosLogin(BaseModel):
+
+    usuario: str = Field(
+        ...,
+        min_length=1,
+        max_length=10
+    )
+    contrasena: str = Field(
+        ...,
+        min_length=1,
+        max_length=20
+    )
