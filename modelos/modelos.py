@@ -77,11 +77,9 @@ class DatosLogin(BaseModel):
 
     usuario: str = Field(
         ...,
-        min_length=1,
-        max_length=10
+        min_length=1
     )
     contrasena: str = Field(
         ...,
-        min_length=1,
-        max_length=20
+        min_length=1
     )
