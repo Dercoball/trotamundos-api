@@ -18,6 +18,7 @@ class SaveCliente(BaseModel):
     Email : str
     RFC : str
     Autorizacion_ext : str
+    Id_empleado: int
 
 class GetCliente(SaveCliente):
     ID : int
@@ -36,6 +37,7 @@ class GetOrden(SaveOrden):
     ID : int
 
 class Vehiculo(BaseModel):
+    Id_empleado: int
     Marca : str
     Modelo : str
     Color : str
@@ -74,7 +76,6 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: Optional[str] = None
 class DatosLogin(BaseModel):
-
     usuario: str = Field(
         ...,
         min_length=1
@@ -83,3 +84,6 @@ class DatosLogin(BaseModel):
         ...,
         min_length=1
     )
+
+class OrdenCompleta(Vehiculo, SaveOrden, SaveCliente):
+    Id_empleado: int

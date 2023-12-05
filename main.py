@@ -3,7 +3,7 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -125,6 +125,18 @@ def updateVehiculo(payload: GetVehiculo):
 )
 def getcliente(payload: GetCliente ):
     dumpp = ResponseModel(id_resultado=1,respuesta="El cliente se actualizo de manera correcta")
+    dict = dumpp.model_dump()
+    return JSONResponse(status_code=200, content=dict)
+
+@app.post(
+    path="/api/orden",
+        name='Guardar orden',
+        tags=['Orden'],
+        description='Método para guardan la orden',
+        response_model=ResponseModel
+)
+def saveorden(payload: OrdenCompleta):
+    dumpp = ResponseModel(id_resultado=1,respuesta="Se guardo la orden")
     dict = dumpp.model_dump()
     return JSONResponse(status_code=200, content=dict)
 

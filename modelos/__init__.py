@@ -1,1 +1,1 @@
-from .modelos import GetCliente, ResponseModel, SaveCliente, GetOrden, SaveOrden, Vehiculo,GetVehiculo, DatosLogin, Token
+from .modelos import GetCliente, ResponseModel, SaveCliente, GetOrden, SaveOrden, Vehiculo,GetVehiculo, DatosLogin, Token, OrdenCompleta
