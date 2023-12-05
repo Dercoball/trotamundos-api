@@ -129,7 +129,7 @@ def getcliente(payload: GetCliente ):
     return JSONResponse(status_code=200, content=dict)
 
 @app.post(
-    path="/api/orden",
+    path="/api/ordenserviciofull",
         name='Guardar orden',
         tags=['Orden'],
         description='Método para guardan la orden',
