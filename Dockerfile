@@ -6,6 +6,12 @@ WORKDIR /usr/src/app
 
 COPY requirements.txt .
 
+ADD odbcinst.ini /etc/odbcinst.ini
+RUN apt-get update
+RUN apt-get install -y tdsodbc unixodbc-dev
+RUN apt install unixodbc-bin -y
+RUN apt-get clean -y
+
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 RUN pip install wheel
 
