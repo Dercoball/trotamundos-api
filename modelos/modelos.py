@@ -87,3 +87,12 @@ class DatosLogin(BaseModel):
 
 class OrdenCompleta(Vehiculo, SaveOrden, SaveCliente):
     Id_empleado: int
+
+class Roles(BaseModel):
+    Id_Rol: int
+    Descripcion: str
+    Estatus: int
+
+class Estatus(BaseModel):
+    Id_Estatus: int
+    Descripcion: str

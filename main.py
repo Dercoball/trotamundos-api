@@ -3,7 +3,7 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -140,5 +140,39 @@ def saveorden(payload: OrdenCompleta):
     dict = dumpp.model_dump()
     return JSONResponse(status_code=200, content=dict)
 
+@app.get(
+        path="/api/roles",
+        name='Obtener roles',
+        tags=['Catalogos'],
+        description='Método para obtener los roles',
+        response_model=Roles
+)
+def obtener_roles():
+    query = "SELECT * FROM Catalogos.Roles"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado)
+
+@app.get(
+        path="/api/estatus",
+        name='Obtener estatus',
+        tags=['Catalogos'],
+        description='Método para obtener los estatus',
+    response_model=Estatus
+)
+def obtener_roles():
+    query = "SELECT * FROM Catalogos.Estatus"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado)
+
+# @app.post(
+#     path="/api/usuarios",
+#     name='crear usuario',
+#     tags=['Seguridad'],
+#     description='Método para crear usuarios',
+#     response_model=ResponseModel
+# )
+# def crearusuario()
 if __name__ == '__main__':
     app.run()
