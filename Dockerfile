@@ -2,7 +2,7 @@ FROM python:3.9.13-alpine3.14 as builder
 
 RUN apk -U add build-base unixodbc-dev linux-headers
 
-WORKDIR /usr/lib64
+WORKDIR /usr/src/app
 
 COPY requirements.txt .
 
