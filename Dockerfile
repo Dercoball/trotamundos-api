@@ -1,6 +1,7 @@
 FROM python:3.9.13-alpine3.14 as builder
 
 # RUN apk -U add build-base unixodbc-dev linux-headers
+RUN sudo apt-get install -y build-essential
 
 WORKDIR /usr/src/app
 
