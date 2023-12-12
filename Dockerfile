@@ -1,7 +1,7 @@
 FROM python:3.11.1
 
 WORKDIR /code
-COPY ./requirements.txt /code/requirements.txt
+COPY ./ /code/
 
 # Instala el controlador ODBC para SQL Server
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
@@ -12,5 +12,5 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
 # Instala las dependencias de Python
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-COPY ./ /code/app
+COPY ./ /code/
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5080"]

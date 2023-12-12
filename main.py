@@ -175,5 +175,4 @@ def obtener_roles():
 # )
 # def crearusuario()
 if __name__ == '__main__':
-    print(pyodbc.drivers())
     app.run()
