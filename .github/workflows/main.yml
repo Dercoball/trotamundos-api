@@ -21,11 +21,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - 
-        name: Install build dependencies
-        run: |
-          apt-get update
-          apt-get install -y build-essential
       -
         name: Build and push
         id: docker_build
