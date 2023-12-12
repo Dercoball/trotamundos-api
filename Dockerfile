@@ -12,5 +12,5 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
 # Instala las dependencias de Python
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-COPY ./app /code/app
+COPY ../trotamundos-api /code/app
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5080"]
