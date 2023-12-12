@@ -1,6 +1,8 @@
 FROM python:3.11.1
 
 WORKDIR /code
+
+# Copia los archivos necesarios
 COPY ./ /code/
 
 # Instala el controlador ODBC para SQL Server
@@ -10,7 +12,7 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
     && ACCEPT_EULA=Y apt-get install -y msodbcsql17
 
 # Instala las dependencias de Python
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-COPY ./ /code/
+# CMD para ejecutar tu aplicación
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5080"]
