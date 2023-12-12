@@ -1,8 +1,8 @@
 FROM python:3.9.13-alpine3.14 as builder
 
-# RUN apk -U add build-base unixodbc-dev linux-headers
-RUN apt-get update && apt-get install -y build-essential
-RUN rm -rf /var/lib/apt/lists/* && apt-get update
+
+RUN apk --no-cache add build-base unixodbc-dev linux-headers
+
 WORKDIR /usr/src/app
 
 COPY requirements.txt .
