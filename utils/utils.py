@@ -18,10 +18,11 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class utilsclass():
     async def verify_password(plain_password, hashed_password):
-        return pwd_context.verify(plain_password, hashed_password)
+        resultado = pwd_context.verify(plain_password, hashed_password)
+        print(resultado)
+        return resultado
 
     async def get_password_hash(password):
-        password = 'Do19ir28'
         return pwd_context.hash(password)
 
     async def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):

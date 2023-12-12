@@ -66,6 +66,9 @@ class Vehiculo(BaseModel):
     Calaveras_rotas : int
     Molduras_completas : int
 
+class saveVehiculo(Vehiculo):
+    IdCliente: int
+    
 class GetVehiculo(Vehiculo):
     ID : int
 
@@ -96,3 +99,9 @@ class Roles(BaseModel):
 class Estatus(BaseModel):
     Id_Estatus: int
     Descripcion: str
+
+class SaveUsuario(BaseModel):
+    Nombre: str
+    Password: str
+    Rol: int
+    Estatus: int
