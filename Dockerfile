@@ -1,5 +1,7 @@
 FROM python:3.9.13-alpine3.14 as builder
 
+RUN apk --no-cache add curl gnupg
+
 RUN apk --no-cache add --virtual .build-deps curl
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
 RUN if apk search -q msodbcsql17; then \
@@ -10,7 +12,6 @@ RUN if apk search -q msodbcsql17; then \
 RUN apk del .build-deps
 
 RUN apk --no-cache add build-base unixodbc-dev linux-headers
-RUN apk --no-cache add curl gnupg
 RUN apk --no-cache add msodbcsql17
 
 WORKDIR /usr/src/app
