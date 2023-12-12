@@ -1,7 +1,5 @@
 FROM python:3.9.13-alpine3.14 as builder
 
-RUN apk --no-cache add unixODBC unixODBC-dev
-
 RUN apk --no-cache add build-base unixodbc-dev linux-headers
 
 WORKDIR /usr/src/app
