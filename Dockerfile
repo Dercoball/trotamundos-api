@@ -1,20 +1,14 @@
-FROM python:3.9.13-alpine3.14 as builder
+FROM python:3.11.1
 
-RUN apk -U add build-base unixodbc-dev linux-headers
-RUN apk add python3 python3-dev g++ unixodbc-dev
-# Copia el controlador ODBC para SQL Server al contenedor
-COPY ./odbc-driver /odbc-driver
+WORKDIR /code
+COPY ./requirements.txt /code/requirements.txt
 
-# Agrega la ruta del controlador al LD_LIBRARY_PATH
-ENV LD_LIBRARY_PATH=/odbc-driver:$LD_LIBRARY_PATH
+# Microsoft ODBC 17 installation for Debian
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql17
 
-WORKDIR /usr/src/app
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-COPY requirements.txt .
-
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
-RUN pip install wheel
-
-COPY . .
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5080"]
+COPY ./app /code/app
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
