@@ -15,4 +15,4 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 # CMD para ejecutar tu aplicación
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5080"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5080"]
