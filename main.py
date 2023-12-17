@@ -97,15 +97,15 @@ def saveCliente(payload: SaveCliente ):
     return JSONResponse(status_code=200, content=dict)
 
 
-@app.get(
-        path="/api/vehiculos",
-        name='Obtener vehiculos}',
-        tags=['Vehiculo'],
-        description='Método para obtener la informacion de los vehiculos del cliente}',
-        response_model=List[GetVehiculo]
-)
-def getvehiculos(idCliente = 0):
-    pass
+# @app.get(
+#         path="/api/vehiculos",
+#         name='Obtener vehiculos}',
+#         tags=['Vehiculo'],
+#         description='Método para obtener la informacion de los vehiculos del cliente}',
+#         response_model=List[GetVehiculo]
+# )
+# def getvehiculos(idCliente = 0):
+#     pass
 
 
 @app.get(
