@@ -10,6 +10,8 @@ from typing import List
 from negocios import Negocios
 from datetime import timedelta
 from utils import utilsclass
+import os
+
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
 app = FastAPI()
@@ -23,6 +25,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+options = {
+    'page-size': 'A4',
+    'margin-top': '1cm',
+    'margin-right': '1cm',
+    'margin-bottom': '1cm',
+    'margin-left': '1cm',
+}
 
 @app.post(
     path="/api/seguridad/iniciarsesion",
@@ -106,8 +115,11 @@ def getvehiculos(idCliente = 0):
         description='Método para obtener la informacion de un vehiculo}',
         response_model=GetVehiculo
 )
-def getvehiculos(idVehiculo = 0):
-    pass
+def getvehiculos(parametro = ""):
+    query = f"exec [dbo].[ObtenerVehiculo] @ParametroBusqueda = '{parametro}'"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado)
 
 @app.post(
         path="/api/vehiculo",
@@ -116,7 +128,29 @@ def getvehiculos(idVehiculo = 0):
         description='Método para guardar la informacion de los vehiculos del cliente}',
     response_model=ResponseModel
 )
-def saveVehiculo(payload: saveVehiculo):
+def guardarVehiculo(payload: saveVehiculo):
+    query = f"exec dbo.InsertarVehiculo @Id_Cliente = {payload.IdCliente}, @Id_Empleado = {payload.Id_empleado},@Marca = '{payload.Marca}' \
+    ,@Modelo = '{payload.Modelo}', @Color = '{payload.Color}', @No_serie '{payload.No_serie}',@Placa = '{payload.Placa}',@Tipo = '{payload.Tipo}' \
+    ,@Motor = '{payload.Motor}', @Kms = '{payload.Kms}', @Espejo_retrovisor = {payload.Espejo_retrovisor},@Espejo_izquierdo = {payload.Espejo_izquierdo} \
+     @Antena			   = {payload.Antena}, \
+      @Tapones_ruedas	   = {payload.Tapones_ruedas}, \
+      @Radio		   = {payload.Radio}, \
+      @Encendedor		   = {payload.Encendedor}, \
+      @Gato			   = {payload.Gato}, \
+      @Herramienta   = {payload.Herramienta}, \
+      @Llanta_refaccion  ={payload.Llanta_refaccion}, \
+      @Limpiadores	   ={payload.Limpiadores}, \
+      @Pintura_rayada	   ={payload.Pintura_rayada}, \
+      @Cristales_rotos   ={payload.Cristales_rotos}, \
+      @Golpes		={payload.Golpes}, \
+      @Tapetes	={payload.Tapetes}, \
+      @Extintor	={payload.Extintor}, \
+      @Tapones_gasolina  ={payload.Tapones_gasolina}, \
+      @Calaveras_rotas   ={payload.Calaveras_rotas}, \
+      @Molduras_completas ={payload.Molduras_completas}"
+    with engine.begin() as conn:
+        conn.execution_options(autocommit = True)
+        roles_df = pd.read_sql(query, conn)
     dumpp = ResponseModel(id_resultado=1,respuesta="Se guardó la información del vehiculo de manera correcta")
     dict = dumpp.model_dump()
     return JSONResponse(status_code=200, content=dict)
@@ -135,12 +169,19 @@ def updateVehiculo(payload: GetVehiculo):
 
 @app.put(
         path="/api/cliente",
-        name='Guardar cliente}',
+        name='Actualizar cliente}',
         tags=['Cliente'],
         description='Método para actualizar la informacion del cliente}',
         response_model=ResponseModel
 )
 def getcliente(payload: GetCliente ):
+    query = f"exec [Clientes].[clienteinsupdel] @Accion = 3, @idCliente = {payload.ID}, @Nombre = '{payload.Nombre}', @Calle = '{payload.Calle}' \
+        ,@Colonia = '{payload.Colonia}', @Ciudad = '{payload.Ciudad}',  @Estado = '{payload.Estado}', @Tel = '{payload.Tel}', @Cel = '{payload.Cel}' \
+        ,@Email = '{payload.Email}', @RFC = '{payload.RFC}', @Autorizacion_ext = '{payload.Autorizacion_ext}', @No_int = '{payload.No_int}',@Facturar_a = '{payload.Facturar_a}' \
+        ,@IdUsuarioEmpleado = '{payload.Id_empleado}'"
+    with engine.begin() as conn:
+        conn.execution_options(autocommit = True)
+        roles_df = pd.read_sql(query, conn)
     dumpp = ResponseModel(id_resultado=1,respuesta="El cliente se actualizo de manera correcta")
     dict = dumpp.model_dump()
     return JSONResponse(status_code=200, content=dict)
@@ -185,9 +226,9 @@ def obtener_roles():
 
 @app.post(
     path="/api/usuarios",
-    name='crear usuario}',
+    name='crear usuario',
     tags=['Seguridad'],
-    description='Método para crear usuarios}',
+    description='Método para crear usuarios',
     response_model=ResponseModel
 )
 async def crearusuario(payload: SaveUsuario):
@@ -200,6 +241,26 @@ async def crearusuario(payload: SaveUsuario):
     dict = dumpp.model_dump()
     return JSONResponse(status_code=200, content=dict)
 
-
+@app.get(
+    path="/api/ordenserviciopdf",
+    name='obtener pdf de la orden de servicio',
+    tags=['Orden'],
+    description='Método para obtener el pdf de la orden de servicio',
+    response_model=ResponseModel
+)
+def convert_html_to_pdf():
+    # query = f"exec [Clientes].[ordendeservicio]"
+    # with engine.begin() as conn:
+    #     conn.execution_options(autocommit = True)
+    #     roles_df = pd.read_sql(query, conn)
+    # resultado = roles_df.to_dict(orient="records")
+    # htmlstring = resultado[0]["Tabla"]
+    # pdf_path = "example.pdf"
+    # # with open(pdf_path, "wb") as pdf_file:
+    # #     pisa_status = pisa.CreatePDF(htmlstring, dest=pdf_file, options=options)
+    # pdf_filepath = os.path.join('./',pdf_path)
+    # return JSONResponse(status_code=200,content=resultado)
+    pass
+        
 if __name__ == '__main__':
     app.run()
