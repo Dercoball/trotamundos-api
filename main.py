@@ -11,7 +11,7 @@ from negocios import Negocios
 from datetime import timedelta
 from utils import utilsclass
 import os
-
+import pdfkit
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
 app = FastAPI()
@@ -52,22 +52,63 @@ async def login(payload: DatosLogin):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+
+# app.get(
+#         path="/api/cliente",
+#         name='Obtener clien',
+#         tags=['Cliente'],
+#         description='Método para obtener la informacion de un cliente',
+#         response_model=GetCliente
+# )
+# def getcliente(IdCliente = int):
+#     query = f"exec Clientes.clienteinsupdel @Accion = 4,@IdCliente ={IdCliente}"
+#     roles_df = pd.read_sql(query, engine)
+#     resultado = roles_df.to_dict(orient="records")
+#     return JSONResponse(status_code=200,content=resultado)
+# @app.get(
+#         path="/api/clientes",
+#         name='Obtener clientes',
+#         tags=['Cliente'],
+#         description='Método para obtener la informacion del cliente',
+#         response_model=List[GetCliente]
+# )
+# def getclientes(busqueda = ""):
+#     query = f"exec Clientes.clienteinsupdel @Accion = 2,@ParametroBusqueda = '{busqueda}' "
+#     roles_df = pd.read_sql(query, engine)
+#     resultado = roles_df.to_dict(orient="records")
+#     return JSONResponse(status_code=200,content=resultado)
+
 @app.get(
         path="/api/cliente",
-        name='Obtener cliente}',
+        name='Obtener cliente',
         tags=['Cliente'],
-        description='Método para obtener la informacion del cliente}',
+        description='Método para obtener la informacion de un cliente',
         response_model=List[GetCliente]
 )
-def getcliente(busqueda = ""):
+def getcliente(idCliente = 0):
+    query = f"exec Clientes.clienteinsupdel @Accion = 4,@IdCliente ={idCliente}"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    resultado = resultado[0]
+    return JSONResponse(status_code=200,content=resultado)
+
+@app.get(
+        path="/api/clientes",
+        name='Obtener clientes',
+        tags=['Cliente'],
+        description='Método para obtener la informacion de todos los clientes',
+        response_model=List[GetCliente]
+)
+def getclientes(busqueda = ""):
     query = f"exec Clientes.clienteinsupdel @Accion = 2,@ParametroBusqueda = '{busqueda}' "
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
     return JSONResponse(status_code=200,content=resultado)
 
+
 @app.post(
         path="/api/cliente",
-        name='Guardar cliente}',
+        name='Guardar cliente',
         tags=['Cliente'],
         description='Método para guardar la informacion del cliente}',
         response_model=ResponseModel
@@ -97,20 +138,20 @@ def saveCliente(payload: SaveCliente ):
     return JSONResponse(status_code=200, content=dict)
 
 
-# @app.get(
-#         path="/api/vehiculos",
-#         name='Obtener vehiculos}',
-#         tags=['Vehiculo'],
-#         description='Método para obtener la informacion de los vehiculos del cliente}',
-#         response_model=List[GetVehiculo]
-# )
-# def getvehiculos(idCliente = 0):
-#     pass
+@app.get(
+        path="/api/vehiculos",
+        name='Obtener vehiculos',
+        tags=['Vehiculo'],
+        description='Método para obtener la informacion de todos los vehiculos',
+        response_model=List[GetVehiculo]
+)
+def getvehiculos(idVehiculo = 0):
+    pass
 
 
 @app.get(
     path="/api/vehiculo",
-        name='Obtener vehiculo}',
+        name='Obtener vehiculo',
         tags=['Vehiculo'],
         description='Método para obtener la informacion de un vehiculo}',
         response_model=GetVehiculo
@@ -123,7 +164,7 @@ def getvehiculos(parametro = ""):
 
 @app.post(
         path="/api/vehiculo",
-        name='Guarda vehiculo}',
+        name='Guarda vehiculo',
         tags=['Vehiculo'],
         description='Método para guardar la informacion de los vehiculos del cliente}',
     response_model=ResponseModel
@@ -157,7 +198,7 @@ def guardarVehiculo(payload: saveVehiculo):
 
 @app.put(
         path="/api/vehiculo",
-        name='Actualizar vehiculo}',
+        name='Actualizar vehiculo',
         tags=['Vehiculo'],
         description='Método para actualizar la informacion de los vehiculos del cliente}',
     response_model=ResponseModel
@@ -169,12 +210,12 @@ def updateVehiculo(payload: GetVehiculo):
 
 @app.put(
         path="/api/cliente",
-        name='Actualizar cliente}',
+        name='Actualizar cliente',
         tags=['Cliente'],
         description='Método para actualizar la informacion del cliente}',
         response_model=ResponseModel
 )
-def getcliente(payload: GetCliente ):
+def putcliente(payload: GetCliente ):
     query = f"exec [Clientes].[clienteinsupdel] @Accion = 3, @idCliente = {payload.ID}, @Nombre = '{payload.Nombre}', @Calle = '{payload.Calle}' \
         ,@Colonia = '{payload.Colonia}', @Ciudad = '{payload.Ciudad}',  @Estado = '{payload.Estado}', @Tel = '{payload.Tel}', @Cel = '{payload.Cel}' \
         ,@Email = '{payload.Email}', @RFC = '{payload.RFC}', @Autorizacion_ext = '{payload.Autorizacion_ext}', @No_int = '{payload.No_int}',@Facturar_a = '{payload.Facturar_a}' \
@@ -200,7 +241,7 @@ def saveorden(payload: OrdenCompleta):
 
 @app.get(
         path="/api/roles",
-        name='Obtener roles}',
+        name='Obtener roles',
         tags=['Catalogos'],
         description='Método para obtener los roles}',
         response_model=Roles
@@ -213,7 +254,7 @@ def obtener_roles():
 
 @app.get(
         path="/api/estatus",
-        name='Obtener estatus}',
+        name='Obtener estatus',
         tags=['Catalogos'],
         description='Método para obtener los estatus}',
     response_model=Estatus
@@ -249,18 +290,22 @@ async def crearusuario(payload: SaveUsuario):
     response_model=ResponseModel
 )
 def convert_html_to_pdf():
-    # query = f"exec [Clientes].[ordendeservicio]"
-    # with engine.begin() as conn:
-    #     conn.execution_options(autocommit = True)
-    #     roles_df = pd.read_sql(query, conn)
-    # resultado = roles_df.to_dict(orient="records")
-    # htmlstring = resultado[0]["Tabla"]
-    # pdf_path = "example.pdf"
-    # # with open(pdf_path, "wb") as pdf_file:
-    # #     pisa_status = pisa.CreatePDF(htmlstring, dest=pdf_file, options=options)
-    # pdf_filepath = os.path.join('./',pdf_path)
-    # return JSONResponse(status_code=200,content=resultado)
-    pass
+    query = f"exec [Clientes].[ordendeservicio]"
+    with engine.begin() as conn:
+        conn.execution_options(autocommit = True)
+        roles_df = pd.read_sql(query, conn)
+    resultado = roles_df.to_dict(orient="records")
+    htmlstring = resultado[0]["Tabla"]
+    img = "\\img1.jpg"
+    pdf_path = "example.pdf"
+    # pdfkit.from_string('Hello!', 'out.pdf')
+    path = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+    config = pdfkit.configuration(wkhtmltopdf=path)    
+    pdfkit.from_string(htmlstring, 'out.pdf', configuration=config)
+    # with open(pdf_path, "wb") as pdf_file:
+    #     pisa_status = pisa.CreatePDF(htmlstring, dest=pdf_file, options=options)
+    # pdf_filepath = os.path.join('./',pdf_path, )
+    return JSONResponse(status_code=200,content=resultado)
         
 if __name__ == '__main__':
     app.run()
