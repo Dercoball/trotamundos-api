@@ -139,21 +139,24 @@ def saveCliente(payload: SaveCliente ):
 
 
 @app.get(
-        path="/api/vehiculos",
-        name='Obtener vehiculos',
+        path="/api/vehiculo",
+        name='Obtener vehiculo',
         tags=['Vehiculo'],
         description='Método para obtener la informacion de todos los vehiculos',
         response_model=List[GetVehiculo]
 )
 def getvehiculos(idVehiculo = 0):
-    pass
+    query = f"exec [dbo].[ObtenerVehiculo] @IdVehiculo = {idVehiculo}"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado[0])
 
 
 @app.get(
-    path="/api/vehiculo",
-        name='Obtener vehiculo',
+    path="/api/vehiculos",
+        name='Obtener vehiculos',
         tags=['Vehiculo'],
-        description='Método para obtener la informacion de un vehiculo}',
+        description='Método para obtener la informacion de un vehiculo',
         response_model=GetVehiculo
 )
 def getvehiculos(parametro = ""):
