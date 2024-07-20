@@ -105,3 +105,48 @@ class SaveUsuario(BaseModel):
     Password: str
     Rol: int
     Estatus: int
+
+class OrdenServicio(BaseModel):
+	IdOrden:int
+
+
+class SaveOrdenServicio(OrdenServicio):
+    Nombre:str
+Calle:str
+Colonia:str
+Ciudad:str
+Estado:str
+Tel:str
+Cel:str
+Email:str
+RFC:str
+Autorizacion_ext:str
+No_int:str
+Usuario:str
+Facturar_a:str
+Marca:str
+Modelo:str
+Color:str
+No_serie:str
+Placa:str
+Tipo:str
+Motor:str
+Kms:str
+Espejo_retrovisor:str
+Espejo_izquierdo:str
+Antena:str
+Tapones_ruedas:str
+Radio:str
+Encendedor:str
+Gato:str
+Herramienta:str
+Llanta_refaccion:str
+Limpiadores:str
+Pintura_rayada:str
+Cristales_rotos:str
+Golpes:str
+Tapetes:str
+Extintor:str
+Tapones_gasolina:str
+Calaveras_rotas:str
+Molduras_completas:str
