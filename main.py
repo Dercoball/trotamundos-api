@@ -986,18 +986,15 @@ def convert_html_to_pdf(clienteId: int):
          # Resto del código para convertir a PDF...
         img = "\\img1.jpg"
         pdf_path = "example.pdf"
-        path = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-        config = pdfkit.configuration(wkhtmltopdf=path)
-        pdfkit.from_string(htmlstring, f'OrdenDeServicio{orden}.pdf', configuration=config)
-
-            # Devolver una respuesta JSON con el resultado
-        return JSONResponse(status_code=200, content={"success": "PDF generado correctamente"})
-      
+          # Rutas y configuraciones para Linux
+        path_wkhtmltopdf = '/usr/local/bin/wkhtmltopdf'
+        config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
+        pdfkit.from_string(htmlstring, 'reporte.pdf', configuration=config)
+        return JSONResponse(content={"message": "PDF creado exitosamente"}, status_code=200)
     except Exception as e:
-# Capturar y registrar la excepción
-        print(f"Error: {str(e)}")
-        return JSONResponse(status_code=500, content={"error": str(e)})
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
     
 if __name__ == '__main__':
     app.run()
+    
