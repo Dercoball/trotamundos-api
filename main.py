@@ -1,9 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -12,6 +12,10 @@ from datetime import timedelta
 from utils import utilsclass
 import os
 import pdfkit
+import base64
+from PIL import Image
+from io import BytesIO
+
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
 app = FastAPI()
@@ -173,31 +177,54 @@ def getvehiculos(parametro = ""):
     response_model=ResponseModel
 )
 def guardarVehiculo(payload: saveVehiculo):
-    query = f"exec dbo.InsertarVehiculo @Id_Cliente = {payload.IdCliente}, @Id_Empleado = {payload.Id_empleado},@Marca = '{payload.Marca}' \
-    ,@Modelo = '{payload.Modelo}', @Color = '{payload.Color}', @No_serie ='{payload.No_serie}',@Placa = '{payload.Placa}',@Tipo = '{payload.Tipo}' \
-    ,@Motor = '{payload.Motor}', @Kms = '{payload.Kms}', @Espejo_retrovisor = {payload.Espejo_retrovisor},@Espejo_izquierdo = {payload.Espejo_izquierdo}, \
-     @Antena			   = {payload.Antena}, \
-      @Tapones_ruedas	   = {payload.Tapones_ruedas}, \
-      @Radio		   = {payload.Radio}, \
-      @Encendedor		   = {payload.Encendedor}, \
-      @Gato			   = {payload.Gato}, \
-      @Herramienta   = {payload.Herramienta}, \
-      @Llanta_refaccion  ={payload.Llanta_refaccion}, \
-      @Limpiadores	   ={payload.Limpiadores}, \
-      @Pintura_rayada	   ={payload.Pintura_rayada}, \
-      @Cristales_rotos   ={payload.Cristales_rotos}, \
-      @Golpes		={payload.Golpes}, \
-      @Tapetes	={payload.Tapetes}, \
-      @Extintor	={payload.Extintor}, \
-      @Tapones_gasolina  ={payload.Tapones_gasolina}, \
-      @Calaveras_rotas   ={payload.Calaveras_rotas}, \
-      @Molduras_completas ={payload.Molduras_completas}"
-    with engine.begin() as conn:
-        conn.execution_options(autocommit = True)
-        roles_df = pd.read_sql(query, conn)
-    dumpp = ResponseModel(id_resultado=1,respuesta="Se guardó la información del vehiculo de manera correcta")
-    dict = dumpp.model_dump()
-    return JSONResponse(status_code=200, content=dict)
+    try: 
+        
+        query = f"exec dbo.InsertarVehiculo @Id_Cliente = {payload.IdCliente}, @Id_Empleado = {payload.Id_empleado},@Marca = '{payload.Marca}' \
+        ,@Modelo = '{payload.Modelo}', @Color = '{payload.Color}', @No_serie ='{payload.No_serie}',@Placa = '{payload.Placa}',@Tipo = '{payload.Tipo}' \
+        ,@Motor = '{payload.Motor}', @Kms = '{payload.Kms}', @Espejo_retrovisor = {payload.Espejo_retrovisor},@Espejo_izquierdo = {payload.Espejo_izquierdo}, \
+        @Antena			   = {payload.Antena}, \
+        @Tapones_ruedas	   = {payload.Tapones_ruedas}, \
+        @Radio		   = {payload.Radio}, \
+        @Encendedor		   = {payload.Encendedor}, \
+        @Gato			   = {payload.Gato}, \
+        @Herramienta   = {payload.Herramienta}, \
+        @Llanta_refaccion  ={payload.Llanta_refaccion}, \
+        @Limpiadores	   ={payload.Limpiadores}, \
+        @Pintura_rayada	   ={payload.Pintura_rayada}, \
+        @Cristales_rotos   ={payload.Cristales_rotos}, \
+        @Golpes		={payload.Golpes}, \
+        @Tapetes	={payload.Tapetes}, \
+        @Extintor	={payload.Extintor}, \
+        @Tapones_gasolina  ={payload.Tapones_gasolina}, \
+        @Calaveras_rotas   ={payload.Calaveras_rotas}, \
+        @Molduras_completas ={payload.Molduras_completas}, \
+        @Espejo_retrovisor_foto	 = '{payload.Espejo_retrovisor_foto}',\
+        @Espejo_izquierdo_foto 	 = '{payload.Espejo_izquierdo_foto}',\
+        @Antena_foto			 = '{payload.Antena_foto}',\
+        @Tapones_ruedas_foto	 = '{payload.Tapones_ruedas_foto}',\
+        @Radio_foto				 = '{payload.Radio_foto}',\
+        @Encendedor_foto		 = '{payload.Encendedor_foto}',\
+        @Gato_foto				 = '{payload.Gato_foto}',\
+        @Herramienta_foto		 = '{payload.Herramienta_foto}',\
+        @Llanta_refaccion_foto	 = '{payload.Llanta_refaccion_foto}',\
+        @Limpiadores_foto		 = '{payload.Limpiadores_foto}',\
+        @Pintura_rayada_foto	 = '{payload.Pintura_rayada_foto}',\
+        @Cristales_rotos_foto	 = '{payload.Cristales_rotos_foto}',\
+        @Golpes_foto			 = '{payload.Golpes_foto}',\
+        @Tapetes_foto			 = '{payload.Tapetes_foto}',\
+        @Extintor_foto			 = '{payload.Extintor_foto}',\
+        @Tapones_gasolina_foto	 = '{payload.Tapones_ruedas_foto}',\
+        @Calaveras_rotas_foto	 = '{payload.Calaveras_rotas_foto}',\
+        @Molduras_completas_foto = '{payload.Molduras_completas_foto}'"
+        print(query)
+        with engine.begin() as conn:
+            conn.execution_options(autocommit = True)
+            roles_df = pd.read_sql(query, conn)
+        dumpp = ResponseModel(id_resultado=1,respuesta="Se guardó la información del vehiculo de manera correcta")
+        dict = dumpp.model_dump()
+        return JSONResponse(status_code=200, content=dict)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.put(
         path="/api/vehiculo",
@@ -238,6 +265,7 @@ def putcliente(payload: GetCliente ):
         response_model=ResponseModel
 )
 def saveorden(payload: OrdenCompleta):
+    
     dumpp = ResponseModel(id_resultado=1,respuesta="Se guardo la orden")
     dict = dumpp.model_dump()
     return JSONResponse(status_code=200, content=dict)
@@ -309,6 +337,51 @@ def convert_html_to_pdf():
     #     pisa_status = pisa.CreatePDF(htmlstring, dest=pdf_file, options=options)
     # pdf_filepath = os.path.join('./',pdf_path, )
     return JSONResponse(status_code=200,content=resultado)
+
+# @app.post(
+#     path="/api/images",
+#     name="guardar imagen",
+#     tags=['Image'],
+#     description='Método para guardar imagenes',
+#     response_model=ResponseModel
+# )
+# async def guardar_imagen(
+#     archivo: List[UploadFile] = File(...),
+#     idCliente: int = Form(...),
+#     idVehiculo: int = Form(...),
+#     idCheckVehiculo: List[str] = Form(...)
+# ):
+#     try:
+#         results = []
+#         resultado = []
+#         for i, file in enumerate(archivo):
+#             contents = await file.read()
+#             image = Image.open(BytesIO(contents))
+#             first_element = idCheckVehiculo[0] 
+#             buffered = BytesIO()
+#             image.save(buffered, format="JPEG")
+#             img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+#             id_cliente = idCliente
+#             id_vehiculo = idVehiculo
+#             values = first_element.split(',')
+#             id_check_vehiculo = values[i]
+#             query = f"exec GuardaImagen @Imagen = '{img_str}'"
+#             with engine.begin() as conn:
+#                 conn.execution_options(autocommit = True)
+#                 roles_df = pd.read_sql(query, conn)
+#             resultado = roles_df.to_dict(orient="records")
+#             base64_image = resultado[0]["Imagen"]
+#             results.append({
+#                 "idCliente": id_cliente,
+#                 "idVehiculo": id_vehiculo,
+#                 "idCheck": id_check_vehiculo,
+#                 "imagen": base64_image
+                
+#             })
+#         return JSONResponse(status_code=200, content=results)
+#     except Exception as e:
+#         print(f"Error: {str(e)}")  # Imprimir el error para depuración
+#         raise HTTPException(status_code=500, detail=str(e))
         
 if __name__ == '__main__':
     app.run()

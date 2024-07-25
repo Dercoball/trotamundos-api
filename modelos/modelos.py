@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field
 
 class ResponseModel(BaseModel):
@@ -65,6 +65,24 @@ class Vehiculo(BaseModel):
     Tapones_gasolina : int
     Calaveras_rotas : int
     Molduras_completas : int
+    Espejo_retrovisor_foto	: str
+    Espejo_izquierdo_foto 	: str
+    Antena_foto			    : str
+    Tapones_ruedas_foto	    : str
+    Radio_foto				: str
+    Encendedor_foto		    : str
+    Gato_foto				: str
+    Herramienta_foto		: str
+    Llanta_refaccion_foto	: str
+    Limpiadores_foto		: str
+    Pintura_rayada_foto	    : str
+    Cristales_rotos_foto	: str
+    Golpes_foto			    : str
+    Tapetes_foto			: str
+    Extintor_foto			: str
+    Tapones_gasolina_foto	: str
+    Calaveras_rotas_foto	: str
+    Molduras_completas_foto : str
 
 class saveVehiculo(Vehiculo):
     IdCliente: int
@@ -105,3 +123,7 @@ class SaveUsuario(BaseModel):
     Password: str
     Rol: int
     Estatus: int
+
+class ImageData(BaseModel):
+    tags: List[str]
+    description: List[str]
