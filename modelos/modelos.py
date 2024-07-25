@@ -124,11 +124,9 @@ class SaveUsuario(BaseModel):
     Rol: int
     Estatus: int
 
-<<<<<<< HEAD
 class ImageData(BaseModel):
     tags: List[str]
     description: List[str]
-=======
 class OrdenServicio(BaseModel):
 	IdOrden:int
 
@@ -173,4 +171,3 @@ Extintor:str
 Tapones_gasolina:str
 Calaveras_rotas:str
 Molduras_completas:str
->>>>>>> 63035a56276b7a885fc22b8daec918f2c380ae18
