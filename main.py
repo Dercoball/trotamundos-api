@@ -3,7 +3,7 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -312,9 +312,6 @@ async def crearusuario(payload: SaveUsuario):
     dumpp = ResponseModel(id_resultado=1,respuesta="Se agregó el usuario de manera correcta")
     dict = dumpp.model_dump()
     return JSONResponse(status_code=200, content=dict)
-
-
-
 
 @app.post(
     path="/api/ordenserviciopdf",
@@ -1007,9 +1004,6 @@ def convert_html_to_pdf(clienteId: int):
 		</table>
 		</body>
 		</html>"""
-
-
-
          # Resto del código para convertir a PDF...
         img = "\\img1.jpg"
         pdf_path = "example.pdf"
@@ -1021,6 +1015,31 @@ def convert_html_to_pdf(clienteId: int):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+@app.get(
+        path="/api/empleados",
+        name='Obtener empleados',
+        tags=['Seguridad'],
+        description='Método para obtener la informacion de todos los empleados',
+        response_model=List[Empleado]
+)
+def getempleados():
+    query = f"[Seguridad].[usuariosinsupdel] @Accion = 2"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado)
+
+@app.get(
+        path="/api/empleado",
+        name='Obtener empleado',
+        tags=['Seguridad'],
+        description='Método para obtener la informacion de todos los empleados',
+        response_model=Empleado
+)
+def getempleados(IdUsuario: str):
+    query = f"[Seguridad].[usuariosinsupdel] @Accion = 3, @Idusuario = {IdUsuario}"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado)
     
 if __name__ == '__main__':
     app.run()
