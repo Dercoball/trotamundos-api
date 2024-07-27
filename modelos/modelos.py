@@ -399,3 +399,4 @@ class Checklist(BaseModel):
     Id_empleado: Optional[int] = None
     Id_vehiculo: Optional[int] = None
     Id_ordendeservicio: Optional[int] = None
+    NumeroSerie: str

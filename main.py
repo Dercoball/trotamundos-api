@@ -1215,7 +1215,8 @@ def savechecklist(payload: Checklist):
         @fecha = N'{payload.Fecha}' , \
         @Id_empleado = {payload.Id_empleado} , \
         @Id_vehiculo = {payload.Id_vehiculo} , \
-        @id_ordendeservicio = {payload.Id_ordendeservicio} """
+        @id_ordendeservicio = {payload.Id_ordendeservicio} , \
+        @NumeroSerie = '{payload.NumeroSerie}' """
     print (query)
     with engine.begin() as conn:
           conn.execution_options(autocommit = True)
@@ -1235,7 +1236,8 @@ def getempleados(Idchecklist: int):
     query = f"exec [dbo].[sp_get_all_checklist] @IdCheckList = {Idchecklist}"
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
-    return JSONResponse(status_code=200,content=resultado)
+    print(resultado)
+    return JSONResponse(status_code=200,content=resultado[0])
 
     
 if __name__ == '__main__':
