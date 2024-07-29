@@ -39,22 +39,23 @@ options = {
 
 @app.post(
     path="/api/seguridad/iniciarsesion",
-    name='Inicio de sesion}',
+    name='Inicio de sesion',
     tags=['Seguridad'],
-    description='Metodo para iniciar sesion}',
+    description='Metodo para iniciar sesion',
     response_model=Token
 )
 async def login(payload: DatosLogin):
     _negocios = Negocios()
     user = await _negocios.getusuario(payload)
     if not user:
-        return JSONResponse(status_code=401, content={"Id_Resultado": 0, "Respuesta": "Datos de acceso incorrectos"})
+        raise HTTPException(status_code=401, detail="Datos de acceso incorrectos")
+
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = await utilsclass.create_access_token(
-        # data={"sub": payload.d.usuario}, expires_delta=access_token_expires
-        data={"sub": payload.usuario, "idUsuario": 1, "idRol": 1}, expires_delta=access_token_expires
+        data={"sub": payload.usuario, "idUsuario": user.id, "idRol": user.idRol},
+        expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "idUsuario": user.id}
 
 
 # app.get(
