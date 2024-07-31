@@ -199,6 +199,7 @@ def guardarVehiculo(payload: saveVehiculo):
         @Molduras_completas ={payload.Molduras_completas}, \
         @Espejo_retrovisor_foto	 = '{payload.Espejo_retrovisor_foto}',\
         @Espejo_izquierdo_foto 	 = '{payload.Espejo_izquierdo_foto}',\
+        @Espejo_derecho_foto 	 = '{payload.Espejo_derecho_foto}',\
         @Antena_foto			 = '{payload.Antena_foto}',\
         @Tapones_ruedas_foto	 = '{payload.Tapones_ruedas_foto}',\
         @Radio_foto				 = '{payload.Radio_foto}',\

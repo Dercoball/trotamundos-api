@@ -67,6 +67,7 @@ class Vehiculo(BaseModel):
     Molduras_completas : int
     Espejo_retrovisor_foto	: str
     Espejo_izquierdo_foto 	: str
+    Espejo_derecho_foto 	: str
     Antena_foto			    : str
     Tapones_ruedas_foto	    : str
     Radio_foto				: str
