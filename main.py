@@ -180,7 +180,7 @@ def guardarVehiculo(payload: saveVehiculo):
         
         query = f"exec dbo.InsertarVehiculo @Id_Cliente = {payload.IdCliente}, @Id_Empleado = {payload.Id_empleado},@Marca = '{payload.Marca}' \
         ,@Modelo = '{payload.Modelo}', @Color = '{payload.Color}', @No_serie ='{payload.No_serie}',@Placa = '{payload.Placa}',@Tipo = '{payload.Tipo}' \
-        ,@Motor = '{payload.Motor}', @Kms = '{payload.Kms}', @Espejo_retrovisor = {payload.Espejo_retrovisor},@Espejo_izquierdo = {payload.Espejo_izquierdo} \
+        ,@Motor = '{payload.Motor}', @Kms = '{payload.Kms}', @Espejo_retrovisor = {payload.Espejo_retrovisor},@Espejo_izquierdo = {payload.Espejo_izquierdo}\
         ,@Espejo_derecho = {payload.Espejo_derecho}, \
         @Antena			   = {payload.Antena}, \
         @Tapones_ruedas	   = {payload.Tapones_ruedas}, \
@@ -1239,6 +1239,22 @@ def getempleados(Idchecklist: int):
     resultado = roles_df.to_dict(orient="records")
     print(resultado)
     return JSONResponse(status_code=200,content=resultado[0])
+
+
+@app.get(
+        path="/api/obtenerchecklists",
+        name='Obtener checklists',
+        tags=['Checklist'],
+        description='Método para obtener la informacion todos los checklist',
+        response_model=Checklist
+)
+def getchecklists():
+    query = f"exec [dbo].[ObtenerCheckLists]"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    print(resultado)
+    return JSONResponse(status_code=200,content=resultado[0])
+
 
     
 if __name__ == '__main__':
