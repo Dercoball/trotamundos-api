@@ -1252,9 +1252,7 @@ def getchecklists():
     query = f"exec [dbo].[ObtenerCheckLists]"
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
-    print(resultado)
-    return JSONResponse(status_code=200,content=resultado[0])
-
+    return JSONResponse(status_code=200,content=resultado)
 
     
 if __name__ == '__main__':
