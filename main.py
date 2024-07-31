@@ -181,6 +181,7 @@ def guardarVehiculo(payload: saveVehiculo):
         query = f"exec dbo.InsertarVehiculo @Id_Cliente = {payload.IdCliente}, @Id_Empleado = {payload.Id_empleado},@Marca = '{payload.Marca}' \
         ,@Modelo = '{payload.Modelo}', @Color = '{payload.Color}', @No_serie ='{payload.No_serie}',@Placa = '{payload.Placa}',@Tipo = '{payload.Tipo}' \
         ,@Motor = '{payload.Motor}', @Kms = '{payload.Kms}', @Espejo_retrovisor = {payload.Espejo_retrovisor},@Espejo_izquierdo = {payload.Espejo_izquierdo}, \
+        ,@Espejo_derecho = {payload.Espejo_derecho}, \
         @Antena			   = {payload.Antena}, \
         @Tapones_ruedas	   = {payload.Tapones_ruedas}, \
         @Radio		   = {payload.Radio}, \
