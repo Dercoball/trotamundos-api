@@ -139,34 +139,66 @@ def saveCliente(payload: SaveCliente ):
     dumpp = ResponseModel(id_resultado=1,respuesta="El cliente se guardo de manera correcta")
     dict = dumpp.model_dump()
     return JSONResponse(status_code=200, content=dict)
-
-
+#################################################################################################################
 @app.get(
-        path="/api/vehiculo",
-        name='Obtener vehiculo',
-        tags=['Vehiculo'],
-        description='Método para obtener la informacion de todos los vehiculos',
-        response_model=List[GetVehiculo]
+    path="/api/vehiculo",
+    name='Obtener vehiculo',
+    tags=['Vehiculo'],
+    description='Método para obtener la información de un vehículo',
+    response_model=GetVehiculo
 )
-def getvehiculos(idVehiculo = 0):
+def getvehiculo(idVehiculo=0):
     query = f"exec [dbo].[ObtenerVehiculo] @IdVehiculo = {idVehiculo}"
-    roles_df = pd.read_sql(query, engine)
-    resultado = roles_df.to_dict(orient="records")
-    return JSONResponse(status_code=200,content=resultado[0])
-
+    vehiculo_df = pd.read_sql(query, engine)
+    resultado = vehiculo_df.to_dict(orient="records")
+    
+    # Verifica si el resultado no está vacío antes de devolver
+    if resultado:
+        return JSONResponse(status_code=200, content=resultado[0])
+    else:
+        return JSONResponse(status_code=404, content={"message": "Vehículo no encontrado."})
 
 @app.get(
     path="/api/vehiculos",
-        name='Obtener vehiculos',
-        tags=['Vehiculo'],
-        description='Método para obtener la informacion de un vehiculo',
-        response_model=GetVehiculo
+    name='Obtener vehiculos',
+    tags=['Vehiculo'],
+    description='Método para obtener la información de todos los vehículos',
+    response_model=List[GetVehiculo]
 )
-def getvehiculos(parametro = ""):
+def getvehiculos(parametro=""):
     query = f"exec [dbo].[ObtenerVehiculo] @ParametroBusqueda = '{parametro}'"
-    roles_df = pd.read_sql(query, engine)
-    resultado = roles_df.to_dict(orient="records")
-    return JSONResponse(status_code=200,content=resultado)
+    vehiculos_df = pd.read_sql(query, engine)
+    resultado = vehiculos_df.to_dict(orient="records")
+    
+    # Devuelve la lista de vehículos
+    return JSONResponse(status_code=200, content=resultado)
+#################################################################################################################
+# @app.get(
+#         path="/api/vehiculo",
+#         name='Obtener vehiculo',
+#         tags=['Vehiculo'],
+#         description='Método para obtener la informacion de todos los vehiculos',
+#         response_model=List[GetVehiculo]
+# )
+# def getvehiculos(idVehiculo = 0):
+#     query = f"exec [dbo].[ObtenerVehiculo] @IdVehiculo = {idVehiculo}"
+#     roles_df = pd.read_sql(query, engine)
+#     resultado = roles_df.to_dict(orient="records")
+#     return JSONResponse(status_code=200,content=resultado[0])
+
+
+# @app.get(
+#     path="/api/vehiculos",
+#         name='Obtener vehiculos',
+#         tags=['Vehiculo'],
+#         description='Método para obtener la informacion de un vehiculo',
+#         response_model=GetVehiculo
+# )
+# def getvehiculos(parametro = ""):
+#     query = f"exec [dbo].[ObtenerVehiculo] @ParametroBusqueda = '{parametro}'"
+#     roles_df = pd.read_sql(query, engine)
+#     resultado = roles_df.to_dict(orient="records")
+#     return JSONResponse(status_code=200,content=resultado)
 
 @app.post(
         path="/api/vehiculo",
