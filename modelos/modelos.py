@@ -65,25 +65,25 @@ class Vehiculo(BaseModel):
     Tapones_gasolina : int
     Calaveras_rotas : int
     Molduras_completas : int
-    Espejo_retrovisor_foto	: str
-    Espejo_izquierdo_foto 	: str
-    Espejo_derecho_foto 	: str
-    Antena_foto			    : str
-    Tapones_ruedas_foto	    : str
-    Radio_foto				: str
-    Encendedor_foto		    : str
-    Gato_foto				: str
-    Herramienta_foto		: str
-    Llanta_refaccion_foto	: str
-    Limpiadores_foto		: str
-    Pintura_rayada_foto	    : str
-    Cristales_rotos_foto	: str
-    Golpes_foto			    : str
-    Tapetes_foto			: str
-    Extintor_foto			: str
-    Tapones_gasolina_foto	: str
-    Calaveras_rotas_foto	: str
-    Molduras_completas_foto : str
+    Espejo_retrovisor_foto: List[str]  
+    Espejo_izquierdo_foto: List[str]   
+    Espejo_derecho_foto: List[str]     
+    Antena_foto: List[str]             
+    Tapones_ruedas_foto: List[str]     
+    Radio_foto: List[str]              
+    Encendedor_foto: List[str]         
+    Gato_foto: List[str]               
+    Herramienta_foto: List[str]        
+    Llanta_refaccion_foto: List[str]   
+    Limpiadores_foto: List[str]        
+    Pintura_rayada_foto: List[str]     
+    Cristales_rotos_foto: List[str]    
+    Golpes_foto: List[str]             
+    Tapetes_foto: List[str]            
+    Extintor_foto: List[str]           
+    Tapones_gasolina_foto: List[str]   
+    Calaveras_rotas_foto: List[str]    
+    Molduras_completas_foto: List[str]   
 
 class saveVehiculo(Vehiculo):
     IdCliente: int
