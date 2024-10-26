@@ -90,6 +90,26 @@ class saveVehiculo(Vehiculo):
     
 class GetVehiculo(Vehiculo):
     ID : int
+    Espejo_retrovisor_foto: List[str]  
+    Espejo_izquierdo_foto: List[str]   
+    Espejo_derecho_foto: List[str]     
+    Antena_foto: List[str]             
+    Tapones_ruedas_foto: List[str]     
+    Radio_foto: List[str]              
+    Encendedor_foto: List[str]         
+    Gato_foto: List[str]               
+    Herramienta_foto: List[str]        
+    Llanta_refaccion_foto: List[str]   
+    Limpiadores_foto: List[str]        
+    Pintura_rayada_foto: List[str]     
+    Cristales_rotos_foto: List[str]    
+    Golpes_foto: List[str]             
+    Tapetes_foto: List[str]            
+    Extintor_foto: List[str]           
+    Tapones_gasolina_foto: List[str]   
+    Calaveras_rotas_foto: List[str]    
+    Molduras_completas_foto: List[str]   
+
 
 class Token(BaseModel):
     access_token: str
