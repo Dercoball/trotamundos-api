@@ -248,8 +248,7 @@ def guardarVehiculo(payload: saveVehiculo):
         calaveras_rotas_foto = ",".join(payload.Calaveras_rotas_foto) if isinstance(payload.Calaveras_rotas_foto, list) else payload.Calaveras_rotas_foto
         molduras_completas_foto = ",".join(payload.Molduras_completas_foto) if isinstance(payload.Molduras_completas_foto, list) else payload.Molduras_completas_foto
 
-        query = f"""
-        exec dbo.InsertarVehiculo 
+        query = f"""exec dbo.InsertarVehiculo 
             @Id_Cliente = {payload.IdCliente}, 
             @Id_Empleado = {payload.Id_empleado},
             @Marca = '{payload.Marca}',
@@ -297,21 +296,15 @@ def guardarVehiculo(payload: saveVehiculo):
             @Extintor_foto = '{extintor_foto}',
             @Tapones_gasolina_foto = '{tapones_gasolina_foto}',
             @Calaveras_rotas_foto = '{calaveras_rotas_foto}',
-            @Molduras_completas_foto = '{molduras_completas_foto}'
-        """
-        
+            @Molduras_completas_foto = '{molduras_completas_foto}'"""
         with engine.begin() as conn:
             conn.execution_options(autocommit=True)
             roles_df = pd.read_sql(query, conn)
-        
         dumpp = ResponseModel(id_resultado=1, respuesta="Se guardó la información del vehículo de manera correcta")
         dict_response = dumpp.model_dump()
         return JSONResponse(status_code=200, content=dict_response)
-    
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.put(
         path="/api/vehiculo",
         name='Actualizar vehiculo',
