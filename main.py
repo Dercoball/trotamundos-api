@@ -334,7 +334,62 @@ def guardarVehiculo(payload: saveVehiculo):
             roles_df = pd.read_sql(query, conn)
         dumpp = ResponseModel(id_resultado=1, respuesta="Se guardó la información del vehículo de manera correcta")
         dict_response = dumpp.model_dump()
-        return JSONResponse(status_code=200, content=dict_response)
+        response_content = {
+            "id_resultado": 1,
+            "respuesta": "Se guardó la información del vehículo de manera correcta",
+            "detalles": {
+                "IdCliente": payload.IdCliente,
+                "Marca": payload.Marca,
+                "Modelo": payload.Modelo,
+                "Color": payload.Color,
+                "No_serie": payload.No_serie,
+                "Placa": payload.Placa,
+                "Tipo": payload.Tipo, 
+                "Motor": payload.Motor, 
+                "Kms": payload.Kms, 
+                "Espejo_retrovisor": payload.Espejo_retrovisor,
+                "Espejo_izquierdo": payload.Espejo_izquierdo,
+                "Espejo_derecho": payload.Espejo_derecho, 
+                "Antena": payload.Antena, 
+                "Tapones_ruedas": payload.Tapones_ruedas, 
+                "Radio": payload.Radio, 
+                "Encendedor": payload.Encendedor, 
+                "Gato": payload.Gato, 
+                "Herramienta": payload.Herramienta, 
+                "Llanta_refaccion": payload.Llanta_refaccion, 
+                "Limpiadores": payload.Limpiadores, 
+                "Pintura_rayada": payload.Pintura_rayada, 
+                "Cristales_rotos": payload.Cristales_rotos, 
+                "Golpes": payload.Golpes, 
+                "Tapetes": payload.Tapetes, 
+                "Extintor": payload.Extintor, 
+                "Tapones_gasolina": payload.Tapones_gasolina, 
+                "Calaveras_rotas": payload.Calaveras_rotas, 
+                "Molduras_completas": payload.Molduras_completas, 
+                "Espejo_retrovisor_foto": espejo_retrovisor_foto,
+                "Espejo_izquierdo_foto": espejo_izquierdo_foto,
+                "Espejo_derecho_foto": espejo_derecho_foto,
+                "Antena_foto": antena_foto,
+                "Tapones_ruedas_foto": tapones_ruedas_foto,
+                "Radio_foto": radio_foto,
+                "Encendedor_foto": encendedor_foto,
+                "Gato_foto": gato_foto,
+                "Herramienta_foto": herramienta_foto,
+                "Llanta_refaccion_foto": llanta_refaccion_foto,
+                "Limpiadores_foto": limpiadores_foto,
+                "Pintura_rayada_foto": pintura_rayada_foto,
+                "Cristales_rotos_foto": cristales_rotos_foto,
+                "Golpes_foto": golpes_foto,
+                "Tapetes_foto": tapetes_foto,
+                "Extintor_foto": extintor_foto,
+                "Tapones_gasolina_foto": tapones_gasolina_foto,
+                "Calaveras_rotas_foto": calaveras_rotas_foto,
+                "Molduras_completas_foto": molduras_completas_foto
+                
+                # Incluye solo lo que quieras mostrar
+            }
+        }
+        return JSONResponse(status_code=200, content=response_content)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 @app.put(
