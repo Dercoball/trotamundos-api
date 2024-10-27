@@ -260,138 +260,81 @@ def getvehiculos(parametro=""):
 def guardarVehiculo(payload: saveVehiculo):
     try:
         # Convertir listas de fotos a cadenas de Base64 separadas por comas
-        espejo_retrovisor_foto = ",".join(payload.Espejo_retrovisor_foto) if isinstance(payload.Espejo_retrovisor_foto, list) else payload.Espejo_retrovisor_foto
-        espejo_izquierdo_foto = ",".join(payload.Espejo_izquierdo_foto) if isinstance(payload.Espejo_izquierdo_foto, list) else payload.Espejo_izquierdo_foto
-        espejo_derecho_foto = ",".join(payload.Espejo_derecho_foto) if isinstance(payload.Espejo_derecho_foto, list) else payload.Espejo_derecho_foto
-        antena_foto = ",".join(payload.Antena_foto) if isinstance(payload.Antena_foto, list) else payload.Antena_foto
-        tapones_ruedas_foto = ",".join(payload.Tapones_ruedas_foto) if isinstance(payload.Tapones_ruedas_foto, list) else payload.Tapones_ruedas_foto
-        radio_foto = ",".join(payload.Radio_foto) if isinstance(payload.Radio_foto, list) else payload.Radio_foto
-        encendedor_foto = ",".join(payload.Encendedor_foto) if isinstance(payload.Encendedor_foto, list) else payload.Encendedor_foto
-        gato_foto = ",".join(payload.Gato_foto) if isinstance(payload.Gato_foto, list) else payload.Gato_foto
-        herramienta_foto = ",".join(payload.Herramienta_foto) if isinstance(payload.Herramienta_foto, list) else payload.Herramienta_foto
-        llanta_refaccion_foto = ",".join(payload.Llanta_refaccion_foto) if isinstance(payload.Llanta_refaccion_foto, list) else payload.Llanta_refaccion_foto
-        limpiadores_foto = ",".join(payload.Limpiadores_foto) if isinstance(payload.Limpiadores_foto, list) else payload.Limpiadores_foto
-        pintura_rayada_foto = ",".join(payload.Pintura_rayada_foto) if isinstance(payload.Pintura_rayada_foto, list) else payload.Pintura_rayada_foto
-        cristales_rotos_foto = ",".join(payload.Cristales_rotos_foto) if isinstance(payload.Cristales_rotos_foto, list) else payload.Cristales_rotos_foto
-        golpes_foto = ",".join(payload.Golpes_foto) if isinstance(payload.Golpes_foto, list) else payload.Golpes_foto
-        tapetes_foto = ",".join(payload.Tapetes_foto) if isinstance(payload.Tapetes_foto, list) else payload.Tapetes_foto
-        extintor_foto = ",".join(payload.Extintor_foto) if isinstance(payload.Extintor_foto, list) else payload.Extintor_foto
-        tapones_gasolina_foto = ",".join(payload.Tapones_gasolina_foto) if isinstance(payload.Tapones_gasolina_foto, list) else payload.Tapones_gasolina_foto
-        calaveras_rotas_foto = ",".join(payload.Calaveras_rotas_foto) if isinstance(payload.Calaveras_rotas_foto, list) else payload.Calaveras_rotas_foto
-        molduras_completas_foto = ",".join(payload.Molduras_completas_foto) if isinstance(payload.Molduras_completas_foto, list) else payload.Molduras_completas_foto
+        foto_fields = ["Espejo_retrovisor_foto", "Espejo_izquierdo_foto", "Espejo_derecho_foto",
+                       "Antena_foto", "Tapones_ruedas_foto", "Radio_foto", "Encendedor_foto",
+                       "Gato_foto", "Herramienta_foto", "Llanta_refaccion_foto", "Limpiadores_foto",
+                       "Pintura_rayada_foto", "Cristales_rotos_foto", "Golpes_foto", "Tapetes_foto",
+                       "Extintor_foto", "Tapones_gasolina_foto", "Calaveras_rotas_foto",
+                       "Molduras_completas_foto"]
+        
+        fotos = {field: ",".join(getattr(payload, field)) for field in foto_fields}
 
-        query = f"""exec dbo.InsertarVehiculo 
-            @Id_Cliente = {payload.IdCliente}, 
-            @Id_Empleado = {payload.Id_empleado},
-            @Marca = '{payload.Marca}',
-            @Modelo = '{payload.Modelo}', 
-            @Color = '{payload.Color}', 
-            @No_serie ='{payload.No_serie}',
-            @Placa = '{payload.Placa}',
-            @Tipo = '{payload.Tipo}', 
-            @Motor = '{payload.Motor}', 
-            @Kms = '{payload.Kms}', 
-            @Espejo_retrovisor = {payload.Espejo_retrovisor},
-            @Espejo_izquierdo = {payload.Espejo_izquierdo},
-            @Espejo_derecho = {payload.Espejo_derecho}, 
-            @Antena = {payload.Antena}, 
-            @Tapones_ruedas = {payload.Tapones_ruedas}, 
-            @Radio = {payload.Radio}, 
-            @Encendedor = {payload.Encendedor}, 
-            @Gato = {payload.Gato}, 
-            @Herramienta = {payload.Herramienta}, 
-            @Llanta_refaccion = {payload.Llanta_refaccion}, 
-            @Limpiadores = {payload.Limpiadores}, 
-            @Pintura_rayada = {payload.Pintura_rayada}, 
-            @Cristales_rotos = {payload.Cristales_rotos}, 
-            @Golpes = {payload.Golpes}, 
-            @Tapetes = {payload.Tapetes}, 
-            @Extintor = {payload.Extintor}, 
-            @Tapones_gasolina = {payload.Tapones_gasolina}, 
-            @Calaveras_rotas = {payload.Calaveras_rotas}, 
-            @Molduras_completas = {payload.Molduras_completas}, 
-            @Espejo_retrovisor_foto = '{espejo_retrovisor_foto}',
-            @Espejo_izquierdo_foto = '{espejo_izquierdo_foto}',
-            @Espejo_derecho_foto = '{espejo_derecho_foto}',
-            @Antena_foto = '{antena_foto}',
-            @Tapones_ruedas_foto = '{tapones_ruedas_foto}',
-            @Radio_foto = '{radio_foto}',
-            @Encendedor_foto = '{encendedor_foto}',
-            @Gato_foto = '{gato_foto}',
-            @Herramienta_foto = '{herramienta_foto}',
-            @Llanta_refaccion_foto = '{llanta_refaccion_foto}',
-            @Limpiadores_foto = '{limpiadores_foto}',
-            @Pintura_rayada_foto = '{pintura_rayada_foto}',
-            @Cristales_rotos_foto = '{cristales_rotos_foto}',
-            @Golpes_foto = '{golpes_foto}',
-            @Tapetes_foto = '{tapetes_foto}',
-            @Extintor_foto = '{extintor_foto}',
-            @Tapones_gasolina_foto = '{tapones_gasolina_foto}',
-            @Calaveras_rotas_foto = '{calaveras_rotas_foto}',
-            @Molduras_completas_foto = '{molduras_completas_foto}'"""
+        query = text("""
+            exec dbo.InsertarVehiculo 
+                @Id_Cliente = :IdCliente,
+                @Id_Empleado = :Id_empleado,
+                @Marca = :Marca,
+                @Modelo = :Modelo,
+                @Color = :Color,
+                @No_serie = :No_serie,
+                @Placa = :Placa,
+                @Tipo = :Tipo,
+                @Motor = :Motor,
+                @Kms = :Kms,
+                @Espejo_retrovisor = :Espejo_retrovisor,
+                @Espejo_izquierdo = :Espejo_izquierdo,
+                @Espejo_derecho = :Espejo_derecho,
+                @Antena = :Antena,
+                @Tapones_ruedas = :Tapones_ruedas,
+                @Radio = :Radio,
+                @Encendedor = :Encendedor,
+                @Gato = :Gato,
+                @Herramienta = :Herramienta,
+                @Llanta_refaccion = :Llanta_refaccion,
+                @Limpiadores = :Limpiadores,
+                @Pintura_rayada = :Pintura_rayada,
+                @Cristales_rotos = :Cristales_rotos,
+                @Golpes = :Golpes,
+                @Tapetes = :Tapetes,
+                @Extintor = :Extintor,
+                @Tapones_gasolina = :Tapones_gasolina,
+                @Calaveras_rotas = :Calaveras_rotas,
+                @Molduras_completas = :Molduras_completas,
+                @Espejo_retrovisor_foto = :Espejo_retrovisor_foto,
+                @Espejo_izquierdo_foto = :Espejo_izquierdo_foto,
+                @Espejo_derecho_foto = :Espejo_derecho_foto,
+                @Antena_foto = :Antena_foto,
+                @Tapones_ruedas_foto = :Tapones_ruedas_foto,
+                @Radio_foto = :Radio_foto,
+                @Encendedor_foto = :Encendedor_foto,
+                @Gato_foto = :Gato_foto,
+                @Herramienta_foto = :Herramienta_foto,
+                @Llanta_refaccion_foto = :Llanta_refaccion_foto,
+                @Limpiadores_foto = :Limpiadores_foto,
+                @Pintura_rayada_foto = :Pintura_rayada_foto,
+                @Cristales_rotos_foto = :Cristales_rotos_foto,
+                @Golpes_foto = :Golpes_foto,
+                @Tapetes_foto = :Tapetes_foto,
+                @Extintor_foto = :Extintor_foto,
+                @Tapones_gasolina_foto = :Tapones_gasolina_foto,
+                @Calaveras_rotas_foto = :Calaveras_rotas_foto,
+                @Molduras_completas_foto = :Molduras_completas_foto
+        """)
+
+        # Ejecutar la consulta
         with engine.begin() as conn:
-            conn.execution_options(autocommit=True)
-            roles_df = pd.read_sql(query, conn)
-        dumpp = ResponseModel(id_resultado=1, respuesta="Se guardó la información del vehículo de manera correcta")
-        dict_response = dumpp.model_dump()
-        response_content = {
+            conn.execute(query, **payload.dict(), **fotos)
+
+        # Respuesta de éxito
+        return JSONResponse(status_code=200, content={
             "id_resultado": 1,
             "respuesta": "Se guardó la información del vehículo de manera correcta",
-            "detalles": {
-                "IdCliente": payload.IdCliente,
-                "Marca": payload.Marca,
-                "Modelo": payload.Modelo,
-                "Color": payload.Color,
-                "No_serie": payload.No_serie,
-                "Placa": payload.Placa,
-                "Tipo": payload.Tipo, 
-                "Motor": payload.Motor, 
-                "Kms": payload.Kms, 
-                "Espejo_retrovisor": payload.Espejo_retrovisor,
-                "Espejo_izquierdo": payload.Espejo_izquierdo,
-                "Espejo_derecho": payload.Espejo_derecho, 
-                "Antena": payload.Antena, 
-                "Tapones_ruedas": payload.Tapones_ruedas, 
-                "Radio": payload.Radio, 
-                "Encendedor": payload.Encendedor, 
-                "Gato": payload.Gato, 
-                "Herramienta": payload.Herramienta, 
-                "Llanta_refaccion": payload.Llanta_refaccion, 
-                "Limpiadores": payload.Limpiadores, 
-                "Pintura_rayada": payload.Pintura_rayada, 
-                "Cristales_rotos": payload.Cristales_rotos, 
-                "Golpes": payload.Golpes, 
-                "Tapetes": payload.Tapetes, 
-                "Extintor": payload.Extintor, 
-                "Tapones_gasolina": payload.Tapones_gasolina, 
-                "Calaveras_rotas": payload.Calaveras_rotas, 
-                "Molduras_completas": payload.Molduras_completas, 
-                "Espejo_retrovisor_foto": espejo_retrovisor_foto,
-                "Espejo_izquierdo_foto": espejo_izquierdo_foto,
-                "Espejo_derecho_foto": espejo_derecho_foto,
-                "Antena_foto": antena_foto,
-                "Tapones_ruedas_foto": tapones_ruedas_foto,
-                "Radio_foto": radio_foto,
-                "Encendedor_foto": encendedor_foto,
-                "Gato_foto": gato_foto,
-                "Herramienta_foto": herramienta_foto,
-                "Llanta_refaccion_foto": llanta_refaccion_foto,
-                "Limpiadores_foto": limpiadores_foto,
-                "Pintura_rayada_foto": pintura_rayada_foto,
-                "Cristales_rotos_foto": cristales_rotos_foto,
-                "Golpes_foto": golpes_foto,
-                "Tapetes_foto": tapetes_foto,
-                "Extintor_foto": extintor_foto,
-                "Tapones_gasolina_foto": tapones_gasolina_foto,
-                "Calaveras_rotas_foto": calaveras_rotas_foto,
-                "Molduras_completas_foto": molduras_completas_foto
-                
-                # Incluye solo lo que quieras mostrar
-            }
-        }
-        return JSONResponse(status_code=200, content=response_content)
+            "detalles": payload.dict() | fotos
+        })
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        # Respuesta de error
+        raise HTTPException(status_code=500, detail=f"Error al guardar el vehículo: {str(e)}")
 @app.put(
         path="/api/vehiculo",
         name='Actualizar vehiculo',
