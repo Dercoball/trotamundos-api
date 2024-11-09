@@ -279,7 +279,26 @@ def guardarVehiculo(payload: saveVehiculo):
             "Extintor_foto": ",".join(payload.Extintor_foto),
             "Tapones_gasolina_foto": ",".join(payload.Tapones_gasolina_foto),
             "Calaveras_rotas_foto": ",".join(payload.Calaveras_rotas_foto),
-            "Molduras_completas_foto": ",".join(payload.Molduras_completas_foto)
+            "Molduras_completas_foto": ",".join(payload.Molduras_completas_foto),
+            "Espejo_retrovisor_video": ",".join(payload.Espejo_retrovisor_video),
+            "Espejo_izquierdo_video": ",".join(payload.Espejo_izquierdo_video),
+            "Espejo_derecho_video": ",".join(payload.Espejo_derecho_video),
+            "Antena_video": ",".join(payload.Antena_video),
+            "Tapones_ruedas_video": ",".join(payload.Tapones_ruedas_video),
+            "Radio_video": ",".join(payload.Radio_video),
+            "Encendedor_video": ",".join(payload.Encendedor_video),
+            "Gato_video": ",".join(payload.Gato_video),
+            "Herramienta_video": ",".join(payload.Herramienta_video),
+            "Llanta_refaccion_video": ",".join(payload.Llanta_refaccion_video),
+            "Limpiadores_video": ",".join(payload.Limpiadores_video),
+            "Pintura_rayada_video": ",".join(payload.Pintura_rayada_video),
+            "Cristales_rotos_video": ",".join(payload.Cristales_rotos_video),
+            "Golpes_video": ",".join(payload.Golpes_video),
+            "Tapetes_video": ",".join(payload.Tapetes_video),
+            "Extintor_video": ",".join(payload.Extintor_video),
+            "Tapones_gasolina_video": ",".join(payload.Tapones_gasolina_video),
+            "Calaveras_rotas_video": ",".join(payload.Calaveras_rotas_video),
+            "Molduras_completas_video": ",".join(payload.Molduras_completas_video)
         }
         
         # Crear el diccionario de parámetros sin conflicto
@@ -336,6 +355,25 @@ def guardarVehiculo(payload: saveVehiculo):
                 @Tapones_gasolina_foto = :Tapones_gasolina_foto,
                 @Calaveras_rotas_foto = :Calaveras_rotas_foto,
                 @Molduras_completas_foto = :Molduras_completas_foto
+                @Espejo_retrovisor_video = :Espejo_retrovisor_video,
+                @Espejo_izquierdo_video = :Espejo_izquierdo_video,
+                @Espejo_derecho_video = :Espejo_derecho_video,
+                @Antena_video = :Antena_video,
+                @Tapones_ruedas_video = :Tapones_ruedas_video,
+                @Radio_video = :Radio_video,
+                @Encendedor_video = :Encendedor_video,
+                @Gato_video = :Gato_video,
+                @Herramienta_video = :Herramienta_video,
+                @Llanta_refaccion_video = :Llanta_refaccion_video,
+                @Limpiadores_video = :Limpiadores_video,
+                @Pintura_rayada_video = :Pintura_rayada_video,
+                @Cristales_rotos_video = :Cristales_rotos_video,
+                @Golpes_video = :Golpes_video,
+                @Tapetes_video = :Tapetes_video,
+                @Extintor_video = :Extintor_video,
+                @Tapones_gasolina_video = :Tapones_gasolina_video,
+                @Calaveras_rotas_video = :Calaveras_rotas_video,
+                @Molduras_completas_video = :Molduras_completas_video
         """)
 
         # Ejecutar la consulta pasando `parametros` como un solo diccionario

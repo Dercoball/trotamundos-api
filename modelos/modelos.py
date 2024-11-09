@@ -84,8 +84,27 @@ class Vehiculo(BaseModel):
     Tapones_gasolina_foto: List[str]
     Calaveras_rotas_foto: List[str]
     Molduras_completas_foto: List[str]
+    Espejo_retrovisor_video: List[str]  
+    Espejo_izquierdo_video: List[str]   
+    Espejo_derecho_video: List[str]     
+    Antena_video: List[str]             
+    Tapones_ruedas_video: List[str]     
+    Radio_video: List[str]              
+    Encendedor_video: List[str]         
+    Gato_video: List[str]               
+    Herramienta_video: List[str]        
+    Llanta_refaccion_video: List[str]   
+    Limpiadores_video: List[str]        
+    Pintura_rayada_video: List[str]     
+    Cristales_rotos_video: List[str]    
+    Golpes_video: List[str]             
+    Tapetes_video: List[str]            
+    Extintor_video: List[str]           
+    Tapones_gasolina_video: List[str]   
+    Calaveras_rotas_video: List[str]    
+    Molduras_completas_video: List[str] 
 
-class saveVehiculo(Vehiculo):
+class aveVehiculo(Vehiculo):
     IdCliente: int
     
 class GetVehiculo(Vehiculo):
@@ -109,6 +128,25 @@ class GetVehiculo(Vehiculo):
     Tapones_gasolina_foto: List[str]   
     Calaveras_rotas_foto: List[str]    
     Molduras_completas_foto: List[str]   
+    Espejo_retrovisor_video: List[str]  
+    Espejo_izquierdo_video: List[str]   
+    Espejo_derecho_video: List[str]     
+    Antena_video: List[str]             
+    Tapones_ruedas_video: List[str]     
+    Radio_video: List[str]              
+    Encendedor_video: List[str]         
+    Gato_video: List[str]               
+    Herramienta_video: List[str]        
+    Llanta_refaccion_video: List[str]   
+    Limpiadores_video: List[str]        
+    Pintura_rayada_video: List[str]     
+    Cristales_rotos_video: List[str]    
+    Golpes_video: List[str]             
+    Tapetes_video: List[str]            
+    Extintor_video: List[str]           
+    Tapones_gasolina_video: List[str]   
+    Calaveras_rotas_video: List[str]    
+    Molduras_completas_video: List[str] 
 
 
 class Token(BaseModel):
