@@ -354,7 +354,7 @@ def guardarVehiculo(payload: saveVehiculo):
                 @Extintor_foto = :Extintor_foto,
                 @Tapones_gasolina_foto = :Tapones_gasolina_foto,
                 @Calaveras_rotas_foto = :Calaveras_rotas_foto,
-                @Molduras_completas_foto = :Molduras_completas_foto
+                @Molduras_completas_foto = :Molduras_completas_foto,
                 @Espejo_retrovisor_video = :Espejo_retrovisor_video,
                 @Espejo_izquierdo_video = :Espejo_izquierdo_video,
                 @Espejo_derecho_video = :Espejo_derecho_video,
