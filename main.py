@@ -260,14 +260,31 @@ def getvehiculos(parametro=""):
 def guardarVehiculo(payload: saveVehiculo):
     try:
         # Convertir listas de fotos a cadenas de Base64 separadas por comas
-        foto_fields = ["Espejo_retrovisor_foto", "Espejo_izquierdo_foto", "Espejo_derecho_foto",
-                       "Antena_foto", "Tapones_ruedas_foto", "Radio_foto", "Encendedor_foto",
-                       "Gato_foto", "Herramienta_foto", "Llanta_refaccion_foto", "Limpiadores_foto",
-                       "Pintura_rayada_foto", "Cristales_rotos_foto", "Golpes_foto", "Tapetes_foto",
-                       "Extintor_foto", "Tapones_gasolina_foto", "Calaveras_rotas_foto",
-                       "Molduras_completas_foto"]
+        fotos = {
+            "Espejo_retrovisor_foto": ",".join(payload.Espejo_retrovisor_foto),
+            "Espejo_izquierdo_foto": ",".join(payload.Espejo_izquierdo_foto),
+            "Espejo_derecho_foto": ",".join(payload.Espejo_derecho_foto),
+            "Antena_foto": ",".join(payload.Antena_foto),
+            "Tapones_ruedas_foto": ",".join(payload.Tapones_ruedas_foto),
+            "Radio_foto": ",".join(payload.Radio_foto),
+            "Encendedor_foto": ",".join(payload.Encendedor_foto),
+            "Gato_foto": ",".join(payload.Gato_foto),
+            "Herramienta_foto": ",".join(payload.Herramienta_foto),
+            "Llanta_refaccion_foto": ",".join(payload.Llanta_refaccion_foto),
+            "Limpiadores_foto": ",".join(payload.Limpiadores_foto),
+            "Pintura_rayada_foto": ",".join(payload.Pintura_rayada_foto),
+            "Cristales_rotos_foto": ",".join(payload.Cristales_rotos_foto),
+            "Golpes_foto": ",".join(payload.Golpes_foto),
+            "Tapetes_foto": ",".join(payload.Tapetes_foto),
+            "Extintor_foto": ",".join(payload.Extintor_foto),
+            "Tapones_gasolina_foto": ",".join(payload.Tapones_gasolina_foto),
+            "Calaveras_rotas_foto": ",".join(payload.Calaveras_rotas_foto),
+            "Molduras_completas_foto": ",".join(payload.Molduras_completas_foto)
+        }
         
-        fotos = {field: ",".join(getattr(payload, field)) for field in foto_fields}
+        # Crear el diccionario de parámetros sin conflicto
+        parametros = payload.dict(exclude=fotos.keys())
+        parametros.update(fotos)
 
         query = text("""
             exec dbo.InsertarVehiculo 
@@ -321,15 +338,15 @@ def guardarVehiculo(payload: saveVehiculo):
                 @Molduras_completas_foto = :Molduras_completas_foto
         """)
 
-        # Ejecutar la consulta
+        # Ejecutar la consulta pasando `parametros` como un solo diccionario
         with engine.begin() as conn:
-            conn.execute(query, **payload.dict(), **fotos)
+            conn.execute(query, parametros)
 
         # Respuesta de éxito
         return JSONResponse(status_code=200, content={
             "id_resultado": 1,
             "respuesta": "Se guardó la información del vehículo de manera correcta",
-            "detalles": payload.dict() | fotos
+            "detalles": parametros
         })
 
     except Exception as e:
