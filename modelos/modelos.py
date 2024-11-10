@@ -104,7 +104,7 @@ class Vehiculo(BaseModel):
     Calaveras_rotas_video: List[str]    
     Molduras_completas_video: List[str] 
 
-class aveVehiculo(Vehiculo):
+class saveVehiculo(Vehiculo):
     IdCliente: int
     
 class GetVehiculo(Vehiculo):
