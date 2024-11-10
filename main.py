@@ -260,14 +260,50 @@ def getvehiculos(parametro=""):
 def guardarVehiculo(payload: saveVehiculo):
     try:
         # Convertir listas de fotos a cadenas de Base64 separadas por comas
-        foto_fields = ["Espejo_retrovisor_foto", "Espejo_izquierdo_foto", "Espejo_derecho_foto",
-                       "Antena_foto", "Tapones_ruedas_foto", "Radio_foto", "Encendedor_foto",
-                       "Gato_foto", "Herramienta_foto", "Llanta_refaccion_foto", "Limpiadores_foto",
-                       "Pintura_rayada_foto", "Cristales_rotos_foto", "Golpes_foto", "Tapetes_foto",
-                       "Extintor_foto", "Tapones_gasolina_foto", "Calaveras_rotas_foto",
-                       "Molduras_completas_foto"]
+        fotos = {
+            "Espejo_retrovisor_foto": ",".join(payload.Espejo_retrovisor_foto),
+            "Espejo_izquierdo_foto": ",".join(payload.Espejo_izquierdo_foto),
+            "Espejo_derecho_foto": ",".join(payload.Espejo_derecho_foto),
+            "Antena_foto": ",".join(payload.Antena_foto),
+            "Tapones_ruedas_foto": ",".join(payload.Tapones_ruedas_foto),
+            "Radio_foto": ",".join(payload.Radio_foto),
+            "Encendedor_foto": ",".join(payload.Encendedor_foto),
+            "Gato_foto": ",".join(payload.Gato_foto),
+            "Herramienta_foto": ",".join(payload.Herramienta_foto),
+            "Llanta_refaccion_foto": ",".join(payload.Llanta_refaccion_foto),
+            "Limpiadores_foto": ",".join(payload.Limpiadores_foto),
+            "Pintura_rayada_foto": ",".join(payload.Pintura_rayada_foto),
+            "Cristales_rotos_foto": ",".join(payload.Cristales_rotos_foto),
+            "Golpes_foto": ",".join(payload.Golpes_foto),
+            "Tapetes_foto": ",".join(payload.Tapetes_foto),
+            "Extintor_foto": ",".join(payload.Extintor_foto),
+            "Tapones_gasolina_foto": ",".join(payload.Tapones_gasolina_foto),
+            "Calaveras_rotas_foto": ",".join(payload.Calaveras_rotas_foto),
+            "Molduras_completas_foto": ",".join(payload.Molduras_completas_foto),
+            "Espejo_retrovisor_video": ",".join(payload.Espejo_retrovisor_video),
+            "Espejo_izquierdo_video": ",".join(payload.Espejo_izquierdo_video),
+            "Espejo_derecho_video": ",".join(payload.Espejo_derecho_video),
+            "Antena_video": ",".join(payload.Antena_video),
+            "Tapones_ruedas_video": ",".join(payload.Tapones_ruedas_video),
+            "Radio_video": ",".join(payload.Radio_video),
+            "Encendedor_video": ",".join(payload.Encendedor_video),
+            "Gato_video": ",".join(payload.Gato_video),
+            "Herramienta_video": ",".join(payload.Herramienta_video),
+            "Llanta_refaccion_video": ",".join(payload.Llanta_refaccion_video),
+            "Limpiadores_video": ",".join(payload.Limpiadores_video),
+            "Pintura_rayada_video": ",".join(payload.Pintura_rayada_video),
+            "Cristales_rotos_video": ",".join(payload.Cristales_rotos_video),
+            "Golpes_video": ",".join(payload.Golpes_video),
+            "Tapetes_video": ",".join(payload.Tapetes_video),
+            "Extintor_video": ",".join(payload.Extintor_video),
+            "Tapones_gasolina_video": ",".join(payload.Tapones_gasolina_video),
+            "Calaveras_rotas_video": ",".join(payload.Calaveras_rotas_video),
+            "Molduras_completas_video": ",".join(payload.Molduras_completas_video)
+        }
         
-        fotos = {field: ",".join(getattr(payload, field)) for field in foto_fields}
+        # Crear el diccionario de parámetros sin conflicto
+        parametros = payload.dict(exclude=fotos.keys())
+        parametros.update(fotos)
 
         query = text("""
             exec dbo.InsertarVehiculo 
@@ -318,18 +354,37 @@ def guardarVehiculo(payload: saveVehiculo):
                 @Extintor_foto = :Extintor_foto,
                 @Tapones_gasolina_foto = :Tapones_gasolina_foto,
                 @Calaveras_rotas_foto = :Calaveras_rotas_foto,
-                @Molduras_completas_foto = :Molduras_completas_foto
+                @Molduras_completas_foto = :Molduras_completas_foto,
+                @Espejo_retrovisor_video = :Espejo_retrovisor_video,
+                @Espejo_izquierdo_video = :Espejo_izquierdo_video,
+                @Espejo_derecho_video = :Espejo_derecho_video,
+                @Antena_video = :Antena_video,
+                @Tapones_ruedas_video = :Tapones_ruedas_video,
+                @Radio_video = :Radio_video,
+                @Encendedor_video = :Encendedor_video,
+                @Gato_video = :Gato_video,
+                @Herramienta_video = :Herramienta_video,
+                @Llanta_refaccion_video = :Llanta_refaccion_video,
+                @Limpiadores_video = :Limpiadores_video,
+                @Pintura_rayada_video = :Pintura_rayada_video,
+                @Cristales_rotos_video = :Cristales_rotos_video,
+                @Golpes_video = :Golpes_video,
+                @Tapetes_video = :Tapetes_video,
+                @Extintor_video = :Extintor_video,
+                @Tapones_gasolina_video = :Tapones_gasolina_video,
+                @Calaveras_rotas_video = :Calaveras_rotas_video,
+                @Molduras_completas_video = :Molduras_completas_video
         """)
 
-        # Ejecutar la consulta
+        # Ejecutar la consulta pasando `parametros` como un solo diccionario
         with engine.begin() as conn:
-            conn.execute(query, **payload.dict(), **fotos)
+            conn.execute(query, parametros)
 
         # Respuesta de éxito
         return JSONResponse(status_code=200, content={
             "id_resultado": 1,
             "respuesta": "Se guardó la información del vehículo de manera correcta",
-            "detalles": payload.dict() | fotos
+            "detalles": parametros
         })
 
     except Exception as e:
