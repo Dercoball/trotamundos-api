@@ -15,11 +15,7 @@ import pdfkit
 import base64
 from PIL import Image
 from io import BytesIO
-from docx import Document
-from docx.shared import Inches
-from typing import Dict
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
 app = FastAPI()
@@ -40,11 +36,13 @@ options = {
     'margin-bottom': '1cm',
     'margin-left': '1cm',
 }
-
-app = FastAPI()
-
-# Generar documento Word con placeholders y imágenes
-
+@app.post(
+    path="/api/seguridad/iniciarsesion",
+    name='Inicio de sesion}',
+    tags=['Seguridad'],
+    description='Metodo para iniciar sesion}',
+    response_model=Token
+)
 async def login(payload: DatosLogin):
     _negocios = Negocios()
     user = await _negocios.getusuario(payload)
@@ -1419,53 +1417,6 @@ def getchecklists():
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
     return JSONResponse(status_code=200,content=resultado)
-  
-class DocumentRequest(BaseModel):
-    placeholders: Dict[str, str]
-    images_base64: Dict[str, str]
-
-
-def generate_word_document(placeholders: Dict[str, str], images_base64: Dict[str, str]) -> BytesIO:
-    # Crear un nuevo documento de Word
-    doc = Document()
-
-    # Agregar placeholders (texto) al documento
-    for key, value in placeholders.items():
-        doc.add_paragraph(f"{key}: {value}")
-
-    # Agregar imágenes
-    for image_name, image_base64 in images_base64.items():
-        # Convertir la cadena base64 a bytes
-        image_data = base64.b64decode(image_base64)
-
-        # Guardar la imagen en un archivo temporal
-        image_stream = BytesIO(image_data)
-
-        # Insertar la imagen en el documento
-        doc.add_paragraph(f"Imagen: {image_name}")
-        doc.add_picture(image_stream, width=Inches(1.5))
-
-    # Guardar el documento en un BytesIO para enviarlo como respuesta
-    word_stream = BytesIO()
-    doc.save(word_stream)
-    word_stream.seek(0)
-    
-    return word_stream
-
-# Endpoint para generar y descargar el documento Word
-@app.post("/generate_and_download/")
-async def generate_and_download(request: DocumentRequest):
-    try:
-        # Generar el documento con los datos recibidos
-        word_stream = generate_word_document(request.placeholders, request.images_base64)
-        
-        # Retornar el archivo como respuesta de descarga
-        return StreamingResponse(word_stream, 
-                                 media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
-                                 headers={"Content-Disposition": "attachment; filename=DocumentoGenerado.docx"})
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
 
     
 if __name__ == '__main__':
