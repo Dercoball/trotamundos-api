@@ -43,10 +43,9 @@ options = {
     'margin-left': '1cm',
 }
 class DocumentRequest(BaseModel):
-    placeholders: Dict[str, str]   # Continúa siendo un diccionario de texto
-    images_base64: List[str]       # Lista de cadenas (Base64 de las imágenes)
+    placeholders: Dict[str, str]
+    images_base64: List[str]    # Lista de cadenas (Base64 de las imágenes)
 
-# Función para generar el documento Word
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str]) -> BytesIO:
     # Crear un nuevo documento de Word
     doc = Document()
@@ -55,8 +54,8 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     for key, value in placeholders.items():
         doc.add_paragraph(f"{key}: {value}")
 
-    # Agregar imágenes (ahora images_base64 es una lista)
-    for image_base64 in images_base64:
+    # Agregar imágenes
+    for image_base64 in images_base64:  # Cambiado a recorrer una lista
         # Convertir la cadena base64 a bytes
         image_data = base64.b64decode(image_base64)
 
@@ -64,7 +63,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
         image_stream = BytesIO(image_data)
 
         # Insertar la imagen en el documento
-        doc.add_paragraph(f"Imagen:")
+        doc.add_paragraph("Imagen: ")
         doc.add_picture(image_stream, width=Inches(1.5))
 
     # Guardar el documento en un BytesIO para enviarlo como respuesta
@@ -73,6 +72,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     word_stream.seek(0)
     
     return word_stream
+
 
 # Endpoint para generar y descargar el documento Word
 @app.post("/generate_and_download/")
