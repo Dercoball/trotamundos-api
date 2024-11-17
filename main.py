@@ -20,6 +20,7 @@ from typing import Dict
 from docx import Document
 from docx.shared import Inches
 from pydantic import BaseModel
+from typing import Dict, List
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
@@ -43,7 +44,7 @@ options = {
 }
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
-    images_base64: Dict[str, str]
+    images_base64: List[str] 
 def generate_word_document(placeholders: Dict[str, str], images_base64: Dict[str, str]) -> BytesIO:
     # Crear un nuevo documento de Word
     doc = Document()
