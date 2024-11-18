@@ -42,9 +42,20 @@ options = {
     'margin-bottom': '1cm',
     'margin-left': '1cm',
 }
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from typing import Dict, List
+from io import BytesIO
+import base64
+from docx import Document
+from docx.shared import Inches
+
+app = FastAPI()
+
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
-    images_base64: List[str]    # Lista de cadenas (Base64 de las imágenes)
+    images_base64: List[str]  # Lista de cadenas (Base64 de las imágenes)
 
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str]) -> BytesIO:
     # Crear un nuevo documento de Word
@@ -55,7 +66,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
         doc.add_paragraph(f"{key}: {value}")
 
     # Agregar imágenes
-    for image_base64 in images_base64:  # Cambiado a recorrer una lista
+    for image_base64 in images_base64:
         # Convertir la cadena base64 a bytes
         image_data = base64.b64decode(image_base64)
 
@@ -64,7 +75,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
 
         # Insertar la imagen en el documento
         doc.add_paragraph("Imagen: ")
-        doc.add_picture(image_stream, width=Inches(1.5))
+        doc.add_picture(image_stream, width=Inches(1.5))  # Ajustar el tamaño de la imagen
 
     # Guardar el documento en un BytesIO para enviarlo como respuesta
     word_stream = BytesIO()
@@ -72,8 +83,6 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     word_stream.seek(0)
     
     return word_stream
-
-
 # Endpoint para generar y descargar el documento Word
 @app.post("/generate_and_download/")
 async def generate_and_download(request: DocumentRequest):
@@ -88,6 +97,18 @@ async def generate_and_download(request: DocumentRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+
+@app.post(
+    path="/api/seguridad/iniciarsesion",
+    name='Inicio de sesión',
+    tags=['Seguridad'],
+    description='Método para iniciar sesión',
+    response_model=Token
+)
+async def iniciar_sesion(token: Token):
+    # Lógica de inicio de sesión
+    pass  # Completa con la lógica de tu método
+
 @app.post(
     path="/api/seguridad/iniciarsesion",
     name='Inicio de sesion}',
