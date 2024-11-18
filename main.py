@@ -146,7 +146,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     return word_stream
 
 # Endpoint para generar y descargar el documento Word
-app.post("/generate_and_download/")
+@app.post("/generate_and_download/")
 async def generate_and_download(request: DocumentRequest):
     try:
         # Generar el documento con los datos recibidos
