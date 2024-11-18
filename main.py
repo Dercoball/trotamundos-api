@@ -73,11 +73,6 @@ app = FastAPI()
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
     images_base64: List[str]  # Lista de cadenas (Base64 de las imágenes)
-
-class DocumentRequest(BaseModel):
-    placeholders: Dict[str, str]
-    images_base64: List[str]  # Lista de cadenas (Base64 de las imágenes)
-
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str]) -> BytesIO:
     # Crear un nuevo documento de Word
     doc = Document()
@@ -89,7 +84,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
 
     # Insertar imagen a la izquierda (Logo Trotamundos)
     cell = table.cell(0, 0)
-    image_data = base64.b64decode(images_base64[0])
+    image_data = base64.b64decode(images_base64[0])  # Primera imagen
     image_stream = BytesIO(image_data)
     cell.paragraphs[0].add_run().add_picture(image_stream, width=Inches(1.5))
     cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
@@ -102,7 +97,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
 
     # Insertar imagen a la derecha (Logo de la Empresa)
     cell = table.cell(0, 2)
-    image_data = base64.b64decode(images_base64[1])
+    image_data = base64.b64decode(images_base64[1])  # Segunda imagen
     image_stream = BytesIO(image_data)
     cell.paragraphs[0].add_run().add_picture(image_stream, width=Inches(1.5))
     cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
@@ -137,7 +132,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     doc.add_paragraph()
 
     # Imágenes: Insertar las imágenes proporcionadas
-    for image_base64 in images_base64[2:]:
+    for image_base64 in images_base64[2:]:  # Las imágenes adicionales
         doc.add_paragraph("Imagen: ").bold = True
         image_data = base64.b64decode(image_base64)
         image_stream = BytesIO(image_data)
@@ -151,7 +146,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     return word_stream
 
 # Endpoint para generar y descargar el documento Word
-@app.post("/generate_and_download/")
+app.post("/generate_and_download/")
 async def generate_and_download(request: DocumentRequest):
     try:
         # Generar el documento con los datos recibidos
