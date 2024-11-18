@@ -73,6 +73,7 @@ app = FastAPI()
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
     images_base64: List[str]  # Lista de cadenas (Base64 de las imágenes)
+
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str]) -> BytesIO:
     # Crear un nuevo documento de Word
     doc = Document()
@@ -84,7 +85,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
 
     # Insertar imagen a la izquierda (Logo Trotamundos)
     cell = table.cell(0, 0)
-    image_data = base64.b64decode(images_base64[0])  # Primera imagen
+    image_data = base64.b64decode(images_base64[0])
     image_stream = BytesIO(image_data)
     cell.paragraphs[0].add_run().add_picture(image_stream, width=Inches(1.5))
     cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
@@ -97,7 +98,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
 
     # Insertar imagen a la derecha (Logo de la Empresa)
     cell = table.cell(0, 2)
-    image_data = base64.b64decode(images_base64[1])  # Segunda imagen
+    image_data = base64.b64decode(images_base64[1])
     image_stream = BytesIO(image_data)
     cell.paragraphs[0].add_run().add_picture(image_stream, width=Inches(1.5))
     cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
@@ -111,16 +112,18 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     info_table.autofit = True
     hdr_cells = info_table.rows[0].cells
     hdr_cells[0].text = 'MARCA:'
-    hdr_cells[1].text = placeholders.get("MARCA", "No disponible")
+    hdr_cells[1].text = placeholders.get("marca", "No disponible")
     hdr_cells[2].text = 'MODELO:'
-    hdr_cells[3].text = placeholders.get("MODELO", "No disponible")
+    hdr_cells[3].text = placeholders.get("modelo", "No disponible")
 
     # Agregar más filas a la tabla de información
     info_data = [
-        ("KILOMETRAJE:", placeholders.get("KILOMETRAJE", "No disponible")),
-        ("PLACA:", placeholders.get("PLACA", "No disponible")),
-        ("TIPO DE MTTO:", placeholders.get("TIPO DE MTTO", "No disponible")),
-        ("FECHA:", placeholders.get("FECHA", "No disponible"))
+        ("KILOMETRAJE:", placeholders.get("kilometraje", "No disponible")),
+        ("PLACA:", placeholders.get("placa", "No disponible")),
+        ("N ECO:", placeholders.get("eco", "No disponible")),
+        ("ZONA:", placeholders.get("zona", "No disponible")),
+        ("TIPO DE MTTO:", placeholders.get("tipo_mantenimiento", "No disponible")),
+        ("FECHA:", placeholders.get("fecha", "No disponible"))
     ]
 
     for item in info_data:
@@ -132,7 +135,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     doc.add_paragraph()
 
     # Imágenes: Insertar las imágenes proporcionadas
-    for image_base64 in images_base64[2:]:  # Las imágenes adicionales
+    for image_base64 in images_base64[2:]:
         doc.add_paragraph("Imagen: ").bold = True
         image_data = base64.b64decode(image_base64)
         image_stream = BytesIO(image_data)
@@ -159,6 +162,8 @@ async def generate_and_download(request: DocumentRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+
+
 @app.post(
     path="/api/seguridad/iniciarsesion",
     name='Inicio de sesión',
