@@ -57,25 +57,89 @@ class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
     images_base64: List[str]  # Lista de cadenas (Base64 de las imágenes)
 
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
+from io import BytesIO
+from pydantic import BaseModel
+from typing import List, Dict
+import base64
+from docx import Document
+from docx.shared import Inches
+from docx.enum.table import WD_ALIGN_VERTICAL
+from io import BytesIO
+
+app = FastAPI()
+
+class DocumentRequest(BaseModel):
+    placeholders: Dict[str, str]
+    images_base64: List[str]  # Lista de cadenas (Base64 de las imágenes)
+
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str]) -> BytesIO:
     # Crear un nuevo documento de Word
     doc = Document()
 
-    # Agregar placeholders (texto) al documento
-    for key, value in placeholders.items():
-        doc.add_paragraph(f"{key}: {value}")
+    # Cabecera: Insertar imágenes y título centrado
+    table = doc.add_table(rows=1, cols=3)
+    table.autofit = True
+    table.style = 'Table Grid'
 
-    # Agregar imágenes
-    for image_base64 in images_base64:
-        # Convertir la cadena base64 a bytes
+    # Insertar imagen a la izquierda (Logo Trotamundos)
+    cell = table.cell(0, 0)
+    image_data = base64.b64decode(images_base64[0])
+    image_stream = BytesIO(image_data)
+    cell.paragraphs[0].add_run().add_picture(image_stream, width=Inches(1.5))
+    cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+    # Insertar el título centrado
+    cell = table.cell(0, 1)
+    cell.paragraphs[0].add_run('FORMATO DE EVIDENCIA FOTOGRÁFICA').bold = True
+    cell.paragraphs[0].alignment = 1  # Centrado
+    cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+    # Insertar imagen a la derecha (Logo de la Empresa)
+    cell = table.cell(0, 2)
+    image_data = base64.b64decode(images_base64[1])
+    image_stream = BytesIO(image_data)
+    cell.paragraphs[0].add_run().add_picture(image_stream, width=Inches(1.5))
+    cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+    # Agregar un salto de línea
+    doc.add_paragraph()
+
+    # Información: Tabla para los datos
+    info_table = doc.add_table(rows=1, cols=4)
+    info_table.style = 'Table Grid'
+    info_table.autofit = True
+    hdr_cells = info_table.rows[0].cells
+    hdr_cells[0].text = 'MARCA:'
+    hdr_cells[1].text = placeholders.get("marca", "No disponible")
+    hdr_cells[2].text = 'MODELO:'
+    hdr_cells[3].text = placeholders.get("modelo", "No disponible")
+
+    # Agregar más filas a la tabla de información
+    info_data = [
+        ("KILOMETRAJE:", placeholders.get("kilometraje", "No disponible")),
+        ("PLACA:", placeholders.get("placa", "No disponible")),
+        ("N ECO:", placeholders.get("eco", "No disponible")),
+        ("ZONA:", placeholders.get("zona", "No disponible")),
+        ("TIPO DE MTTO:", placeholders.get("tipo_mantenimiento", "No disponible")),
+        ("FECHA:", placeholders.get("fecha", "No disponible"))
+    ]
+
+    for item in info_data:
+        row = info_table.add_row().cells
+        row[0].text = item[0]
+        row[1].text = item[1]
+
+    # Agregar un salto de línea
+    doc.add_paragraph()
+
+    # Imágenes: Insertar las imágenes proporcionadas
+    for image_base64 in images_base64[2:]:
+        doc.add_paragraph("Imagen: ").bold = True
         image_data = base64.b64decode(image_base64)
-
-        # Guardar la imagen en un archivo temporal
         image_stream = BytesIO(image_data)
-
-        # Insertar la imagen en el documento
-        doc.add_paragraph("Imagen: ")
-        doc.add_picture(image_stream, width=Inches(1.5))  # Ajustar el tamaño de la imagen
+        doc.add_picture(image_stream, width=Inches(2))
 
     # Guardar el documento en un BytesIO para enviarlo como respuesta
     word_stream = BytesIO()
@@ -83,13 +147,14 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     word_stream.seek(0)
     
     return word_stream
+
 # Endpoint para generar y descargar el documento Word
 @app.post("/generate_and_download/")
 async def generate_and_download(request: DocumentRequest):
     try:
         # Generar el documento con los datos recibidos
         word_stream = generate_word_document(request.placeholders, request.images_base64)
-        
+
         # Retornar el archivo como respuesta de descarga
         return StreamingResponse(word_stream, 
                                  media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
@@ -97,6 +162,7 @@ async def generate_and_download(request: DocumentRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+
 
 @app.post(
     path="/api/seguridad/iniciarsesion",
