@@ -90,21 +90,32 @@ async def generate_and_download(request: DocumentRequest):
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
 @app.post(
     path="/api/seguridad/iniciarsesion",
-    name='Inicio de sesion}',
+    name='Inicio de sesion',
     tags=['Seguridad'],
-    description='Metodo para iniciar sesion}',
+    description='Metodo para iniciar sesion',
     response_model=Token
 )
 async def login(payload: DatosLogin):
     _negocios = Negocios()
+    
+    # Obtener usuario desde la base de datos según las credenciales proporcionadas
     user = await _negocios.getusuario(payload)
+    
     if not user:
         return JSONResponse(status_code=401, content={"Id_Resultado": 0, "Respuesta": "Datos de acceso incorrectos"})
+    
+    # Si el usuario existe, generamos el token con su ID y rol
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    
     access_token = await utilsclass.create_access_token(
-        # data={"sub": payload.d.usuario}, expires_delta=access_token_expires
-        data={"sub": payload.usuario, "idUsuario": 1, "idRol": 1}, expires_delta=access_token_expires
+        data={
+            "sub": payload.usuario,  # El nombre de usuario o el identificador del usuario
+            "IdUsuario": user.id,    # El id del usuario recuperado de la base de datos
+            "Rol": user.rol        # El rol del usuario recuperado de la base de datos
+        },
+        expires_delta=access_token_expires
     )
+    
     return {"access_token": access_token, "token_type": "bearer"}
 
 
