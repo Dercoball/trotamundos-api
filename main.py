@@ -110,8 +110,8 @@ async def login(payload: DatosLogin):
     access_token = await utilsclass.create_access_token(
         data={
             "sub": payload.usuario,  # El nombre de usuario o el identificador del usuario
-            "IdUsuario": user.id,    # El id del usuario recuperado de la base de datos
-            "Rol": user.rol        # El rol del usuario recuperado de la base de datos
+            "idUsuario": user.id,    # El id del usuario recuperado de la base de datos
+            "idRol": user.rol        # El rol del usuario recuperado de la base de datos
         },
         expires_delta=access_token_expires
     )
