@@ -18,7 +18,9 @@ RUN apt-get update \
     && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1/wkhtmltox_0.12.6.1-1.bionic_amd64.deb \
     && dpkg -i wkhtmltox_0.12.6.1-1.bionic_amd64.deb \
     && apt-get install -f -y \
-    && rm wkhtmltox_0.12.6.1-1.bionic_amd64.deb  # Limpieza de archivos temporales
+    && rm wkhtmltox_0.12.6.1-1.bionic_amd64.deb \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*  # Limpieza de archivos temporales
 
 # Instala el controlador ODBC para SQL Server
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
