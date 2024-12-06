@@ -3,7 +3,7 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado, Checklist,VersionOrdenDeServicio
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado, OrdenService,Checklist
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -1937,16 +1937,17 @@ def obtener_checklist_html(Idchecklist: int):
     pdfkit.from_string(htmlstring, 'reporte.pdf', configuration=config)
     return JSONResponse(content={"message": "PDF creado exitosamente"}, status_code=200) 
     return JSONResponse(content={"error": str(e)}, status_code=500)
+
 @app.post(
         path="/api/ordenservice",
         name='Insertar orden de servicio',
-        tags=['OrdenService'],
+        tags=['Orden'],
         description='Método para insertar la orden de servicio',
-        response_model=VersionOrdenDeServicio
+        response_model=SaveOrden
 )
-def saveordenservice(payload: VersionOrdenDeServicio):
-    query = f"""EXEC InsertarOrdenServicio @id_ordendeservicio = {payload.IdCliente} , \
-        @NumeroSerie = '{payload.IdEmpleado}' """
+def saveordenservice(payload: SaveOrden):
+    query = f"""EXEC InsertarOrdenServicio @idCliente = {payload.IdCliente} , \
+        @idEmpleado = '{payload.IdEmpleado}' """
     print(query)
 
     with engine.begin() as conn:

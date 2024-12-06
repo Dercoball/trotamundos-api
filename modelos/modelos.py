@@ -188,7 +188,9 @@ class ImageData(BaseModel):
     tags: List[str]
     description: List[str]
 class OrdenServicio(BaseModel):
-	IdOrden:int
+        IdOrden:int
+        IdCliente:int
+        IdEmpleado:int
 class SaveOrdenServicio(OrdenServicio):
     Nombre:str
     Calle:str
@@ -458,8 +460,5 @@ class Checklist(BaseModel):
     IdVehiculo: Optional[int] = None
     Id_ordendeservicio: Optional[int] = None
     NumeroSerie: str
-class VersionOrdenDeServicio(BaseModel):
-    IdCliente:int
-    Cliente:int
-    IdEmpleado:int
+
     #NuevasVariables
