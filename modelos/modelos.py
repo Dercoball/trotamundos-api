@@ -231,7 +231,9 @@ class SaveOrdenServicio(OrdenServicio):
     Tapones_gasolina:str
     Calaveras_rotas:str
     Molduras_completas:str
-
+class OrdenService(BaseModel):
+    IdCliente:int
+    IdEmpleado:int
 class Empleado(BaseModel):
     Idusuario: int
     Nombre: str

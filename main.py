@@ -3,7 +3,7 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,Checklist
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -1943,9 +1943,9 @@ def obtener_checklist_html(Idchecklist: int):
         name='Insertar orden de servicio',
         tags=['Orden'],
         description='Método para insertar la orden de servicio',
-        response_model=SaveOrden
+        response_model=OrdenService
 )
-def saveordenservice(payload: SaveOrden):
+def saveordenservice(payload: OrdenService):
     query = f"""EXEC InsertarOrdenServicio @idCliente = {payload.IdCliente} , \
         @idEmpleado = '{payload.IdEmpleado}' """
     print(query)
