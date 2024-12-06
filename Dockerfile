@@ -5,7 +5,7 @@ WORKDIR /code
 # Copia los archivos necesarios
 COPY ./ /code/
 
-# Instala las dependencias del sistema para wkhtmltopdf
+# Instalar las dependencias necesarias para wkhtmltopdf
 RUN apt-get update \
     && apt-get install -y \
     wget \
@@ -17,7 +17,8 @@ RUN apt-get update \
     libssl-dev \
     && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1/wkhtmltox_0.12.6.1-1.bionic_amd64.deb \
     && dpkg -i wkhtmltox_0.12.6.1-1.bionic_amd64.deb \
-    && apt-get install -f -y  # Para resolver dependencias faltantes
+    && apt-get install -f -y \
+    && rm wkhtmltox_0.12.6.1-1.bionic_amd64.deb  # Limpieza de archivos temporales
 
 # Instala el controlador ODBC para SQL Server
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
