@@ -1473,6 +1473,24 @@ def getchecklists():
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
     return JSONResponse(status_code=200,content=resultado)
+@app.get(
+    path="/api/obteneridOrden",
+    name="Obtener ID de Orden de Servicio",
+    tags=["Orden"],
+    description="Obtiene el siguiente ID secuencial para la orden de servicio."
+)
+def obtener_id_orden():
+    try:
+        with engine.connect() as connection:
+            result = connection.execute("EXEC [dbo].ObtenerUltimoIdOrdenServicio").fetchone()
+        if result is not None:
+            nuevo_id = result[0]
+            return JSONResponse(status_code=200, content={"nuevo_id": nuevo_id})
+        else:
+            raise HTTPException(status_code=404, detail="No se encontró ningún ID.")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al obtener el ID: {str(e)}")
 
     
 if __name__ == '__main__':
