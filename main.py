@@ -105,7 +105,7 @@ async def login(payload: DatosLogin):
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = await utilsclass.create_access_token(
-        data={"sub": payload.usuario, "idUsuario": user["idUsuario"], "idRol": user["idRol"]}, 
+        data={"sub": payload.usuario, "idUsuario": user["IdUsuario"], "idRol": user["Rol"]}, 
         expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
