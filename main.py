@@ -3,7 +3,7 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado, Checklist
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado, Checklist,VersionOrdenDeServicio
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -1485,6 +1485,477 @@ def obtener_id_orden():
     resultado = roles_df.to_dict(orient="records")
     print(resultado)
     return JSONResponse(status_code=200,content=resultado[0])
+@app.get(
+    path="/api/obtenerchecklisthtml",
+    name='Obtener checklist HTML',
+    tags=['Checklist'],
+    description='Método para obtener el HTML del checklist',
+)
+def obtener_checklist_html(Idchecklist: int):
+    
+    query = f"exec [dbo].[sp_get_all_checklist] @IdCheckList = {Idchecklist}"
+    with engine.begin() as conn:
+      conn.execution_options(autocommit=True)
+    roles_df = pd.read_sql(query, conn)
+
+        # Asegúrate de que hay al menos dos filas en el DataFrame
+        
+            # Accede al valor en la segunda fila de la columna 'Nombre'
+            
+
+            # Construye el HTML con el valor obtenido
+    id = roles_df['id'].iloc[0]
+    fecha = ['fecha'].iloc[0]
+    idEmpleado = ['Id_empleado'].iloc[0]
+    idVehiculo = ['Id_vehiculo'].iloc[0]
+    idOrden= ['id_ordendeservicio'].iloc[0]
+    lecturaCodigo = ['lectura_codigos'].iloc[0]
+    lecturaCodigoObservacion =['lectura_codigos_observacion'].iloc[0]
+    servofreno = ['servofreno'].iloc[0]
+    servofrenoObservacion =['servofreno_observacion'].iloc[0]
+    pedalFreno =['pedal_freno'].iloc[0]
+    pedalFrenoObservacion =['pedal_freno_observacion'].iloc[0]
+    pedalEstacionamiento =['pedal_estacionamiento'].iloc[0]
+    pedalEstacionamientoObservacion=['pedal_estacionamiento_observacion'].iloc[0]
+    cinturonSeguridad =['cinturon_seguridad'].iloc[0]
+    cinturonSeguridadObservacion=['cinturon_seguridad_observacion'].iloc[0]
+    cuadroInstrumentos=['cuadro_instrumentos'].iloc[0]
+    cuadroInstrumentosObservacion=['cuadro_instrumentos_observacion'].iloc[0]
+    aireAcondicionado =['aire_acondicionado'].iloc[0]
+    aireAcondicionadoObservacion=['aire_acondicionado_observacion'].iloc[0]
+    bocinaClaxon=['bocina_claxon'].iloc[0]
+    bocinaClaxonObservacion=['bocina_claxon_observacion'].iloc[0]
+    iluminacionInterior=['iluminacion_interior'].iloc[0]
+    iluminacionInteriorObservacion=['iluminacion_interior_observacion'].iloc[0]
+    iluminacionExterna=['iluminacion_externa'].iloc[0]
+    iluminacionExternaObservacion=['iluminacion_externa_observacion'].iloc[0]
+    limpiaparabrisas=['limpiaparabrisas'].iloc[0]
+    limpiaparabrisasObservacion=['limpiaparabrisas_observacion'].iloc[0]
+    limpiaMedallon=['limpia_medallon'].iloc[0]
+    limpiaMedallonObservacion=['limpia_medallon_observacion'].iloc[0]
+    neumaticosFriccion=['neumaticos_friccion'].iloc[0]
+    neumaticosFriccionObservacion=['neumaticos_friccion_observacion'].iloc[0]
+    otroVehiculosPiso=['otros_vehiculo_en_piso'].iloc[0]
+    otroVehiculosPisoObservacion=['otros_vehiculo_en_piso_observacion'].iloc[0]
+    estadoFugasAceite=['estado_fugas_aceite'].iloc[0]
+    estadoFugasAceiteObservacion=['estado_fugas_aceite_observacion'].iloc[0]
+    estadoNivelCalidad=['estado_nivel_calidad_lubricante_transmision'].iloc[0]
+    estadoNivelCalidadObservacion=['estado_nivel_calidad_lubricante_transmision_observacion'].iloc[0]
+    estadoNivelCalidadDiferencial=['estado_nivel_calidad_lubricante_diferencial'].iloc[0]
+    estadoNivelCalidadDiferencialObservacion=['estado_nivel_calidad_lubricante_diferencial_observacion'].iloc[0]
+    cubrepolvosFlechas = ['cubrepolvos_flechas'].iloc[0]
+    cubrepolvosFlechasObservacion=['cubrepolvos_flechas_observacion'].iloc[0]
+    componentesDireccion=['componentes_direccion'].iloc[0]
+    componentesDireccionObservacion=['componentes_direccion_observacion'].iloc[0]
+    componentesSuspension=['componentes_suspesion'].iloc[0]
+    componentesSuspensionObservacion=['componentes_suspesion_observacion'].iloc[0]
+    sistemasEscape=['sistema_escape_completo'].iloc[0]
+    sistemasEscapeObservacion=['sistema_escape_completo_observacion'].iloc[0]
+    sistemaAlimentacion=['sistema_alimentacion_combustible'].iloc[0]
+    sistemaAlimentacionObservacion=['sistema_alimentacion_combustible_observacion'].iloc[0]
+    filtroCombustible=['filtro_combustible'].iloc[0]
+    filtroCombustibleObservacion=['filtro_combustible_observacion'].iloc[0]
+    controlFugasDireccion=['control_fugas_direccion_hidraulica'].iloc[0]
+    controlFugasDireccionObservacion=['control_fugas_direccion_hidraulica_observacion'].iloc[0]
+    otroAltura=['otros_altura_total'].iloc[0]
+    otrosAlturaObservacion=['otros_altura_total_observacion'].iloc[0]
+    rodamientoMazas=['rodamiento_mazas_rueda'].iloc[0]
+    rodamientoMAzasObservacion=['rodamiento_mazas_rueda_observacion'].iloc[0]
+    holguraSuspension=['holgura_partes_suspension_rueda'].iloc[0]
+    holguraSuspensionObservacion=['holgura_partes_suspension_rueda_observacion'].iloc[0]
+    controlNeumaticos=['control_neumaticos_desgaste_presion'].iloc[0]
+    controlNeumaticosObservacion=['control_neumaticos_desgaste_presion_observacion'].iloc[0]
+    profundidad=['profundidad'].iloc[0]
+    profundidadObservacion=['profundidad_observacion'].iloc[0]
+    presion=['presion'].iloc[0]
+    presionObservacion=['presion_observacion'].iloc[0]
+    otrosAltura=['otros_altura_media'].iloc[0]
+    otrosAlturaObservacion=['otros_altura_media_observacion'].iloc[0]
+    nivelCalidadAceite=['nivel_calidad_aceite_motor'].iloc[0]
+    nivelCalidadAceiteObservacion=['nivel_calidad_aceite_motor_observacion'].iloc[0]
+    filtroAire=['filtro_aire'].iloc[0]
+    filtroAireObservacion=['filtro_aire_observacion'].iloc[0]
+    filtroPolen=['filtro_polen'].iloc[0]
+    filtroPolenObservacion=['filtro_polen_observacion'].iloc[0]
+    filtroPcv=['filtro_pcv'].iloc[0]
+    filtroPcvObservacion=['filtro_pcv_observacion'].iloc[0]
+    valvulaPcv=['valvula_pcv'].iloc[0]
+    valvulaPcvObservacion=['valvula_pcv_observacion'].iloc[0]
+    bujiasEncendido=['bujias_encendido'].iloc[0]
+    bujiasEncendidoObservacion=['bujias_encendido_observacion'].iloc[0]
+    cablesBujiasBobinas=['cables_bujias_bobinas_ignicion'].iloc[0]
+    cablesBujiasBobinasObservacion=['cables_bujias_bobinas_ignicion_observacion'].iloc[0]
+    nivelAnticongelante=['nivel_anticongenlante'].iloc[0]
+    nivelAnticongelanteObservacion=['nivel_anticongenlante_observacion'].iloc[0]
+    taponRadiador=['tapon_radiador'].iloc[0]
+    taponRadiadorObservacion=['tapon_radiador_observacion'].iloc[0]
+    manguerasSistema=['mangueras_sistema'].iloc[0]
+    manguerasSistemaObservacion=['mangueras_sistema_observacion'].iloc[0]
+    desempeñoVentilador=['desempeño_ventilador'].iloc[0]
+    desempeñoVentiladorObservacion=['desempeño_ventilador_observacion'].iloc[0]
+    calidadLiquidoLimpia=['calidad_liquido_limpiaparabrisas'].iloc[0]
+    calidadLiquidoLimpiaObservacion=['calidad_liquido_limpiaparabrisas_observacion'].iloc[0]
+    calidadAceiteDireccion=['calidad_aceite_direccion_hidraulica'].iloc[0]
+    calidadAceiteDireccionObservacion=['calidad_aceite_direccion_hidraulica_observacion'].iloc[0]
+    calidadAceiteTransmision=['calidad_aceite_transmision_bayoneta'].iloc[0]
+    calidadAceiteTransmisionObservacion=['calidad_aceite_transmision_bayoneta_observacion'].iloc[0]
+    liquidoBateriaCondiciones=['liquido_bateria_condiciones'].iloc[0]
+    liquidoBateriaCondicionesObservacion=['liquido_bateria_condiciones_observacion'].iloc[0]
+    bandasPoly=['bandas_poly_v'].iloc[0]
+    bandasPolyObservacion=['bandas_poly_v_observacion'].iloc[0]
+    poleasBanda=['poleas_banda'].iloc[0]
+    poleasBandaObservacion=['poleas_banda_observacion'].iloc[0]
+    bandaTiempo=['banda_tiempo'].iloc[0]
+    bandaTiempoObservacion=['banda_tiempo_observacion'].iloc[0]
+    otrosHabitaculo=['otros_habitaculo_motor'].iloc[0]
+    otrosHabitaculoObservacion=['otros_habitaculo_motor_observacion'].iloc[0]
+    resetIntervalo=['reset_intervalo_servicio'].iloc[0]
+    resetIntervaloObservacion=['reset_intervalo_servicio_observacion'].iloc[0]
+    ajusteTornillosNeumaticos=['ajuste_tornillos_neumaticos_torquimetro'].iloc[0]
+    ajusteTornillosNeumaticosObservacion=['ajuste_tornillos_neumaticos_torquimetro_observacion'].iloc[0]
+    limpiarLubricarPuertas=['limpiar_libricar_puertas_cerraduras'].iloc[0]
+    limpiarLubricarPuertasObservacion=['limpiar_libricar_puertas_cerraduras_observacion'].iloc[0]
+    completarPlanMantenimiento=['completar_plan_mantenimiento'].iloc[0]
+    completarPlanMantenimientoObservacion=['completar_plan_mantenimiento_observacion'].iloc[0]
+    NumeroSerie=['NumeroSerie'].iloc[0]
+
+    htmlstring = r"""html:"<!DOCTYPE html> <html lang="es"> <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Check List General</title>
+      <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        td, th {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .highlight {
+            background-color: #f9e44c;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+     </style>
+      </head>
+    <body>"""
+    htmlstring=f"""
+      <h1>CHECK LIST GENERAL</h1>
+      <h2>Aplicable para todos los servicios</h2>
+    
+      <table>
+        <tr>
+            <th>No. de Orden</th>
+            <td>{idOrden}</td>
+            <th>No. Folio</th>
+            <td>484</td>
+        </tr>
+        <tr>
+            <th>No. Serie del Vehículo</th>
+            <td colspan="3">{NumeroSerie}</td>
+        </tr>
+        <tr>
+            <th>Fecha</th>
+            <td colspan="3">{fecha}</td>
+        </tr>
+      </table>
+
+      <h3>Checklist</h3>
+
+      <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>OK</th>
+                <th>NO OK</th>
+                <th>Observaciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="highlight">
+                <td>Vehículo en el piso</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Lectura de códigos de falla. (Nº de averías en sus sistemas)</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{lecturaCodigoObservacion}</td>
+            </tr>
+            <tr>
+                <td>Funcionamiento del servofreno</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{servofrenoObservacion}</td>
+            </tr>
+            <tr>
+                <td>Funcionamiento del pedal de freno</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{pedalFrenoObservacion}</td>
+            </tr>
+            <tr>
+                <td>Funcionamiento del pedal de estacionamiento</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{pedalEstacionamientoObservacion}</td>
+            </tr>
+            <tr>
+                <td>Cuadro de instrumentos (funcionamiento, iluminación, testigos)</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{cuadroInstrumentosObservacion}</td>
+            </tr>
+            <tr>
+                <td>Iluminación interior completa (cortesía, vanidad, guantera, etc.)</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{iluminacionInteriorObservacion}</td>
+            </tr>
+            <tr>
+                <td>Iluminación exterior (cortes, bajas, altas, reversa, niebla, nivel)</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{iluminacionExternaObservacion}</td>
+            </tr>
+            <tr>
+                <td>Sistema limpiaparabrisas completo, chorritos, plumas</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{limpiaparabrisasObservacion}</td>
+            </tr>
+            <tr>
+                <td>Sistema limpia medallón completo, chorritos, plumas</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{limpiaMedallonObservacion}</td>
+            </tr>
+            <tr>
+                <td>Sistema de frenos (desgaste y presión)</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{neumaticosFriccionObservacion}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Vehículo en altura total</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>OK</th>
+                <th>NO OK</th>
+                <th>Observaciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Estado de fugas de aceite de motor y transmisión</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{estadoFugasAceiteObservacion}</td>
+            </tr>
+            <tr>
+                <td>Estado de nivel y calidad de lubricantes en transmisión</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{estadoNivelCalidadObservacion}</td>
+            </tr>
+            <tr>
+                <td>Estado de nivel y calidad de lubricantes en diferencial</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{estadoNivelCalidadDiferencialObservacion}</td>
+            </tr>
+            <tr>
+                <td>Estado de cubrepolvos de flechas homocinéticas</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{cubrepolvosFlechasObservacion}</td>
+            </tr>
+            <tr>
+                <td>Estado de componentes de dirección</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{componentesDireccionObservacion}</td>
+            </tr>
+            <tr>
+                <td>Estado de suspensión</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{componentesSuspensionObservacion}</td>
+            </tr>
+            <tr>
+                <td>Estado del sistema de alimentación de combustible (fugas)</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{sistemaAlimentacionObservacion}</td>
+            </tr>
+            <tr>
+                <td>Control de fugas de dirección hidráulica</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{controlFugasDireccionObservacion}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Vehículo en altura media</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>OK</th>
+                <th>NO OK</th>
+                <th>Observaciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Control de rodamiento y mazas de rueda</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{rodamientoMAzasObservacion}</td>
+            </tr>
+            <tr>
+                <td>Holgura/juego en partes de suspensión y dirección</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{holguraSuspensionObservacion}</td>
+            </tr>
+            <tr>
+                <td>Profundidad (D.D)</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{profundidadObservacion}</td>
+            </tr>
+            <tr>
+                <td>Presión (D.D)</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{presionObservacion}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Control de Habitáculo de motor</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>OK</th>
+                <th>NO OK</th>
+                <th>Observaciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Nivel y calidad de aceite de motor</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{nivelCalidadAceiteObservacion}</td>
+            </tr>
+            <tr>
+                <td>Filtro de aire</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{filtroAireObservacion}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Revisión Final</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>OK</th>
+                <th>NO OK</th>
+                <th>Observaciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Reset de intervalo de servicio</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{resetIntervaloObservacion}</td>
+            </tr>
+            <tr>
+                <td>Ajuste y verificación de alineación</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td>{ajusteTornillosNeumaticosObservacion}</td>
+            </tr>
+            <tr>
+                <td>Ajuste de frenos</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Revisión de luces</td>
+                <td>OK</td>
+                <td>NO OK</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Firma Cliente: ___________________________</p>
+        <p>Firma Responsable: ___________________________</p>
+    </div>
+    </body>
+    </html>"""
+    img = "\\img1.jpg"
+    pdf_path = "example.pdf"
+          # Rutas y configuraciones para Linux
+    path_wkhtmltopdf = '/usr/local/bin/wkhtmltopdf'
+    config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
+    pdfkit.from_string(htmlstring, 'reporte.pdf', configuration=config)
+    return JSONResponse(content={"message": "PDF creado exitosamente"}, status_code=200) 
+    return JSONResponse(content={"error": str(e)}, status_code=500)
+@app.post(
+        path="/api/ordenservice",
+        name='Insertar orden de servicio',
+        tags=['OrdenService'],
+        description='Método para insertar la orden de servicio',
+        response_model=VersionOrdenDeServicio
+)
+def saveordenservice(payload: VersionOrdenDeServicio):
+    query = f"""EXEC InsertarOrdenServicio @id_ordendeservicio = {payload.IdCliente} , \
+        @NumeroSerie = '{payload.IdEmpleado}' """
+    print(query)
+
+    with engine.begin() as conn:
+        conn.execution_options(autocommit = True)
+        roles_df = pd.read_sql(query, conn)
+    dumpp = ResponseModel(id_resultado=1,respuesta="La orden se ha guardado de manera correcta")
+    dict = dumpp.model_dump()
+    return JSONResponse(status_code=200, content=dict)
+
 if __name__ == '__main__':
     app.run()
     
