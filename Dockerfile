@@ -12,7 +12,7 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
     && ACCEPT_EULA=Y apt-get install -y msodbcsql17
 
 # Instala wkhtmltopdf desde los repositorios oficiales de Ubuntu
-RUN apt-get update && apt-get install -y wkhtmltopdf
+#RUN apt-get update && apt-get install -y wkhtmltopdf
 
 # Instala las dependencias de Python
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
