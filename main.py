@@ -42,36 +42,17 @@ options = {
     'margin-bottom': '1cm',
     'margin-left': '1cm',
 }
-from io import BytesIO
-from typing import Dict, List
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
-from docx import Document
-from docx.shared import Inches, Pt
-import base64
-
-app = FastAPI()
-
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
-    images_base64: List[str]  # Lista de cadenas Base64 de las imágenes
+    images_base64: List[str]    # Lista de cadenas (Base64 de las imágenes)
 
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str]) -> BytesIO:
     # Crear un nuevo documento de Word
     doc = Document()
-    
-    # Agregar un encabezado (título)
-    doc.add_heading('Informe Generado', 0)
-    doc.add_paragraph("Este documento ha sido generado automáticamente.")
-    doc.add_paragraph("\n")
 
     # Agregar placeholders (texto) al documento
     for key, value in placeholders.items():
-        # Establecer un estilo de texto (por ejemplo, negritas para los títulos)
-        para = doc.add_paragraph()
-        para.add_run(f"{key}: ").bold = True
-        para.add_run(value)
-        doc.add_paragraph("\n")  # Espacio después de cada párrafo
+        doc.add_paragraph(f"{key}: {value}")
 
     # Agregar imágenes
     for image_base64 in images_base64:  # Cambiado a recorrer una lista
@@ -83,14 +64,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
 
         # Insertar la imagen en el documento
         doc.add_paragraph("Imagen: ")
-        doc.add_paragraph(" ")
-        doc.add_picture(image_stream, width=Inches(3))  # Ancho de imagen ajustado para presentación
-
-        # Añadir un salto de línea después de cada imagen
-        doc.add_paragraph("\n")
-
-    # Añadir sección de conclusión o pie de página
-    doc.add_paragraph("Gracias por utilizar nuestro servicio.", style='BodyText')
+        doc.add_picture(image_stream, width=Inches(1.5))
 
     # Guardar el documento en un BytesIO para enviarlo como respuesta
     word_stream = BytesIO()
@@ -114,7 +88,6 @@ async def generate_and_download(request: DocumentRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
-
 @app.post(
     path="/api/seguridad/iniciarsesion",
     name='Inicio de sesion',
