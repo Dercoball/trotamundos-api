@@ -45,6 +45,7 @@ options = {
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
     images_base64: List[str]    # Lista de cadenas (Base64 de las imágenes)
+    image_titles: List[str]
 
 from io import BytesIO
 from docx import Document
