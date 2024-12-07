@@ -46,7 +46,14 @@ class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
     images_base64: List[str]    # Lista de cadenas (Base64 de las imágenes)
 
-def generate_word_document(placeholders: Dict[str, str], images_base64: List[str]) -> BytesIO:
+from io import BytesIO
+from docx import Document
+from docx.shared import Inches
+import base64
+from typing import Dict, List
+
+def generate_word_document(placeholders: Dict[str, str], images_data: List[Dict[str, str]]) -> BytesIO:
+
     # Crear un nuevo documento de Word
     doc = Document()
 
@@ -54,17 +61,20 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     for key, value in placeholders.items():
         doc.add_paragraph(f"{key}: {value}")
 
-    # Agregar imágenes
-    for image_base64 in images_base64:  # Cambiado a recorrer una lista
+    # Agregar imágenes con títulos personalizados
+    for image_data in images_data:  # Recorrer la lista de diccionarios con nombre e imagen
+        image_base64 = image_data['image_base64']
+        image_title = image_data['title']
+
         # Convertir la cadena base64 a bytes
-        image_data = base64.b64decode(image_base64)
+        image_bytes = base64.b64decode(image_base64)
 
         # Guardar la imagen en un archivo temporal
-        image_stream = BytesIO(image_data)
+        image_stream = BytesIO(image_bytes)
 
-        # Insertar la imagen en el documento
-        doc.add_paragraph("Imagen: ")
-        doc.add_picture(image_stream, width=Inches(1.5))
+        # Insertar el título y la imagen en el documento
+        doc.add_paragraph(f"{image_title}: ")  # Agregar título de la imagen
+        doc.add_picture(image_stream, width=Inches(1.5))  # Insertar la imagen
 
     # Guardar el documento en un BytesIO para enviarlo como respuesta
     word_stream = BytesIO()
@@ -78,8 +88,12 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
 @app.post("/generate_and_download/")
 async def generate_and_download(request: DocumentRequest):
     try:
+        # Crear la lista de diccionarios con base64 e imágenes
+        images_data = [{"image_base64": image_base64, "title": title} 
+                       for image_base64, title in zip(request.images_base64, request.image_titles)]
+        
         # Generar el documento con los datos recibidos
-        word_stream = generate_word_document(request.placeholders, request.images_base64)
+        word_stream = generate_word_document(request.placeholders, images_data)
         
         # Retornar el archivo como respuesta de descarga
         return StreamingResponse(word_stream, 
@@ -88,6 +102,7 @@ async def generate_and_download(request: DocumentRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+
 @app.post(
     path="/api/seguridad/iniciarsesion",
     name='Inicio de sesion',
