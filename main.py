@@ -21,7 +21,6 @@ from docx import Document
 from docx.shared import Inches
 from pydantic import BaseModel
 from typing import Dict, List
-from fastapi.middleware.cors import CORSMiddleware
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
@@ -43,92 +42,15 @@ options = {
     'margin-bottom': '1cm',
     'margin-left': '1cm',
 }
-class ChecklistItem(BaseModel):
-    item: str
-    status: str  # OK o No OK
-    observation: str
-
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
-    images_base64: List[str]
-    image_titles: List[str]  # Asegúrate de recibir los títulos de las imágenes también
-    checklist_data: List[ChecklistItem]  # Agrega checklist_data aquí
+    images_base64: List[str]    # Lista de cadenas (Base64 de las imágenes)
 
 from io import BytesIO
 from docx import Document
 from docx.shared import Inches
 import base64
 from typing import Dict, List
-
-from io import BytesIO
-from typing import List, Dict
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
-from docx import Document
-from docx.shared import Inches
-import base64
-
-app = FastAPI()
-
-# Método para generar el documento de Word
-def generate_word_documentchecklist(placeholders: Dict[str, str], images_data: List[Dict[str, str]], checklist_data: List[Dict[str, str]]) -> BytesIO:
-    # Crear un nuevo documento de Word
-    doc = Document()
-
-    # Agregar placeholders (texto) al documento
-    for key, value in placeholders.items():
-        doc.add_paragraph(f"{key}: {value}")
-
-    # Agregar checklist con observaciones y selección de OK o No OK
-    for checklist_item in checklist_data:
-        doc.add_paragraph(f"Checklist Item: {checklist_item['item']}")
-        doc.add_paragraph(f"Status: {checklist_item['status']}")  # OK o No OK
-        doc.add_paragraph(f"Observaciones: {checklist_item['observation']}")  # Observación
-
-    # Agregar imágenes con títulos personalizados
-    for image_data in images_data:
-        image_base64 = image_data['image_base64']
-        image_title = image_data['title']
-
-        # Convertir la cadena base64 a bytes
-        image_bytes = base64.b64decode(image_base64)
-
-        # Guardar la imagen en un archivo temporal
-        image_stream = BytesIO(image_bytes)
-
-        # Insertar el título y la imagen en el documento
-        doc.add_paragraph(f"{image_title}: ")  # Agregar título de la imagen
-        doc.add_picture(image_stream, width=Inches(1.5))  # Insertar la imagen
-
-    # Guardar el documento en un BytesIO para enviarlo como respuesta
-    word_stream = BytesIO()
-    doc.save(word_stream)
-    word_stream.seek(0)
-
-    return word_stream
-
-# Endpoint para generar y descargar el documento Word
-@app.post("/generate_and_downloadchecklist/")
-async def generate_and_downloadchecklist(request: Dict):
-    try:
-        # Crear la lista de diccionarios con base64 e imágenes
-        images_data = [{"image_base64": image_base64, "title": title} 
-                       for image_base64, title in zip(request['images_base64'], request['image_titles'])]
-
-        # Obtener los datos del checklist
-        checklist_data = request['checklist_data']  # Espera una lista de diccionarios con item, status y observation
-        
-        # Generar el documento con los datos recibidos
-        word_stream = generate_word_document(request['placeholders'], images_data, checklist_data)
-        
-        # Retornar el archivo como respuesta de descarga
-        return StreamingResponse(word_stream, 
-                                 media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
-                                 headers={"Content-Disposition": "attachment; filename=DocumentoGenerado.docx"})
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
-
 
 def generate_word_document(placeholders: Dict[str, str], images_data: List[Dict[str, str]]) -> BytesIO:
 
