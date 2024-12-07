@@ -21,6 +21,7 @@ from docx import Document
 from docx.shared import Inches
 from pydantic import BaseModel
 from typing import Dict, List
+from fastapi.middleware.cors import CORSMiddleware
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
