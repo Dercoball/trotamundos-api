@@ -42,9 +42,16 @@ options = {
     'margin-bottom': '1cm',
     'margin-left': '1cm',
 }
+class ChecklistItem(BaseModel):
+    item: str
+    status: str  # OK o No OK
+    observation: str
+
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
-    images_base64: List[str]    # Lista de cadenas (Base64 de las imágenes)
+    images_base64: List[str]
+    image_titles: List[str]  # Asegúrate de recibir los títulos de las imágenes también
+    checklist_data: List[ChecklistItem]  # Agrega checklist_data aquí
 
 from io import BytesIO
 from docx import Document
