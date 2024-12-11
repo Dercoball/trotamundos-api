@@ -107,6 +107,20 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
 
     return word_stream
 
+@app.post("/generate_and_download/")
+async def generate_and_download(request: DocumentRequest):
+    try:
+        # Generar el documento con los datos recibidos
+        word_stream = generate_word_document(request.placeholders, request.images_base64)
+
+        # Retornar el archivo como respuesta de descarga
+        return StreamingResponse(word_stream,
+                                 media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                 headers={"Content-Disposition": "attachment; filename=EvidenciaFotografica.docx"})
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+
 @app.post(
     path="/api/seguridad/iniciarsesion",
     name='Inicio de sesion',
