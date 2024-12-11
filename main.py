@@ -18,9 +18,9 @@ from io import BytesIO
 from fastapi.responses import StreamingResponse
 from typing import Dict
 from docx import Document
-from docx.shared import Inches, Pt
+from docx.shared import Pt, Inches
 from pydantic import BaseModel
-from typing import Dict, List 
+from typing import Dict, List
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
@@ -45,7 +45,6 @@ options = {
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
     images_base64: List[str]  # Lista de cadenas (Base64 de las imágenes)
-
 def set_header_format(cell, text):
     paragraph = cell.paragraphs[0]
     run = paragraph.add_run(text)
@@ -57,17 +56,18 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     # Crear un nuevo documento de Word
     doc = Document()
 
-    # Crear encabezado en cada página
-    section = doc.sections[0]
-    header = section.header
-    header_paragraph = header.paragraphs[0]
-    run = header_paragraph.add_run("TROTAMUNDOS\nSERVICIO AUTOMOTRIZ TROTAMUNDOS\nFORMATO DE EVIDENCIA FOTOGRAFICA")
-    run.font.bold = True
-    run.font.size = Pt(14)
-    header_paragraph.alignment = 1  # Centrado
+    # Crear encabezado (similar al de tu diseño)
+    table_header = doc.add_table(rows=1, cols=2)
+    row_header = table_header.rows[0].cells
+    row_header[0].text = "FORMATO DE EVIDENCIA FOTOGRAFICA"
+    table_header.style = "Table Grid"  # Aplicar estilo con bordes
+
+    # Espaciado entre secciones
+    doc.add_paragraph()
 
     # Agregar tabla para los datos del vehículo
     table_data = doc.add_table(rows=3, cols=4)
+    table_data.style = "Table Grid"  # Aplicar estilo con bordes
     keys = list(placeholders.keys())
 
     for i in range(3):  # Tres filas de datos
@@ -77,24 +77,28 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
                 key = keys[index]
                 table_data.cell(i, j).text = f"{key}: {placeholders[key]}"
 
-    # Agregar espacio antes de las imágenes
+    # Espaciado entre tablas y las imágenes
     doc.add_paragraph()
 
-    # Crear tabla para las imágenes, dos por página
-    for idx, image_base64 in enumerate(images_base64):
-        if idx % 2 == 0:
-            if idx != 0:
-                doc.add_page_break()
-            table_images = doc.add_table(rows=1, cols=2)
+    # Crear tabla para las imágenes (solo 2 imágenes por fila)
+    num_images = len(images_base64)
+    table_images = doc.add_table(rows=(num_images + 1) // 2, cols=2)
+    table_images.style = "Table Grid"  # Aplicar estilo con bordes
 
+    for idx, image_base64 in enumerate(images_base64):
         image_data = base64.b64decode(image_base64)
         image_stream = BytesIO(image_data)
 
-        col = idx % 2
-        cell = table_images.cell(0, col)
+        row = idx // 2  # Determina la fila
+        col = idx % 2   # Determina la columna (0 o 1)
+
+        # Obtener la celda donde se insertará la imagen
+        cell = table_images.cell(row, col)
+
+        # Insertar la imagen y ajustarla al tamaño deseado
         paragraph = cell.paragraphs[0]
         run = paragraph.add_run()
-        run.add_picture(image_stream, width=Inches(3.5))  # Ajustar ancho a mitad de página
+        run.add_picture(image_stream, width=Inches(2.5), height=Inches(2.5))  # Ajuste de tamaño
 
     # Guardar el documento en un BytesIO para enviarlo como respuesta
     word_stream = BytesIO()
@@ -102,21 +106,6 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     word_stream.seek(0)
 
     return word_stream
-
-@app.post("/generate_and_download/")
-async def generate_and_download(request: DocumentRequest):
-    try:
-        # Generar el documento con los datos recibidos
-        word_stream = generate_word_document(request.placeholders, request.images_base64)
-
-        # Retornar el archivo como respuesta de descarga
-        return StreamingResponse(word_stream,
-                                 media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                                 headers={"Content-Disposition": "attachment; filename=EvidenciaFotografica.docx"})
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
-
 
 @app.post(
     path="/api/seguridad/iniciarsesion",
