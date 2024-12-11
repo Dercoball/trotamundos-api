@@ -21,8 +21,7 @@ from docx import Document
 from docx.shared import Pt, Inches
 from pydantic import BaseModel
 from typing import Dict, List
-from docx.enum.text import WD_BREAK
-from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT, WD_BREAK
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
 app = FastAPI()
@@ -57,12 +56,16 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     # Crear un nuevo documento de Word
     doc = Document()
 
-    # Crear encabezado "FORMATO DE EVIDENCIAS FOTOGRÁFICAS"
-    paragraph_header = doc.add_paragraph()
+    # Crear el encabezado para todas las páginas
+    section = doc.sections[-1]  # Obtener la última sección del documento
+    header = section.header  # Acceder al encabezado de la sección
+
+    # Crear un párrafo para el encabezado
+    paragraph_header = header.paragraphs[0]
     set_header_format(paragraph_header, "FORMATO DE EVIDENCIAS FOTOGRÁFICAS")
 
-    # Espaciado entre el encabezado y la siguiente sección
-    doc.add_paragraph()
+    # Agregar contenido después del encabezado
+    doc.add_paragraph()  # Espaciado entre el encabezado y la siguiente sección
 
     # Agregar tabla para los datos del vehículo
     table_data = doc.add_table(rows=3, cols=4)
@@ -109,7 +112,6 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     word_stream.seek(0)
 
     return word_stream
-
 
 @app.post("/generate_and_download/")
 async def generate_and_download(request: DocumentRequest):
