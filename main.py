@@ -21,6 +21,7 @@ from docx import Document
 from docx.shared import Pt, Inches
 from pydantic import BaseModel
 from typing import Dict, List
+from docx.enum.text import WD_BREAK
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
@@ -110,6 +111,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     word_stream.seek(0)
 
     return word_stream
+
 
 @app.post("/generate_and_download/")
 async def generate_and_download(request: DocumentRequest):
