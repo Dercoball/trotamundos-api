@@ -44,50 +44,69 @@ options = {
 }
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
-    images_base64: List[str]    # Lista de cadenas (Base64 de las imágenes)
+    images_base64: List[str]  # Lista de cadenas (Base64 de las imágenes)
 
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str]) -> BytesIO:
     # Crear un nuevo documento de Word
     doc = Document()
 
-    # Agregar placeholders (texto) al documento
-    for key, value in placeholders.items():
-        doc.add_paragraph(f"{key}: {value}")
+    # Crear encabezado (similar al de tu diseño)
+    table_header = doc.add_table(rows=1, cols=2)
+    row_header = table_header.rows[0].cells
+    row_header[0].text = "TROTAMUNDOS\nSERVICIO AUTOMOTRIZ TROTAMUNDOS"
+    row_header[1].text = "FORMATO DE EVIDENCIA FOTOGRAFICA"
 
-    # Agregar imágenes
-    for image_base64 in images_base64:  # Cambiado a recorrer una lista
-        # Convertir la cadena base64 a bytes
+    # Agregar tabla para los datos del vehículo
+    table_data = doc.add_table(rows=3, cols=4)
+    keys = list(placeholders.keys())
+    
+    for i in range(3):  # Tres filas de datos
+        for j in range(4):  # Cuatro columnas por fila
+            index = i * 4 + j
+            if index < len(keys):
+                key = keys[index]
+                table_data.cell(i, j).text = f"{key}: {placeholders[key]}"
+
+    # Agregar espacio antes de las imágenes
+    doc.add_paragraph()  
+
+    # Crear tabla para las imágenes
+    num_images = len(images_base64)
+    table_images = doc.add_table(rows=(num_images + 1) // 2, cols=2)
+    
+    for idx, image_base64 in enumerate(images_base64):
         image_data = base64.b64decode(image_base64)
-
-        # Guardar la imagen en un archivo temporal
         image_stream = BytesIO(image_data)
 
-        # Insertar la imagen en el documento
-        doc.add_paragraph("Imagen: ")
-        doc.add_picture(image_stream, width=Inches(1.5))
+        row = idx // 2
+        col = idx % 2
+        cell = table_images.cell(row, col)
+
+        paragraph = cell.paragraphs[0]
+        run = paragraph.add_run()
+        run.add_picture(image_stream, width=Inches(2.5))  # Ajustar el ancho a las celdas
 
     # Guardar el documento en un BytesIO para enviarlo como respuesta
     word_stream = BytesIO()
     doc.save(word_stream)
     word_stream.seek(0)
-    
+
     return word_stream
 
-
-# Endpoint para generar y descargar el documento Word
 @app.post("/generate_and_download/")
 async def generate_and_download(request: DocumentRequest):
     try:
         # Generar el documento con los datos recibidos
         word_stream = generate_word_document(request.placeholders, request.images_base64)
-        
+
         # Retornar el archivo como respuesta de descarga
-        return StreamingResponse(word_stream, 
-                                 media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
-                                 headers={"Content-Disposition": "attachment; filename=DocumentoGenerado.docx"})
-    
+        return StreamingResponse(word_stream,
+                                 media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                 headers={"Content-Disposition": "attachment; filename=EvidenciaFotografica.docx"})
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+
 @app.post(
     path="/api/seguridad/iniciarsesion",
     name='Inicio de sesion',
