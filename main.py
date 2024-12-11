@@ -18,9 +18,9 @@ from io import BytesIO
 from fastapi.responses import StreamingResponse
 from typing import Dict
 from docx import Document
-from docx.shared import Inches
+from docx.shared import Inches, Pt
 from pydantic import BaseModel
-from typing import Dict, List
+from typing import Dict, List 
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
@@ -117,6 +117,7 @@ async def generate_and_download(request: DocumentRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+
 
 @app.post(
     path="/api/seguridad/iniciarsesion",
