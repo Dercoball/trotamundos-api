@@ -56,10 +56,10 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     # Crear un nuevo documento de Word
     doc = Document()
 
-    # Crear encabezado (similar al de tu diseño)
+    # Crear encabezado (con el texto actualizado)
     table_header = doc.add_table(rows=1, cols=2)
     row_header = table_header.rows[0].cells
-    row_header[0].text = "FORMATO DE EVIDENCIA FOTOGRAFICA"
+    row_header[0].text = "FORMATO DE EVIDENCIAS FOTOGRÁFICAS"  # Encabezado actualizado
     table_header.style = "Table Grid"  # Aplicar estilo con bordes
 
     # Espaciado entre secciones
@@ -99,6 +99,10 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
         paragraph = cell.paragraphs[0]
         run = paragraph.add_run()
         run.add_picture(image_stream, width=Inches(2.5), height=Inches(2.5))  # Ajuste de tamaño
+
+        # Insertar salto de página después de dos imágenes
+        if (idx + 1) % 2 == 0 and (idx + 1) < num_images:
+            doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
 
     # Guardar el documento en un BytesIO para enviarlo como respuesta
     word_stream = BytesIO()
