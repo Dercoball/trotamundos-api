@@ -55,11 +55,16 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     row_header = table_header.rows[0].cells
     row_header[0].text = "TROTAMUNDOS\nSERVICIO AUTOMOTRIZ TROTAMUNDOS"
     row_header[1].text = "FORMATO DE EVIDENCIA FOTOGRAFICA"
+    table_header.style = "Table Grid"  # Aplicar estilo con bordes
+
+    # Espaciado entre secciones
+    doc.add_paragraph()
 
     # Agregar tabla para los datos del vehículo
     table_data = doc.add_table(rows=3, cols=4)
+    table_data.style = "Table Grid"  # Aplicar estilo con bordes
     keys = list(placeholders.keys())
-    
+
     for i in range(3):  # Tres filas de datos
         for j in range(4):  # Cuatro columnas por fila
             index = i * 4 + j
@@ -67,13 +72,14 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
                 key = keys[index]
                 table_data.cell(i, j).text = f"{key}: {placeholders[key]}"
 
-    # Agregar espacio antes de las imágenes
-    doc.add_paragraph()  
+    # Espaciado entre tablas y las imágenes
+    doc.add_paragraph()
 
     # Crear tabla para las imágenes
     num_images = len(images_base64)
     table_images = doc.add_table(rows=(num_images + 1) // 2, cols=2)
-    
+    table_images.style = "Table Grid"  # Aplicar estilo con bordes
+
     for idx, image_base64 in enumerate(images_base64):
         image_data = base64.b64decode(image_base64)
         image_stream = BytesIO(image_data)
