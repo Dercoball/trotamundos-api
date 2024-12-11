@@ -46,25 +46,31 @@ class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
     images_base64: List[str]  # Lista de cadenas (Base64 de las imágenes)
 
+def set_header_format(cell, text):
+    paragraph = cell.paragraphs[0]
+    run = paragraph.add_run(text)
+    run.font.bold = True
+    run.font.size = Pt(12)
+    paragraph.alignment = 1  # Centrado
+
+
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str]) -> BytesIO:
     # Crear un nuevo documento de Word
     doc = Document()
 
-    # Crear encabezado (similar al de tu diseño)
-    table_header = doc.add_table(rows=1, cols=2)
-    row_header = table_header.rows[0].cells
-    row_header[0].text = "TROTAMUNDOS\nSERVICIO AUTOMOTRIZ TROTAMUNDOS"
-    row_header[1].text = "FORMATO DE EVIDENCIA FOTOGRAFICA"
-    table_header.style = "Table Grid"  # Aplicar estilo con bordes
-
-    # Espaciado entre secciones
-    doc.add_paragraph()
+    # Crear encabezado en cada página
+    section = doc.sections[0]
+    header = section.header
+    header_paragraph = header.paragraphs[0]
+    run = header_paragraph.add_run("TROTAMUNDOS\nSERVICIO AUTOMOTRIZ TROTAMUNDOS\nFORMATO DE EVIDENCIA FOTOGRAFICA")
+    run.font.bold = True
+    run.font.size = Pt(14)
+    header_paragraph.alignment = 1  # Centrado
 
     # Agregar tabla para los datos del vehículo
     table_data = doc.add_table(rows=3, cols=4)
-    table_data.style = "Table Grid"  # Aplicar estilo con bordes
     keys = list(placeholders.keys())
-
+    
     for i in range(3):  # Tres filas de datos
         for j in range(4):  # Cuatro columnas por fila
             index = i * 4 + j
@@ -72,25 +78,24 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
                 key = keys[index]
                 table_data.cell(i, j).text = f"{key}: {placeholders[key]}"
 
-    # Espaciado entre tablas y las imágenes
+    # Agregar espacio antes de las imágenes
     doc.add_paragraph()
 
-    # Crear tabla para las imágenes
-    num_images = len(images_base64)
-    table_images = doc.add_table(rows=(num_images + 1) // 2, cols=2)
-    table_images.style = "Table Grid"  # Aplicar estilo con bordes
-
+    # Crear tabla para las imágenes, dos por página
     for idx, image_base64 in enumerate(images_base64):
+        if idx % 2 == 0:
+            if idx != 0:
+                doc.add_page_break()
+            table_images = doc.add_table(rows=1, cols=2)
+
         image_data = base64.b64decode(image_base64)
         image_stream = BytesIO(image_data)
 
-        row = idx // 2
         col = idx % 2
-        cell = table_images.cell(row, col)
-
+        cell = table_images.cell(0, col)
         paragraph = cell.paragraphs[0]
         run = paragraph.add_run()
-        run.add_picture(image_stream, width=Inches(2.5))  # Ajustar el ancho a las celdas
+        run.add_picture(image_stream, width=Inches(3.5))  # Ajustar ancho a mitad de página
 
     # Guardar el documento en un BytesIO para enviarlo como respuesta
     word_stream = BytesIO()
