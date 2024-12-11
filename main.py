@@ -53,7 +53,6 @@ def set_header_format(cell, text):
     run.font.size = Pt(12)
     paragraph.alignment = 1  # Centrado
 
-
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str]) -> BytesIO:
     # Crear un nuevo documento de Word
     doc = Document()
@@ -70,7 +69,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     # Agregar tabla para los datos del vehículo
     table_data = doc.add_table(rows=3, cols=4)
     keys = list(placeholders.keys())
-    
+
     for i in range(3):  # Tres filas de datos
         for j in range(4):  # Cuatro columnas por fila
             index = i * 4 + j
