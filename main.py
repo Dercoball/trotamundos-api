@@ -22,7 +22,7 @@ from docx.shared import Pt, Inches
 from pydantic import BaseModel
 from typing import Dict, List
 from docx.enum.text import WD_BREAK
-
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
 app = FastAPI()
@@ -46,24 +46,22 @@ options = {
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
     images_base64: List[str]  # Lista de cadenas (Base64 de las imágenes)
-def set_header_format(cell, text):
-    paragraph = cell.paragraphs[0]
+def set_header_format(paragraph, text):
+    # Establecer el formato de encabezado
     run = paragraph.add_run(text)
-    run.font.bold = True
-    run.font.size = Pt(12)
-    paragraph.alignment = 1  # Centrado
+    run.bold = True
+    run.font.size = Pt(14)  # Tamaño de fuente para el encabezado
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER  # Alineación centrada
 
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str]) -> BytesIO:
     # Crear un nuevo documento de Word
     doc = Document()
 
-    # Crear encabezado (con el texto actualizado)
-    table_header = doc.add_table(rows=1, cols=2)
-    row_header = table_header.rows[0].cells
-    row_header[0].text = "FORMATO DE EVIDENCIAS FOTOGRÁFICAS"  # Encabezado actualizado
-    table_header.style = "Table Grid"  # Aplicar estilo con bordes
+    # Crear encabezado "FORMATO DE EVIDENCIAS FOTOGRÁFICAS"
+    paragraph_header = doc.add_paragraph()
+    set_header_format(paragraph_header, "FORMATO DE EVIDENCIAS FOTOGRÁFICAS")
 
-    # Espaciado entre secciones
+    # Espaciado entre el encabezado y la siguiente sección
     doc.add_paragraph()
 
     # Agregar tabla para los datos del vehículo
