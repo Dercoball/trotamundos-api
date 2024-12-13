@@ -53,13 +53,6 @@ def set_header_format(paragraph, text):
     run.font.size = Pt(14)  # Tamaño de fuente para el encabezado
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER  # Alineación centrada
 
-from typing import Dict, List
-from io import BytesIO
-import base64
-from docx import Document
-from docx.shared import Inches
-from docx.enum.text import WD_BREAK
-
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str) -> BytesIO:
     # Crear un nuevo documento de Word
     doc = Document()
