@@ -45,15 +45,16 @@ options = {
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
     images_base64: List[str]  # Lista de cadenas (Base64 de las imágenes)
+
 def set_header_format(paragraph, text):
-    # Establecer el formato de encabezado
+    """Establecer el formato del encabezado"""
     run = paragraph.add_run(text)
     run.bold = True
     run.font.size = Pt(14)  # Tamaño de fuente para el encabezado
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER  # Alineación centrada
 
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str]) -> BytesIO:
-    # Crear un nuevo documento de Word
+    """Generar el documento de Word"""
     doc = Document()
 
     # Crear el encabezado para todas las páginas
@@ -63,6 +64,16 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     # Crear un párrafo para el encabezado
     paragraph_header = header.paragraphs[0]
     set_header_format(paragraph_header, "FORMATO DE EVIDENCIAS FOTOGRÁFICAS")
+
+    # Agregar imágenes al encabezado desde static/images
+    header_images_dir = "static/images"
+    header_images = [os.path.join(header_images_dir, file) for file in os.listdir(header_images_dir) if file.endswith(('.png', '.jpg', '.jpeg'))]
+    
+    for image_path in header_images:
+        if os.path.isfile(image_path):
+            paragraph = header.add_paragraph()
+            run = paragraph.add_run()
+            run.add_picture(image_path, width=Inches(1), height=Inches(1))  # Tamaño de imagen
 
     # Agregar contenido después del encabezado
     doc.add_paragraph()  # Espaciado entre el encabezado y la siguiente sección
@@ -104,7 +115,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
 
         # Insertar salto de página después de dos imágenes
         if (idx + 1) % 2 == 0 and (idx + 1) < num_images:
-            doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
+            doc.add_paragraph().add_run().add_break(WD_PARAGRAPH_ALIGNMENT.CENTER)
 
     # Guardar el documento en un BytesIO para enviarlo como respuesta
     word_stream = BytesIO()
