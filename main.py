@@ -72,7 +72,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
         run = paragraph_header.add_run()
 
         # Insertar la imagen a la izquierda
-        run.add_picture(image_stream, width=Inches(1.5), height=Inches(1.5))  # Ajusta el tamaño según lo necesites
+        run.add_picture(image_stream, width=Inches(0.5), height=Inches(0.5))  # Ajusta el tamaño según lo necesites
         paragraph_header.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT  # Alinear la imagen a la izquierda
 
     # Agregar contenido después del encabezado
