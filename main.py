@@ -125,7 +125,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
 async def generate_and_download(request: DocumentRequest):
     try:
         # Generar el documento con los datos recibidos
-        word_stream = generate_word_document(request.placeholders, request.images_base64)
+        word_stream = generate_word_document(request.placeholders, request.images_base64, request.logo_base64)
 
         # Retornar el archivo como respuesta de descarga
         return StreamingResponse(word_stream,
@@ -134,6 +134,7 @@ async def generate_and_download(request: DocumentRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+
 
 @app.post(
     path="/api/seguridad/iniciarsesion",
