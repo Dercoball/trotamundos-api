@@ -44,99 +44,83 @@ options = {
 }
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
-    images_base64: List[str]  # Lista de cadenas (Base64 de las imágenes)
-    logo_base64: str  # Logo en Base64
+    images_base64: List[str]
+    logo_base64: str
+
 def set_header_format(paragraph, text):
-    # Establecer el formato de encabezado
     run = paragraph.add_run(text)
     run.bold = True
     run.font.size = Pt(14)  # Tamaño de fuente para el encabezado
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER  # Alineación centrada
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str) -> BytesIO:
-    # Crear un nuevo documento de Word
     doc = Document()
 
-    # Crear el encabezado para todas las páginas
-    section = doc.sections[-1]  # Obtener la última sección del documento
-    header = section.header  # Acceder al encabezado de la sección
-
-    # Crear un párrafo para el encabezado
+    # Crear el encabezado
+    section = doc.sections[-1]
+    header = section.header
     paragraph_header = header.paragraphs[0]
+
+    # Insertar texto del encabezado
     set_header_format(paragraph_header, "FORMATO DE EVIDENCIAS FOTOGRÁFICAS")
 
-    # Insertar el logo en el encabezado
+    # Insertar logo en el encabezado (alineado a la izquierda)
     if logo_base64:
         image_data = base64.b64decode(logo_base64)
         image_stream = BytesIO(image_data)
         run = paragraph_header.add_run()
+        run.add_picture(image_stream, width=Inches(1), height=Inches(1))  # Ajustar tamaño del logo
+        paragraph_header.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
 
-        # Insertar la imagen a la izquierda
-        run.add_picture(image_stream, width=Inches(0.5), height=Inches(0.5))  # Ajusta el tamaño según lo necesites
-        paragraph_header.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT  # Alinear la imagen a la izquierda
+    doc.add_paragraph()  # Espaciado entre el encabezado y el contenido
 
-    # Agregar contenido después del encabezado
-    doc.add_paragraph()  # Espaciado entre el encabezado y la siguiente sección
-
-    # Agregar tabla para los datos del vehículo
+    # Crear tabla de datos del vehículo
     table_data = doc.add_table(rows=3, cols=4)
-    table_data.style = "Table Grid"  # Aplicar estilo con bordes
+    table_data.style = "Table Grid"
     keys = list(placeholders.keys())
 
-    for i in range(3):  # Tres filas de datos
-        for j in range(4):  # Cuatro columnas por fila
+    for i in range(3):
+        for j in range(4):
             index = i * 4 + j
             if index < len(keys):
                 key = keys[index]
                 table_data.cell(i, j).text = f"{key}: {placeholders[key]}"
 
-    # Espaciado entre tablas y las imágenes
-    doc.add_paragraph()
+    doc.add_paragraph()  # Espaciado entre tablas e imágenes
 
-    # Crear tabla para las imágenes (solo 2 imágenes por fila)
+    # Crear tabla para imágenes
     num_images = len(images_base64)
     table_images = doc.add_table(rows=(num_images + 1) // 2, cols=2)
-    table_images.style = "Table Grid"  # Aplicar estilo con bordes
+    table_images.style = "Table Grid"
 
     for idx, image_base64 in enumerate(images_base64):
         image_data = base64.b64decode(image_base64)
         image_stream = BytesIO(image_data)
 
-        row = idx // 2  # Determina la fila
-        col = idx % 2   # Determina la columna (0 o 1)
-
-        # Obtener la celda donde se insertará la imagen
+        row = idx // 2
+        col = idx % 2
         cell = table_images.cell(row, col)
-
-        # Insertar la imagen y ajustarla al tamaño deseado
         paragraph = cell.paragraphs[0]
         run = paragraph.add_run()
-        run.add_picture(image_stream, width=Inches(2.5), height=Inches(2.5))  # Ajuste de tamaño
+        run.add_picture(image_stream, width=Inches(2.5), height=Inches(2.5))  # Ajustar tamaño de imágenes
 
         # Insertar salto de página después de dos imágenes
         if (idx + 1) % 2 == 0 and (idx + 1) < num_images:
             doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
 
-    # Guardar el documento en un BytesIO para enviarlo como respuesta
     word_stream = BytesIO()
     doc.save(word_stream)
     word_stream.seek(0)
 
     return word_stream
 
-
-
 @app.post("/generate_and_download/")
 async def generate_and_download(request: DocumentRequest):
     try:
-        # Generar el documento con los datos recibidos
         word_stream = generate_word_document(request.placeholders, request.images_base64, request.logo_base64)
-
-        # Retornar el archivo como respuesta de descarga
         return StreamingResponse(word_stream,
                                  media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                                  headers={"Content-Disposition": "attachment; filename=EvidenciaFotografica.docx"})
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
 
