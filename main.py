@@ -44,17 +44,6 @@ options = {
     'margin-bottom': '1cm',
     'margin-left': '1cm',
 }
-import base64
-from io import BytesIO
-from typing import Dict, List
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
-from docx import Document
-from docx.shared import Pt, Inches
-from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
-
-app = FastAPI()
 
 # Modelo de la petición
 class DocumentRequest(BaseModel):
