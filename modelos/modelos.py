@@ -115,6 +115,8 @@ class saveVehiculo(Vehiculo):
     
 class GetVehiculo(Vehiculo):
     ID : int
+    MotorVehiculo_foto: List[str]
+    Acumulador_foto: List[str]
     Espejo_retrovisor_foto: List[str]  
     Espejo_izquierdo_foto: List[str]   
     Espejo_derecho_foto: List[str]     
@@ -133,7 +135,9 @@ class GetVehiculo(Vehiculo):
     Extintor_foto: List[str]           
     Tapones_gasolina_foto: List[str]   
     Calaveras_rotas_foto: List[str]    
-    Molduras_completas_foto: List[str]   
+    Molduras_completas_foto: List[str] 
+    MotorVehiculo_video: List[str]
+    Acumulador_video: List[str]  
     Espejo_retrovisor_video: List[str]  
     Espejo_izquierdo_video: List[str]   
     Espejo_derecho_video: List[str]     
