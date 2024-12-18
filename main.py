@@ -51,7 +51,7 @@ def set_header_format(paragraph, text):
     run = paragraph.add_run(text)
     run.bold = True
     run.font.size = Pt(10)  # Tamaño de fuente para el encabezado
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
 
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str) -> BytesIO:
     doc = Document()
@@ -69,7 +69,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
         image_data = base64.b64decode(logo_base64)
         image_stream = BytesIO(image_data)
         run = paragraph_header.add_run()
-        run.add_picture(image_stream, width=Inches(1), height=Inches(1))  # Ajustar tamaño del logo
+        run.add_picture(image_stream, width=Inches(10), height=Inches(10))  # Ajustar tamaño del logo
         paragraph_header.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
 
     doc.add_paragraph()  # Espaciado entre el encabezado y el contenido
