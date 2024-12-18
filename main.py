@@ -69,7 +69,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
         image_data = base64.b64decode(logo_base64)
         image_stream = BytesIO(image_data)
         run = paragraph_header.add_run()
-        run.add_picture(image_stream, width=Inches(10), height=Inches(10))  # Ajustar tamaño del logo
+        run.add_picture(image_stream, width=Inches(4.5), height=Inches(4.5))  # Ajustar tamaño del logo
         paragraph_header.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
 
     doc.add_paragraph()  # Espaciado entre el encabezado y el contenido
