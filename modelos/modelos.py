@@ -46,6 +46,8 @@ class Vehiculo(BaseModel):
     Tipo: str
     Motor: str
     Kms: str
+    MotorVehiculo: int
+    Acumulador: int
     Espejo_retrovisor: int
     Espejo_izquierdo: int
     Espejo_derecho: int
@@ -65,6 +67,8 @@ class Vehiculo(BaseModel):
     Tapones_gasolina: int
     Calaveras_rotas: int
     Molduras_completas: int
+    MotorVehiculo_foto: List[str]
+    Acumulador_foto: List[str]
     Espejo_retrovisor_foto: List[str]
     Espejo_izquierdo_foto: List[str]
     Espejo_derecho_foto: List[str]
@@ -84,6 +88,8 @@ class Vehiculo(BaseModel):
     Tapones_gasolina_foto: List[str]
     Calaveras_rotas_foto: List[str]
     Molduras_completas_foto: List[str]
+    MotorVehiculo_video: List[str]
+    Acumulador_video: List[str]
     Espejo_retrovisor_video: List[str]  
     Espejo_izquierdo_video: List[str]   
     Espejo_derecho_video: List[str]     
