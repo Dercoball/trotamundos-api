@@ -44,10 +44,24 @@ options = {
     'margin-bottom': '1cm',
     'margin-left': '1cm',
 }
+import base64
+from io import BytesIO
+from typing import Dict, List
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from docx import Document
+from docx.shared import Pt, Inches
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+
+app = FastAPI()
+
+# Modelo de la petición
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
     images_base64: List[str]
     logo_base64: str
+    logo_derecho_base64: str  # Nuevo parámetro para el logo del lado derecho
 
 
 def set_header_format(paragraph, text):
@@ -55,34 +69,44 @@ def set_header_format(paragraph, text):
     run = paragraph.add_run(text)
     run.bold = True
     run.font.size = Pt(12)
-    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
 
-def add_merge_cell(table, row_idx, start_col, end_col):
-    """Unir celdas en una fila."""
-    cell = table.cell(row_idx, start_col)
-    cell._element.merge(table.cell(row_idx, end_col)._element)
-
-
-def generate_word_document(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str) -> BytesIO:
+def generate_word_document(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str, logo_derecho_base64: str) -> BytesIO:
     doc = Document()
 
     # Crear el encabezado
     section = doc.sections[-1]
     header = section.header
-    paragraph_header = header.paragraphs[0]
+    header_table = header.add_table(rows=1, cols=3, width=Inches(6.5))
+    header_table.autofit = True
 
-    # Insertar logo en el encabezado
+    # Insertar logo izquierdo
     if logo_base64:
         image_data = base64.b64decode(logo_base64)
         image_stream = BytesIO(image_data)
-        run = paragraph_header.add_run()
-        run.add_picture(image_stream, width=Inches(2))  # Ajustar tamaño del logo
-        paragraph_header.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
+        left_cell = header_table.cell(0, 0)
+        paragraph = left_cell.paragraphs[0]
+        run = paragraph.add_run()
+        run.add_picture(image_stream, width=Inches(1.5))
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
 
-    # Insertar texto del encabezado
-    set_header_format(paragraph_header, "FORMATO DE EVIDENCIAS FOTOGRÁFICAS")
+    # Insertar título centrado
+    title_cell = header_table.cell(0, 1)
+    title_paragraph = title_cell.paragraphs[0]
+    set_header_format(title_paragraph, "FORMATO DE EVIDENCIAS FOTOGRÁFICAS")
 
+    # Insertar logo derecho
+    if logo_derecho_base64:
+        image_data_right = base64.b64decode(logo_derecho_base64)
+        image_stream_right = BytesIO(image_data_right)
+        right_cell = header_table.cell(0, 2)
+        paragraph_right = right_cell.paragraphs[0]
+        run_right = paragraph_right.add_run()
+        run_right.add_picture(image_stream_right, width=Inches(1.5))
+        paragraph_right.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+
+    # Espacio después del encabezado
     doc.add_paragraph()
 
     # Crear tabla de datos del vehículo
@@ -125,7 +149,7 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
 
         paragraph = cell.paragraphs[0]
         run = paragraph.add_run()
-        run.add_picture(image_stream, width=Inches(2.5), height=Inches(2.5))  # Ajustar tamaño de imágenes
+        run.add_picture(image_stream, width=Inches(2.5), height=Inches(2.5))
 
     # Guardar documento en BytesIO
     word_stream = BytesIO()
@@ -138,12 +162,15 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
 @app.post("/generate_and_download/")
 async def generate_and_download(request: DocumentRequest):
     try:
-        word_stream = generate_word_document(request.placeholders, request.images_base64, request.logo_base64)
+        word_stream = generate_word_document(
+            request.placeholders, request.images_base64, request.logo_base64, request.logo_derecho_base64
+        )
         return StreamingResponse(word_stream,
                                  media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                                  headers={"Content-Disposition": "attachment; filename=EvidenciaFotografica.docx"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+
 
 @app.post(
     path="/api/seguridad/iniciarsesion",
