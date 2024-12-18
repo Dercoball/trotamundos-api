@@ -50,7 +50,7 @@ class DocumentRequest(BaseModel):
 def set_header_format(paragraph, text):
     run = paragraph.add_run(text)
     run.bold = True
-    run.font.size = Pt(14)  # Tamaño de fuente para el encabezado
+    run.font.size = Pt(10)  # Tamaño de fuente para el encabezado
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str) -> BytesIO:
