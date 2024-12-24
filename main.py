@@ -52,12 +52,22 @@ class DocumentRequestV2(BaseModel):
     logo_base64: str
     logo_derecho_base64: str
     
-def getserviceone(id_checklist: int) -> List[str]:
+def get_service_one(id_checklist: int) -> List[str]:
     query = f"exec [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = {id_checklist}"
     roles_df = pd.read_sql(query, engine)  # Ejecuta el procedimiento almacenado
+    
     if roles_df.empty:
         return []  # Retorna lista vacía si no hay resultados
-    return roles_df["image_base64"].tolist()  # Reemplaza "image_base64" con el nombre real de la columna
+
+    # Selecciona las columnas relacionadas con imágenes
+    image_columns = [col for col in roles_df.columns if '_foto' in col]
+    
+    # Combina todas las imágenes de las columnas en una sola lista
+    image_list = []
+    for col in image_columns:
+        image_list.extend(roles_df[col].dropna().tolist())  # Agrega solo valores no nulos
+
+    return image_list
 
  
 
@@ -65,7 +75,7 @@ def getserviceone(id_checklist: int) -> List[str]:
 async def generate_and_download(request: DocumentRequestV2):
     try:
         # Obtener imágenes relacionadas al checklist
-        images_base64 = getserviceone(request.id_checklist)
+        images_base64 = get_service_one(request.id_checklist)
 
         # Validar si hay imágenes
         if not images_base64:
