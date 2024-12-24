@@ -46,6 +46,48 @@ options = {
 }
 
 # Modelo de la petición
+class DocumentRequestV2(BaseModel):
+    id_checklist: int  # Nuevo parámetro para identificar el checklist
+    placeholders: Dict[str, str]
+    logo_base64: str
+    logo_derecho_base64: str
+    
+def getserviceone(id_checklist: int) -> List[str]:
+    query = f"exec [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = {id_checklist}"
+    roles_df = pd.read_sql(query, engine)  # Ejecuta el procedimiento almacenado
+    if roles_df.empty:
+        return []  # Retorna lista vacía si no hay resultados
+    return roles_df["image_base64"].tolist()  # Reemplaza "image_base64" con el nombre real de la columna
+
+ 
+
+@app.post("/generate_and_downloadservice/")
+async def generate_and_download(request: DocumentRequestV2):
+    try:
+        # Obtener imágenes relacionadas al checklist
+        images_base64 = getserviceone(request.id_checklist)
+
+        # Validar si hay imágenes
+        if not images_base64:
+            raise HTTPException(status_code=404, detail="No se encontraron imágenes para el checklist proporcionado.")
+
+        # Generar el documento Word
+        word_stream = generate_word_document(
+            request.placeholders,
+            images_base64,
+            request.logo_base64,
+            request.logo_derecho_base64
+        )
+
+        return StreamingResponse(
+            word_stream,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": "attachment; filename=EvidenciaFotografica.docx"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+
+
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
     images_base64: List[str]
