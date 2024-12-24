@@ -1707,6 +1707,7 @@ def saveservicio(payload: Checklist):
         @Id_empleado = {payload.IdEmpleado} , \
         @Id_vehiculo = {payload.IdVehiculo} , \
         @id_ordendeservicio = {payload.Id_ordendeservicio} , \
+        @id_checklist = {payload.id_checklist} , \
         @NumeroSerie = '{payload.NumeroSerie}' """
     print (query)
     with engine.begin() as conn:

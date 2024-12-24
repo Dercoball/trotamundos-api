@@ -473,4 +473,5 @@ class Checklist(BaseModel):
     Id_ordendeservicio: Optional[int] = None
     NumeroSerie: str
     id: Optional[int] = None
+    id_checklist: Optional[int] = None
     #NuevasVariables
