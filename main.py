@@ -1786,16 +1786,15 @@ def obtener_id_orden():
 
 @app.get(
     path="/api/obteneridCheck",
-    name="Obtener ID de checklists",
-    tags=["CheckList"],
-    description="Obtiene el id de los checklist"
+    name='Obtener IDs del Checklist',
+    tags=['Checklist'],
+    description='Obtiene todos los IDs de los checklists existentes',
 )
 def obtener_id_check():
-    query = f"exec [dbo].ObtenerIdCheckList"
+    query = "exec [dbo].ObtenerIdCheckList"
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
-    print(resultado)
-    return JSONResponse(status_code=200,content=resultado[0])
+    return JSONResponse(status_code=200, content=resultado)
 
 
 @app.get(
