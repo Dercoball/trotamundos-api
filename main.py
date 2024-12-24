@@ -54,13 +54,21 @@ class DocumentRequestV2(BaseModel):
     
 def get_service_one(id_checklist: int) -> List[str]:
     query = f"exec [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = {id_checklist}"
-    roles_df = pd.read_sql(query, engine)  # Ejecuta el procedimiento almacenado
     
+    # Ejecuta el procedimiento almacenado
+    try:
+        roles_df = pd.read_sql(query, engine)
+    except Exception as e:
+        raise ValueError(f"Error ejecutando el procedimiento almacenado: {e}")
+    
+    # Verifica si el DataFrame está vacío
     if roles_df.empty:
         return []  # Retorna lista vacía si no hay resultados
-
-    # Selecciona las columnas relacionadas con imágenes
+    
+    # Identifica las columnas relacionadas con imágenes
     image_columns = [col for col in roles_df.columns if '_foto' in col]
+    if not image_columns:
+        raise ValueError("El procedimiento almacenado no retornó columnas relacionadas con imágenes.")
     
     # Combina todas las imágenes de las columnas en una sola lista
     image_list = []
