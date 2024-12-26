@@ -58,47 +58,39 @@ class DocumentRequestV2(BaseModel):
 
 # Función para obtener imágenes desde la base de datos
 def get_service_one(id_checklist: int) -> List[str]:
-    query = "EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = @id_checklist"
+    query = "EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = ?"
     
     try:
-        # Ejecutar el procedimiento almacenado con parámetros usando un diccionario
-        params = {'id_checklist': id_checklist}  # Diccionario de parámetros
-        roles_df = pd.read_sql(query, engine, params=params)
+        # Usar ? como marcador de parámetro
+        roles_df = pd.read_sql(query, engine, params=[id_checklist])
         
-        # Verificar las columnas devueltas
-        logging.info("Columnas obtenidas del procedimiento:", roles_df.columns)
-
     except Exception as e:
         logging.error(f"Error ejecutando el procedimiento almacenado: {e}")
         raise HTTPException(status_code=500, detail=f"Error ejecutando el procedimiento almacenado: {e}")
-
-    # Validar si el DataFrame está vacío
+    
+    # Verificación de datos y proceso posterior
     if roles_df.empty:
         raise HTTPException(status_code=404, detail="No se encontraron datos para el checklist proporcionado.")
     
-    # Identificar columnas relacionadas con imágenes (columnas que contienen '_foto')
+    # Procesamiento de imágenes
     image_columns = [col for col in roles_df.columns if isinstance(col, str) and '_foto' in col]
     
     if not image_columns:
         raise ValueError("El procedimiento almacenado no retornó columnas relacionadas con imágenes.")
     
-    # Crear una lista de imágenes en formato Base64
     image_list = []
     for col in image_columns:
         image_list.extend(roles_df[col].dropna().tolist())
     
-    # Filtrar las imágenes vacías (por si alguna columna tiene una cadena vacía)
     image_list = [img for img in image_list if img.strip() != '']
     
-    # Verificar si las imágenes están en Base64 o si es necesario convertirlas
     image_list_base64 = []
     for img in image_list:
         if img.startswith("data:image/"):
-            image_list_base64.append(img)  # Si ya están en Base64, agregarlas tal cual
+            image_list_base64.append(img)
         else:
             try:
-                # Si no es Base64, puede ser una ruta de archivo o URL, se puede convertir en Base64
-                with open(img, "rb") as img_file:  # Suponiendo que img es una ruta a archivo
+                with open(img, "rb") as img_file:
                     encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
                     image_list_base64.append(f"data:image/jpeg;base64,{encoded_image}")
             except Exception as e:
