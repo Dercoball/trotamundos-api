@@ -170,10 +170,10 @@ def generate_word_documentv2(placeholders: Dict[str, str], images_base64: List[s
 
     keys = list(placeholders.keys())
     values = list(placeholders.values())
+
+    # Ajustar keys_and_values en caso de que el número de placeholders sea menor que 6
     keys_and_values = [
-        (keys[0], values[0]), (keys[1], values[1]),
-        (keys[2], values[2]), (keys[3], values[3]),
-        (keys[4], values[4]), (keys[5], values[5]),
+        (keys[i], values[i]) if i < len(keys) else ("", "") for i in range(6)
     ]
 
     for i in range(3):  # Llenar filas y columnas
@@ -190,9 +190,14 @@ def generate_word_documentv2(placeholders: Dict[str, str], images_base64: List[s
 
     # Crear tabla para imágenes (2 columnas)
     num_images = len(images_base64)
-    rows = (num_images + 1) // 2  # Calcular filas necesarias
+    rows = (num_images + 1) // 2 if num_images > 1 else 1  # Asegurar que haya al menos una fila
+
     table_images = doc.add_table(rows=rows, cols=2)
     table_images.style = "Table Grid"
+
+    # Verificar que haya imágenes base64 antes de intentar insertarlas
+    if not images_base64:
+        raise ValueError("No se encontraron imágenes válidas para agregar.")
 
     for idx, image_base64 in enumerate(images_base64):
         image_data = base64.b64decode(image_base64)
