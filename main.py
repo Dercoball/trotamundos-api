@@ -65,10 +65,11 @@ def get_service_one(id_checklist: int) -> List[str]:
         roles_df = pd.read_sql(query, engine, params=[id_checklist])
         
         # Verificar las columnas devueltas
-        print("Columnas obtenidas del procedimiento:", roles_df.columns)
+        logging.info("Columnas obtenidas del procedimiento:", roles_df.columns)
 
     except Exception as e:
-        raise ValueError(f"Error ejecutando el procedimiento almacenado: {e}")
+        logging.error(f"Error ejecutando el procedimiento almacenado: {e}")
+        raise HTTPException(status_code=500, detail=f"Error ejecutando el procedimiento almacenado: {e}")
 
     # Validar si el DataFrame está vacío
     if roles_df.empty:
@@ -88,30 +89,126 @@ def get_service_one(id_checklist: int) -> List[str]:
     # Filtrar las imágenes vacías (por si alguna columna tiene una cadena vacía)
     image_list = [img for img in image_list if img.strip() != '']
     
-    return image_list
+    # Verificar si las imágenes están en Base64 o si es necesario convertirlas
+    image_list_base64 = []
+    for img in image_list:
+        if img.startswith("data:image/"):
+            image_list_base64.append(img)  # Si ya están en Base64, agregarlas tal cual
+        else:
+            try:
+                # Si no es Base64, puede ser una ruta de archivo o URL, se puede convertir en Base64
+                with open(img, "rb") as img_file:  # Suponiendo que img es una ruta a archivo
+                    encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
+                    image_list_base64.append(f"data:image/jpeg;base64,{encoded_image}")
+            except Exception as e:
+                logging.error(f"Error al procesar la imagen: {e}")
+                raise ValueError(f"No se pudo convertir la imagen a Base64: {e}")
+    
+    return image_list_base64
 
 # Función para generar el documento Word (suponiendo que tienes esta función implementada)
-def generate_word_document(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str, logo_derecho_base64: str) -> BytesIO:
-    # Aquí deberías implementar la generación del documento Word con las imágenes en base64
-    # Y devolverlo como un objeto BytesIO
-    pass
+def generate_word_documentv2(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str, logo_derecho_base64: str) -> BytesIO:
+    doc = Document()
+
+    # Crear el encabezado
+    section = doc.sections[-1]
+    header = section.header
+    header_table = header.add_table(rows=1, cols=3, width=Inches(6.5))
+    header_table.autofit = True
+
+    # Insertar logo izquierdo
+    if logo_base64:
+        image_data = base64.b64decode(logo_base64)
+        image_stream = BytesIO(image_data)
+        left_cell = header_table.cell(0, 0)
+        paragraph = left_cell.paragraphs[0]
+        run = paragraph.add_run()
+        run.add_picture(image_stream, width=Inches(1.5))
+        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
+
+    # Insertar título centrado
+    title_cell = header_table.cell(0, 1)
+    title_paragraph = title_cell.paragraphs[0]
+    set_header_format(title_paragraph, "FORMATO DE EVIDENCIAS FOTOGRÁFICAS")
+
+    # Insertar logo derecho
+    if logo_derecho_base64:
+        image_data_right = base64.b64decode(logo_derecho_base64)
+        image_stream_right = BytesIO(image_data_right)
+        right_cell = header_table.cell(0, 2)
+        paragraph_right = right_cell.paragraphs[0]
+        run_right = paragraph_right.add_run()
+        run_right.add_picture(image_stream_right, width=Inches(1.5))
+        paragraph_right.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+
+    # Espacio después del encabezado
+    doc.add_paragraph()
+
+    # Crear tabla de datos del vehículo
+    table_data = doc.add_table(rows=3, cols=4)
+    table_data.style = "Table Grid"
+
+    keys = list(placeholders.keys())
+    values = list(placeholders.values())
+    keys_and_values = [
+        (keys[0], values[0]), (keys[1], values[1]),
+        (keys[2], values[2]), (keys[3], values[3]),
+        (keys[4], values[4]), (keys[5], values[5]),
+    ]
+
+    for i in range(3):  # Llenar filas y columnas
+        for j in range(4):
+            index = i * 4 + j
+            if index < len(keys_and_values):
+                key, value = keys_and_values[index]
+                cell = table_data.cell(i, j)
+                cell.text = f"{key.upper()}: {value}"
+                cell.paragraphs[0].runs[0].font.size = Pt(10)
+
+    # Espacio entre tabla y fotos
+    doc.add_paragraph()
+
+    # Crear tabla para imágenes (2 columnas)
+    num_images = len(images_base64)
+    rows = (num_images + 1) // 2  # Calcular filas necesarias
+    table_images = doc.add_table(rows=rows, cols=2)
+    table_images.style = "Table Grid"
+
+    for idx, image_base64 in enumerate(images_base64):
+        image_data = base64.b64decode(image_base64)
+        image_stream = BytesIO(image_data)
+
+        row = idx // 2
+        col = idx % 2
+        cell = table_images.cell(row, col)
+
+        paragraph = cell.paragraphs[0]
+        run = paragraph.add_run()
+        run.add_picture(image_stream, width=Inches(2.5), height=Inches(2.5))
+
+    # Guardar documento en BytesIO
+    word_stream = BytesIO()
+    doc.save(word_stream)
+    word_stream.seek(0)
+
+    return word_stream
 
 # Definir la ruta para generar y descargar el servicio
 @app.post("/generate_and_downloadservice/")
-async def generate_and_download(request: DocumentRequestV2):
+async def generate_and_downloadv2(request: DocumentRequestV2):
     try:
         if not isinstance(request.id_checklist, int):
             raise HTTPException(status_code=400, detail="El id_checklist debe ser un entero.")
         
         # Obtener las imágenes en base64 para el checklist proporcionado
         images_base64 = get_service_one(request.id_checklist)
-        print(f"Imágenes obtenidas para id_checklist {request.id_checklist}:", images_base64)
+        logging.info(f"Imágenes obtenidas para id_checklist {request.id_checklist}:", images_base64)
         
         if not images_base64:
             raise HTTPException(status_code=404, detail="No se encontraron imágenes para el checklist proporcionado.")
         
         # Generar el documento Word
-        word_stream = generate_word_document(
+        word_stream = generate_word_documentv2(
             request.placeholders,
             images_base64,
             request.logo_base64,
@@ -130,9 +227,7 @@ async def generate_and_download(request: DocumentRequestV2):
     except Exception as e:
         logging.error(f"Error inesperado: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
-
-
-
+    
 class DocumentRequest(BaseModel):
     placeholders: Dict[str, str]
     images_base64: List[str]
