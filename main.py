@@ -58,24 +58,20 @@ class DocumentRequestV2(BaseModel):
 
 # Función para obtener imágenes desde la base de datos
 def get_service_one(id_checklist: int) -> List[str]:
-    query = "EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = ?"
+    query = text("EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = :id_checklist")
     
     try:
-        # Crear la conexión a la base de datos con pyodbc
-        connection = pyodbc.connect('DSN=your_dsn;UID=user;PWD=password')  # Asegúrate de tener la conexión configurada
-        cursor = connection.cursor()
-        
-        # Ejecutar la consulta pasando el parámetro correctamente
-        cursor.execute(query, (id_checklist,))
-        
-        # Obtener los resultados
-        columns = [column[0] for column in cursor.description]
-        rows = cursor.fetchall()
-        roles_df = pd.DataFrame(rows, columns=columns)
-        
-        # Cerrar el cursor y la conexión
-        cursor.close()
-        connection.close()
+        # Usar el engine de SQLAlchemy para conectarse a la base de datos
+        with engine.connect() as connection:
+            # Ejecutar la consulta pasando el parámetro correctamente
+            result = connection.execute(query, {"id_checklist": id_checklist})
+            
+            # Obtener los resultados
+            columns = result.keys()
+            rows = result.fetchall()
+            
+            # Convertir los resultados en un DataFrame
+            roles_df = pd.DataFrame(rows, columns=columns)
         
     except Exception as e:
         logging.error(f"Error ejecutando el procedimiento almacenado: {e}")
@@ -111,7 +107,6 @@ def get_service_one(id_checklist: int) -> List[str]:
                 raise ValueError(f"No se pudo convertir la imagen a Base64: {e}")
     
     return image_list_base64
-
 # Función para generar el documento Word (suponiendo que tienes esta función implementada)
 def generate_word_documentv2(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str, logo_derecho_base64: str) -> BytesIO:
     doc = Document()
