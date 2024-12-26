@@ -56,37 +56,29 @@ class DocumentRequestV2(BaseModel):
     placeholders: Dict[str, str]
     logo_base64: str
     logo_derecho_base64: str
-
-
-
 def get_service_one(id_checklist: int) -> List[str]:
-    query = text("EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = :id_checklist")
-    
+    query = "[dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = :id_checklist"    
     try:
         # Ejecutar el procedimiento almacenado con parámetros
-        result = engine.execute(query, id_checklist=id_checklist)
-        rows = result.fetchall()
+        roles_df = pd.read_sql(query, engine, params={"id_checklist": id_checklist})
     except Exception as e:
         raise ValueError(f"Error ejecutando el procedimiento almacenado: {e}")
 
-    # Convertir los resultados en un DataFrame (si es necesario)
-    columns = result.keys()
-    roles_df = pd.DataFrame(rows, columns=columns)
-
+    # Validar si el DataFrame está vacío
     if roles_df.empty:
         return []
 
-    image_columns = [col for col in roles_df.columns if '_foto' in col]
+    # Identificar columnas relacionadas con imágenes
+    image_columns = [col for col in roles_df.columns if isinstance(col, str) and '_foto' in col]
     if not image_columns:
         raise ValueError("El procedimiento almacenado no retornó columnas relacionadas con imágenes.")
 
+    # Crear una lista de imágenes
     image_list = []
     for col in image_columns:
         image_list.extend(roles_df[col].dropna().tolist())
 
     return image_list
-
-
 @app.post("/generate_and_downloadservice/")
 async def generate_and_download(request: DocumentRequestV2):
     try:
