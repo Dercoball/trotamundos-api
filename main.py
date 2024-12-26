@@ -51,6 +51,22 @@ options = {
 }
 
 # Modelo de la petición
+@app.get(
+        path="/api/obtenerchecklist",
+        name='Obtener checklist',
+        tags=['Checklist'],
+        description='Método para obtener la informacion de 1 checklist',
+        response_model=Checklist
+)
+def getempleados(Idchecklist: int):
+    query = f"exec [dbo].[sp_get_all_checklist] @IdCheckList = {Idchecklist}"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    print(resultado)
+    return JSONResponse(status_code=200,content=resultado[0])
+
+
+
 class DocumentRequestV2(BaseModel):
     id_checklist: int  # Nuevo parámetro para identificar el checklist
     placeholders: Dict[str, str]
@@ -82,8 +98,11 @@ def get_service_one(id_checklist: int) -> List[str]:
 @app.post("/generate_and_downloadservice/")
 async def generate_and_download(request: DocumentRequestV2):
     try:
-        # Obtener imágenes relacionadas al checklist
+        if not isinstance(request.id_checklist, int):
+            raise HTTPException(status_code=400, detail="El id_checklist debe ser un entero.")
+
         images_base64 = get_service_one(request.id_checklist)
+        print(f"Imágenes obtenidas para id_checklist {request.id_checklist}:", images_base64)
 
         if not images_base64:
             raise HTTPException(status_code=404, detail="No se encontraron imágenes para el checklist proporcionado.")
@@ -101,11 +120,11 @@ async def generate_and_download(request: DocumentRequestV2):
             headers={"Content-Disposition": "attachment; filename=EvidenciaFotografica.docx"}
         )
     except HTTPException as e:
-        raise e  # Deja que FastAPI maneje errores personalizados
+        raise e
     except Exception as e:
-        # Log detallado para depuración
         logging.error(f"Error inesperado: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+
 
 
 class DocumentRequest(BaseModel):
