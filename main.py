@@ -58,11 +58,12 @@ class DocumentRequestV2(BaseModel):
 
 # Función para obtener imágenes desde la base de datos
 def get_service_one(id_checklist: int) -> List[str]:
-    query = "EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = ?"
+    query = "EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = :id_checklist"
     
     try:
-        # Usar ? como marcador de parámetro
-        roles_df = pd.read_sql(query, engine, params=[id_checklist])
+        # Usar parámetros con nombre en un diccionario
+        params = {'id_checklist': id_checklist}
+        roles_df = pd.read_sql(query, engine, params=params)
         
     except Exception as e:
         logging.error(f"Error ejecutando el procedimiento almacenado: {e}")
