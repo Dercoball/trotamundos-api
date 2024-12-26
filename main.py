@@ -58,12 +58,24 @@ class DocumentRequestV2(BaseModel):
 
 # Función para obtener imágenes desde la base de datos
 def get_service_one(id_checklist: int) -> List[str]:
-    query = "EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = :id_checklist"
+    query = "EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = ?"
     
     try:
-        # Usar parámetros con nombre en un diccionario
-        params = {'id_checklist': id_checklist}
-        roles_df = pd.read_sql(query, engine, params=params)
+        # Crear la conexión a la base de datos con pyodbc
+        connection = pyodbc.connect('DSN=your_dsn;UID=user;PWD=password')  # Asegúrate de tener la conexión configurada
+        cursor = connection.cursor()
+        
+        # Ejecutar la consulta pasando el parámetro correctamente
+        cursor.execute(query, (id_checklist,))
+        
+        # Obtener los resultados
+        columns = [column[0] for column in cursor.description]
+        rows = cursor.fetchall()
+        roles_df = pd.DataFrame(rows, columns=columns)
+        
+        # Cerrar el cursor y la conexión
+        cursor.close()
+        connection.close()
         
     except Exception as e:
         logging.error(f"Error ejecutando el procedimiento almacenado: {e}")
