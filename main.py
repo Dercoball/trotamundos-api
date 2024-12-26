@@ -58,17 +58,21 @@ class DocumentRequestV2(BaseModel):
     logo_base64: str
     logo_derecho_base64: str
 
-# Función para comprimir una imagen antes de convertirla a Base64
 def compress_image(image_path: str, quality: int = 85) -> bytes:
     img = Image.open(image_path)
-    img = img.convert("RGB")  # Convertir a RGB si la imagen es en otro formato
-    buffer = io.BytesIO()
+    img = img.convert("RGB")  # Convertir a RGB si la imagen está en otro formato
+    buffer = BytesIO()
     img.save(buffer, format="JPEG", quality=quality)  # Comprimir la imagen
     return buffer.getvalue()
 
 # Función para validar el tamaño de una imagen Base64
 def validate_image_size(base64_image: str, max_size_mb: int = 5) -> bool:
-    image_size = len(base64_image) * 3 / 4  # El tamaño del Base64 es mayor que el tamaño del archivo original
+    # Recortar prefijo si está presente
+    if base64_image.startswith("data:image/"):
+        base64_image = base64_image.split(",")[1]
+    
+    # Calcular tamaño del contenido
+    image_size = len(base64_image) * 3 / 4
     image_size_mb = image_size / (1024 * 1024)
     if image_size_mb > max_size_mb:
         raise ValueError(f"El tamaño de la imagen excede el límite de {max_size_mb} MB.")
@@ -104,10 +108,12 @@ def get_service_one(id_checklist: int) -> List[str]:
     
     image_list_base64 = []
     for img in image_list:
-        if img.startswith("data:image/"):
-            if validate_image_size(img):  # Validar tamaño
+        
+            # Validar tamaño y recortar prefijo
+            base64_data = img.split(",")[1]
+            if validate_image_size(base64_data):
                 image_list_base64.append(img)
-        else:
+        
             try:
                 with open(img, "rb") as img_file:
                     compressed_image = compress_image(img)  # Comprimir imagen
@@ -118,6 +124,7 @@ def get_service_one(id_checklist: int) -> List[str]:
                 raise ValueError(f"No se pudo convertir la imagen a Base64: {e}")
     
     return image_list_base64
+
 
 # Función para generar el documento Word con imágenes y placeholders
 def generate_word_documentv2(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str, logo_derecho_base64: str) -> BytesIO:
