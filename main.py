@@ -26,6 +26,8 @@ from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 import logging
+from PIL import Image
+import io
 from sqlalchemy.sql import text
 # Configuración del logger
 logging.basicConfig(level=logging.INFO)
@@ -56,32 +58,37 @@ class DocumentRequestV2(BaseModel):
     logo_base64: str
     logo_derecho_base64: str
 
+def compress_image(image_path: str, quality: int = 85) -> bytes:
+    img = Image.open(image_path)
+    img = img.convert("RGB")  # Convertir a RGB si la imagen es en otro formato
+    buffer = io.BytesIO()
+    img.save(buffer, format="JPEG", quality=quality)  # Comprimir la imagen
+    return buffer.getvalue()
+
+def validate_image_size(base64_image: str, max_size_mb: int = 5) -> bool:
+    image_size = len(base64_image) * 3 / 4  # El tamaño del Base64 es mayor que el tamaño del archivo original
+    image_size_mb = image_size / (1024 * 1024)
+    if image_size_mb > max_size_mb:
+        raise ValueError(f"El tamaño de la imagen excede el límite de {max_size_mb} MB.")
+    return True
+
 # Función para obtener imágenes desde la base de datos
 def get_service_one(id_checklist: int) -> List[str]:
     query = text("EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = :id_checklist")
     
     try:
-        # Usar el engine de SQLAlchemy para conectarse a la base de datos
         with engine.connect() as connection:
-            # Ejecutar la consulta pasando el parámetro correctamente
             result = connection.execute(query, {"id_checklist": id_checklist})
-            
-            # Obtener los resultados
             columns = result.keys()
             rows = result.fetchall()
-            
-            # Convertir los resultados en un DataFrame
             roles_df = pd.DataFrame(rows, columns=columns)
-        
     except Exception as e:
         logging.error(f"Error ejecutando el procedimiento almacenado: {e}")
         raise HTTPException(status_code=500, detail=f"Error ejecutando el procedimiento almacenado: {e}")
     
-    # Verificación de datos y proceso posterior
     if roles_df.empty:
         raise HTTPException(status_code=404, detail="No se encontraron datos para el checklist proporcionado.")
     
-    # Procesamiento de imágenes
     image_columns = [col for col in roles_df.columns if isinstance(col, str) and '_foto' in col]
     
     if not image_columns:
@@ -96,17 +103,20 @@ def get_service_one(id_checklist: int) -> List[str]:
     image_list_base64 = []
     for img in image_list:
         if img.startswith("data:image/"):
-            image_list_base64.append(img)
+            if validate_image_size(img):  # Validar tamaño
+                image_list_base64.append(img)
         else:
             try:
                 with open(img, "rb") as img_file:
-                    encoded_image = base64.b64encode(img_file.read()).decode('utf-8')
+                    compressed_image = compress_image(img)  # Comprimir imagen
+                    encoded_image = base64.b64encode(compressed_image).decode('utf-8')
                     image_list_base64.append(f"data:image/jpeg;base64,{encoded_image}")
             except Exception as e:
                 logging.error(f"Error al procesar la imagen: {e}")
                 raise ValueError(f"No se pudo convertir la imagen a Base64: {e}")
     
     return image_list_base64
+
 # Función para generar el documento Word (suponiendo que tienes esta función implementada)
 def generate_word_documentv2(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str, logo_derecho_base64: str) -> BytesIO:
     doc = Document()
