@@ -50,63 +50,67 @@ options = {
     'margin-left': '1cm',
 }
 
-# Modelo de la petición
-@app.get(
-        path="/api/obtenerchecklist",
-        name='Obtener checklist',
-        tags=['Checklist'],
-        description='Método para obtener la informacion de 1 checklist',
-        response_model=Checklist
-)
-def getempleados(Idchecklist: int):
-    query = f"exec [dbo].[sp_get_all_checklist] @IdCheckList = {Idchecklist}"
-    roles_df = pd.read_sql(query, engine)
-    resultado = roles_df.to_dict(orient="records")
-    print(resultado)
-    return JSONResponse(status_code=200,content=resultado[0])
-
-
-
 class DocumentRequestV2(BaseModel):
     id_checklist: int  # Nuevo parámetro para identificar el checklist
     placeholders: Dict[str, str]
     logo_base64: str
     logo_derecho_base64: str
+
+# Función para obtener imágenes desde la base de datos
 def get_service_one(id_checklist: int) -> List[str]:
-    query = "EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = ?"    
+    query = "EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = ?"
+    
     try:
         # Ejecutar el procedimiento almacenado con parámetros
         roles_df = pd.read_sql(query, engine, params=[id_checklist])
+        
+        # Verificar las columnas devueltas
+        print("Columnas obtenidas del procedimiento:", roles_df.columns)
+
     except Exception as e:
         raise ValueError(f"Error ejecutando el procedimiento almacenado: {e}")
 
     # Validar si el DataFrame está vacío
     if roles_df.empty:
-        return []
-
-    # Identificar columnas relacionadas con imágenes
+        raise HTTPException(status_code=404, detail="No se encontraron datos para el checklist proporcionado.")
+    
+    # Identificar columnas relacionadas con imágenes (columnas que contienen '_foto')
     image_columns = [col for col in roles_df.columns if isinstance(col, str) and '_foto' in col]
+    
     if not image_columns:
         raise ValueError("El procedimiento almacenado no retornó columnas relacionadas con imágenes.")
-
-    # Crear una lista de imágenes
+    
+    # Crear una lista de imágenes en formato Base64
     image_list = []
     for col in image_columns:
         image_list.extend(roles_df[col].dropna().tolist())
-
+    
+    # Filtrar las imágenes vacías (por si alguna columna tiene una cadena vacía)
+    image_list = [img for img in image_list if img.strip() != '']
+    
     return image_list
+
+# Función para generar el documento Word (suponiendo que tienes esta función implementada)
+def generate_word_document(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str, logo_derecho_base64: str) -> BytesIO:
+    # Aquí deberías implementar la generación del documento Word con las imágenes en base64
+    # Y devolverlo como un objeto BytesIO
+    pass
+
+# Definir la ruta para generar y descargar el servicio
 @app.post("/generate_and_downloadservice/")
 async def generate_and_download(request: DocumentRequestV2):
     try:
         if not isinstance(request.id_checklist, int):
             raise HTTPException(status_code=400, detail="El id_checklist debe ser un entero.")
-
+        
+        # Obtener las imágenes en base64 para el checklist proporcionado
         images_base64 = get_service_one(request.id_checklist)
         print(f"Imágenes obtenidas para id_checklist {request.id_checklist}:", images_base64)
-
+        
         if not images_base64:
             raise HTTPException(status_code=404, detail="No se encontraron imágenes para el checklist proporcionado.")
-
+        
+        # Generar el documento Word
         word_stream = generate_word_document(
             request.placeholders,
             images_base64,
@@ -114,11 +118,13 @@ async def generate_and_download(request: DocumentRequestV2):
             request.logo_derecho_base64
         )
 
+        # Devolver el documento como respuesta
         return StreamingResponse(
             word_stream,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             headers={"Content-Disposition": "attachment; filename=EvidenciaFotografica.docx"}
         )
+    
     except HTTPException as e:
         raise e
     except Exception as e:
