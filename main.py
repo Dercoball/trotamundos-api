@@ -58,7 +58,7 @@ class DocumentRequestV2(BaseModel):
     logo_base64: str
     logo_derecho_base64: str
 
-
+# Función para comprimir imágenes
 def compress_image(image_path: str, quality: int = 85) -> bytes:
     img = Image.open(image_path)
     img = img.convert("RGB")  # Convertir a RGB si la imagen está en otro formato
@@ -66,9 +66,12 @@ def compress_image(image_path: str, quality: int = 85) -> bytes:
     img.save(buffer, format="JPEG", quality=quality)  # Comprimir la imagen
     return buffer.getvalue()
 
-
+# Función para validar el tamaño de una imagen Base64
 def validate_image_size(base64_image: str, max_size_mb: int = 5) -> bool:
-    """Validar el tamaño de una imagen Base64."""
+    # Recortar prefijo si está presente
+    if base64_image.startswith("data:image/"):
+        base64_image = base64_image.split(",")[1]
+    
     # Calcular tamaño del contenido
     image_size = len(base64_image) * 3 / 4
     image_size_mb = image_size / (1024 * 1024)
@@ -76,11 +79,10 @@ def validate_image_size(base64_image: str, max_size_mb: int = 5) -> bool:
         raise ValueError(f"El tamaño de la imagen excede el límite de {max_size_mb} MB.")
     return True
 
-
+# Función para obtener imágenes desde la base de datos para un checklist específico
 def get_service_one(id_checklist: int, num_placeholders: int) -> List[str]:
-    """Obtener imágenes desde la base de datos y limitar al número de placeholders."""
     query = text("EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = :id_checklist")
-
+    
     try:
         with engine.connect() as connection:
             result = connection.execute(query, {"id_checklist": id_checklist})
@@ -90,36 +92,37 @@ def get_service_one(id_checklist: int, num_placeholders: int) -> List[str]:
     except Exception as e:
         logging.error(f"Error ejecutando el procedimiento almacenado: {e}")
         raise HTTPException(status_code=500, detail=f"Error ejecutando el procedimiento almacenado: {e}")
-
+    
     if roles_df.empty:
         raise HTTPException(status_code=404, detail="No se encontraron datos para el checklist proporcionado.")
-
-    # Filtrar las columnas relacionadas con imágenes
+    
+    # Filtrar columnas de imágenes
     image_columns = [col for col in roles_df.columns if isinstance(col, str) and '_foto' in col]
-
+    
     if not image_columns:
         raise ValueError("El procedimiento almacenado no retornó columnas relacionadas con imágenes.")
-
-    # Extraer las imágenes y limpiar datos vacíos
+    
+    # Extraer imágenes de las columnas
     image_list = []
     for col in image_columns:
         image_list.extend(roles_df[col].dropna().tolist())
     
+    # Filtrar imágenes válidas
     image_list = [img for img in image_list if img.strip() != '']
-
-    # Limitar el número de imágenes a los placeholders disponibles
-    limited_images = image_list[:num_placeholders]
-
-    # Procesar las imágenes para validarlas y convertirlas a Base64
+    
+    # Asegurar que el número de imágenes no exceda los placeholders
+    if len(image_list) > num_placeholders:
+        image_list = image_list[:num_placeholders]
+    
     image_list_base64 = []
-    for img in limited_images:
+    for img in image_list:
         try:
-            # Validar tamaño si es necesario
-            validate_image_size(img)
-            image_list_base64.append(img)  # Si ya está en Base64, solo lo agregamos
-        except ValueError as e:
-            logging.warning(f"Imagen descartada por tamaño: {e}")
-
+            validate_image_size(img)  # Validar tamaño de la imagen
+            image_list_base64.append(img)  # La imagen ya está en formato Base64
+        except Exception as e:
+            logging.error(f"Error al procesar la imagen: {e}")
+            raise ValueError(f"No se pudo procesar la imagen: {e}")
+    
     return image_list_base64
 
 
@@ -210,16 +213,19 @@ def generate_word_documentv2(placeholders: Dict[str, str], images_base64: List[s
 
     return word_stream
 
-# Definir la ruta para generar y descargar el servicio
 @app.post("/generate_and_downloadservice/")
 async def generate_and_downloadv2(request: DocumentRequestV2):
     try:
+        # Validar que el id_checklist sea un entero
         if not isinstance(request.id_checklist, int):
             raise HTTPException(status_code=400, detail="El id_checklist debe ser un entero.")
         
+        # Calcular el número de placeholders desde la solicitud
+        num_placeholders = len(request.placeholders)
+        
         # Obtener las imágenes en base64 para el checklist proporcionado
-        images_base64 = get_service_one(request.id_checklist)
-        logging.info(f"Imágenes obtenidas para id_checklist {request.id_checklist}:", images_base64)
+        images_base64 = get_service_one(request.id_checklist, num_placeholders)
+        logging.info(f"Imágenes obtenidas para id_checklist {request.id_checklist}: {images_base64}")
         
         if not images_base64:
             raise HTTPException(status_code=404, detail="No se encontraron imágenes para el checklist proporcionado.")
