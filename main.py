@@ -58,6 +58,7 @@ class DocumentRequestV2(BaseModel):
     logo_base64: str
     logo_derecho_base64: str
 
+# Función para comprimir una imagen antes de convertirla a Base64
 def compress_image(image_path: str, quality: int = 85) -> bytes:
     img = Image.open(image_path)
     img = img.convert("RGB")  # Convertir a RGB si la imagen es en otro formato
@@ -65,6 +66,7 @@ def compress_image(image_path: str, quality: int = 85) -> bytes:
     img.save(buffer, format="JPEG", quality=quality)  # Comprimir la imagen
     return buffer.getvalue()
 
+# Función para validar el tamaño de una imagen Base64
 def validate_image_size(base64_image: str, max_size_mb: int = 5) -> bool:
     image_size = len(base64_image) * 3 / 4  # El tamaño del Base64 es mayor que el tamaño del archivo original
     image_size_mb = image_size / (1024 * 1024)
@@ -72,7 +74,7 @@ def validate_image_size(base64_image: str, max_size_mb: int = 5) -> bool:
         raise ValueError(f"El tamaño de la imagen excede el límite de {max_size_mb} MB.")
     return True
 
-# Función para obtener imágenes desde la base de datos
+# Función para obtener imágenes desde la base de datos para un checklist específico
 def get_service_one(id_checklist: int) -> List[str]:
     query = text("EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = :id_checklist")
     
@@ -117,7 +119,7 @@ def get_service_one(id_checklist: int) -> List[str]:
     
     return image_list_base64
 
-# Función para generar el documento Word (suponiendo que tienes esta función implementada)
+# Función para generar el documento Word con imágenes y placeholders
 def generate_word_documentv2(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str, logo_derecho_base64: str) -> BytesIO:
     doc = Document()
 
