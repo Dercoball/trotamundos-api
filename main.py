@@ -57,10 +57,10 @@ class DocumentRequestV2(BaseModel):
     logo_base64: str
     logo_derecho_base64: str
 def get_service_one(id_checklist: int) -> List[str]:
-    query = "[dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = :id_checklist"    
+    query = "EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = ?"    
     try:
         # Ejecutar el procedimiento almacenado con parámetros
-        roles_df = pd.read_sql(query, engine, params={"id_checklist": id_checklist})
+        roles_df = pd.read_sql(query, engine, params=[id_checklist])
     except Exception as e:
         raise ValueError(f"Error ejecutando el procedimiento almacenado: {e}")
 
