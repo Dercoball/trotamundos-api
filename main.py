@@ -262,14 +262,12 @@ class DocumentRequest(BaseModel):
     logo_base64: str
     logo_derecho_base64: str  # Nuevo parámetro para el logo del lado derecho
 
-
 def set_header_format(paragraph, text):
     """Establecer formato para el título del encabezado."""
     run = paragraph.add_run(text)
     run.bold = True
     run.font.size = Pt(12)
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-
 
 def generate_word_document(placeholders: Dict[str, str], images_base64: List[str], logo_base64: str, logo_derecho_base64: str) -> BytesIO:
     doc = Document()
@@ -309,25 +307,15 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     doc.add_paragraph()
 
     # Crear tabla de datos del vehículo
-    table_data = doc.add_table(rows=3, cols=4)
+    table_data = doc.add_table(rows=0, cols=2)
     table_data.style = "Table Grid"
 
-    keys = list(placeholders.keys())
-    values = list(placeholders.values())
-    keys_and_values = [
-        (keys[0], values[0]), (keys[1], values[1]),
-        (keys[2], values[2]), (keys[3], values[3]),
-        (keys[4], values[4]), (keys[5], values[5]),
-    ]
-
-    for i in range(3):  # Llenar filas y columnas
-        for j in range(4):
-            index = i * 4 + j
-            if index < len(keys_and_values):
-                key, value = keys_and_values[index]
-                cell = table_data.cell(i, j)
-                cell.text = f"{key.upper()}: {value}"
-                cell.paragraphs[0].runs[0].font.size = Pt(10)
+    for key, value in placeholders.items():
+        row = table_data.add_row()
+        row.cells[0].text = key.upper() + ":"
+        row.cells[1].text = value
+        row.cells[0].paragraphs[0].runs[0].font.size = Pt(10)
+        row.cells[1].paragraphs[0].runs[0].font.size = Pt(10)
 
     # Espacio entre tabla y fotos
     doc.add_paragraph()
@@ -356,7 +344,6 @@ def generate_word_document(placeholders: Dict[str, str], images_base64: List[str
     word_stream.seek(0)
 
     return word_stream
-
 
 @app.post("/generate_and_download/")
 async def generate_and_download(request: DocumentRequest):
