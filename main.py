@@ -1980,6 +1980,32 @@ def getservicio(Idchecklist: int):
     return JSONResponse(status_code=200,content=resultado[0])
 
 @app.get(
+        path="/api/obtenerhistoricos",
+        name='Obtener históricos',
+        tags=['Historico'],
+        description='Método para obtener la informacion de todos los históricos',
+        response_model=CheckListHistorico
+)
+def getshistoricocheck():
+    query = f"exec [dbo].[ObtenerHistoricoCheck]"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado)
+
+@app.get(
+        path="/api/obtenerhistoricosservicios",
+        name='Obtener históricos servicios',
+        tags=['Historico'],
+        description='Método para obtener la informacion de todos los históricos de servicios',
+        response_model=CheckListHistorico
+)
+def getshistoricoservicio():
+    query = f"exec [dbo].[ObtenerHistoricoServicio]"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado)
+
+@app.get(
         path="/api/obtenerservicios",
         name='Obtener servicios',
         tags=['Servicio'],
@@ -2497,6 +2523,19 @@ def obtener_checklist_html(Idchecklist: int):
     pdfkit.from_string(htmlstring, 'reporte.pdf', configuration=config)
     return JSONResponse(content={"message": "PDF creado exitosamente"}, status_code=200) 
     return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get(
+        path="/api/historicocheck",
+        name='Obtener clientes',
+        tags=['Historico'],
+        description='Método para obtener la informacion de todos los clientes',
+        response_model=List[GetCliente]
+)
+def getclientes(busqueda = ""):
+    query = f"exec Clientes.clienteinsupdel @Accion = 2,@ParametroBusqueda = '{busqueda}' "
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado)
 
 @app.post(
         path="/api/ordenservice",
