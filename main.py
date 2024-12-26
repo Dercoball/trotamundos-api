@@ -25,6 +25,11 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT, WD_BREAK
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
+import logging
+from sqlalchemy.sql import text
+# Configuración del logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -51,33 +56,36 @@ class DocumentRequestV2(BaseModel):
     placeholders: Dict[str, str]
     logo_base64: str
     logo_derecho_base64: str
-    
+
+
+
 def get_service_one(id_checklist: int) -> List[str]:
-    query = f"exec [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = {id_checklist}"
+    query = text("EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = :id_checklist")
     
-    # Ejecuta el procedimiento almacenado
     try:
-        roles_df = pd.read_sql(query, engine)
+        # Ejecutar el procedimiento almacenado con parámetros
+        result = engine.execute(query, id_checklist=id_checklist)
+        rows = result.fetchall()
     except Exception as e:
         raise ValueError(f"Error ejecutando el procedimiento almacenado: {e}")
-    
-    # Verifica si el DataFrame está vacío
+
+    # Convertir los resultados en un DataFrame (si es necesario)
+    columns = result.keys()
+    roles_df = pd.DataFrame(rows, columns=columns)
+
     if roles_df.empty:
-        return []  # Retorna lista vacía si no hay resultados
-    
-    # Identifica las columnas relacionadas con imágenes
+        return []
+
     image_columns = [col for col in roles_df.columns if '_foto' in col]
     if not image_columns:
         raise ValueError("El procedimiento almacenado no retornó columnas relacionadas con imágenes.")
-    
-    # Combina todas las imágenes de las columnas en una sola lista
+
     image_list = []
     for col in image_columns:
-        image_list.extend(roles_df[col].dropna().tolist())  # Agrega solo valores no nulos
+        image_list.extend(roles_df[col].dropna().tolist())
 
     return image_list
 
- 
 
 @app.post("/generate_and_downloadservice/")
 async def generate_and_download(request: DocumentRequestV2):
@@ -85,11 +93,9 @@ async def generate_and_download(request: DocumentRequestV2):
         # Obtener imágenes relacionadas al checklist
         images_base64 = get_service_one(request.id_checklist)
 
-        # Validar si hay imágenes
         if not images_base64:
             raise HTTPException(status_code=404, detail="No se encontraron imágenes para el checklist proporcionado.")
 
-        # Generar el documento Word
         word_stream = generate_word_document(
             request.placeholders,
             images_base64,
@@ -102,7 +108,11 @@ async def generate_and_download(request: DocumentRequestV2):
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             headers={"Content-Disposition": "attachment; filename=EvidenciaFotografica.docx"}
         )
+    except HTTPException as e:
+        raise e  # Deja que FastAPI maneje errores personalizados
     except Exception as e:
+        # Log detallado para depuración
+        logging.error(f"Error inesperado: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
 
 
