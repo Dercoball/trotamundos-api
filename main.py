@@ -57,10 +57,6 @@ class DocumentRequestV2(BaseModel):
     logo_derecho_base64: str
 
 # Función para obtener imágenes desde la base de datos
-def is_valid_base64_image(img: str) -> bool:
-    return img.startswith("data:image/") and img.strip() != ''
-
-# Función para obtener imágenes desde la base de datos
 def get_service_one(id_checklist: int) -> List[str]:
     query = text("EXEC [dbo].[sp_get_all_checklist_Evidencias] @IdCheckList = :id_checklist")
     
@@ -95,11 +91,7 @@ def get_service_one(id_checklist: int) -> List[str]:
     for col in image_columns:
         image_list.extend(roles_df[col].dropna().tolist())
     
-    image_list = [img for img in image_list if is_valid_base64_image(img)]
-    
-    # Si no hay imágenes válidas
-    if not image_list:
-        raise ValueError("No se encontraron imágenes válidas en la base de datos.")
+    image_list = [img for img in image_list if img.strip() != '']
     
     image_list_base64 = []
     for img in image_list:
