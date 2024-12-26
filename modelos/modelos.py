@@ -480,6 +480,7 @@ class Checklist(BaseModel):
     IdVehiculo: Optional[int] = None
     Id_ordendeservicio: Optional[int] = None
     NumeroSerie: str
+    TiempoTranscurrido: str
     id: Optional[int] = None
     id_checklist: Optional[int] = None
     #NuevasVariables
