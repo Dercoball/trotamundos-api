@@ -3,7 +3,7 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist,CheckListHistorico
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -1540,6 +1540,56 @@ def getempleados(IdUsuario: str):
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
     return JSONResponse(status_code=200,content=resultado)
+
+@app.post(
+        path="/api/checklisthistorico",
+        name='Insertar checklist histórico',
+        tags=['ChecklistHistorico'],
+        description='Método para insertar el histórico del checklist',
+        response_model=CheckListHistorico
+)
+def savechecklisthistorico(payload: CheckListHistorico):
+    query = f"""
+    EXEC InsertarHistoricoCheckList
+        @IdChecklist = {payload.IdChecklist}, \
+        @IdVehiculo = {payload.IdVehiculo}, \
+        @IdEmpleado = {payload.IdEmpleado}, \
+        @Fecha = '{payload.Fecha}', \
+        @TiempoTranscurrido = {payload.TiempoTranscurrido}, \
+        @Estado = '{payload.Estado}', \
+       """
+    print (query)
+    with engine.begin() as conn:
+          conn.execution_options(autocommit = True)
+          roles_df = pd.read_sql(query, conn)
+    dumpp = ResponseModel(id_resultado=1,respuesta="El histórico del checklist se guardó de manera correcta")
+    dict = dumpp.model_dump()
+    return JSONResponse(status_code=200, content=dict)
+
+@app.post(
+        path="/api/checklisthistoricoservicio",
+        name='Insertar checklist histórico servicio',
+        tags=['ChecklistHistorico'],
+        description='Método para insertar el histórico del checklist servicio',
+        response_model=CheckListHistorico
+)
+def savechecklisthistoricoservicio(payload: CheckListHistorico):
+    query = f"""
+    EXEC InsertarHistoricoCheckListServicio
+        @IdChecklist = {payload.IdChecklist}, \
+        @IdVehiculo = {payload.IdVehiculo}, \
+        @IdEmpleado = {payload.IdEmpleado}, \
+        @Fecha = '{payload.Fecha}', \
+        @TiempoTranscurrido = {payload.TiempoTranscurrido}, \
+        @Estado = '{payload.Estado}', \
+       """
+    print (query)
+    with engine.begin() as conn:
+          conn.execution_options(autocommit = True)
+          roles_df = pd.read_sql(query, conn)
+    dumpp = ResponseModel(id_resultado=1,respuesta="El histórico del checklist se guardó de manera correcta")
+    dict = dumpp.model_dump()
+    return JSONResponse(status_code=200, content=dict)
 
 @app.post(
         path="/api/checklist",

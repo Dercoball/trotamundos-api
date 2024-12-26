@@ -249,6 +249,14 @@ class Empleado(BaseModel):
     Nombre: str
     Rol: int
     Estatus: int
+    
+class CheckListHistorico(BaseModel):
+    IdChecklist: int
+    IdVehiculo: int
+    IdEmpleado: int
+    Fecha: str
+    TiempoTranscurrido: int
+    Estado :str
 
 class Checklist(BaseModel):
     lectura_codigos: Optional[int] = None
