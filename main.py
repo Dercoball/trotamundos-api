@@ -3,7 +3,7 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist,CheckListHistorico
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist,CheckListHistorico,Flotillas
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -2004,6 +2004,33 @@ def getshistoricoservicio():
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
     return JSONResponse(status_code=200,content=resultado)
+
+@app.get(
+        path="/api/obtenerflotillas",
+        name='Obtener flotillas',
+        tags=['Flotillas'],
+        description='Método para obtener la informacion de todas las flotillas',
+        response_model=Flotillas
+)
+def getsflotillas():
+    query = f"exec [dbo].[ObtenerFlotillas]"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado)
+
+@app.get(
+        path="/api/obtenerflotilla",
+        name='Obtener flotilla',
+        tags=['Flotilla'],
+        description='Método para obtener la informacion de 1 flotilla',
+        response_model=Flotillas
+)
+def getflotilla(IdFlotilla: int):
+    query = f"exec [dbo].[sp_get_all_flotillas] @IdFlotilla = {IdFlotilla}"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    print(resultado)
+    return JSONResponse(status_code=200,content=resultado[0])
 
 @app.get(
         path="/api/obtenerservicios",

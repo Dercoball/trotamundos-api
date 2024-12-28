@@ -257,6 +257,11 @@ class CheckListHistorico(BaseModel):
     Fecha: str
     TiempoTranscurrido: int
     Estado :str
+    
+class Flotillas(BaseModel):
+    IdFlotilla: int
+    NameFlotillas: str
+    Encargado: str
 
 class Checklist(BaseModel):
     lectura_codigos: Optional[int] = None
