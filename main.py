@@ -628,7 +628,8 @@ def guardarVehiculo(payload: saveVehiculo):
             "Extintor_video": ",".join(payload.Extintor_video),
             "Tapones_gasolina_video": ",".join(payload.Tapones_gasolina_video),
             "Calaveras_rotas_video": ",".join(payload.Calaveras_rotas_video),
-            "Molduras_completas_video": ",".join(payload.Molduras_completas_video)
+            "Molduras_completas_video": ",".join(payload.Molduras_completas_video),
+            "IdFlotilla": ",".join(payload.IdFlotilla)
         }
         
         # Crear el diccionario de parámetros sin conflicto
@@ -709,7 +710,9 @@ def guardarVehiculo(payload: saveVehiculo):
                 @Extintor_video = :Extintor_video,
                 @Tapones_gasolina_video = :Tapones_gasolina_video,
                 @Calaveras_rotas_video = :Calaveras_rotas_video,
-                @Molduras_completas_video = :Molduras_completas_video
+                @Molduras_completas_video = :Molduras_completas_video,
+                @IdFlotilla = :IdFlotilla
+                
         """)
 
         # Ejecutar la consulta pasando `parametros` como un solo diccionario

@@ -109,6 +109,7 @@ class Vehiculo(BaseModel):
     Tapones_gasolina_video: List[str]   
     Calaveras_rotas_video: List[str]    
     Molduras_completas_video: List[str] 
+    IdFlotilla: int
 
 class saveVehiculo(Vehiculo):
     IdCliente: int
@@ -157,6 +158,7 @@ class GetVehiculo(Vehiculo):
     Tapones_gasolina_video: List[str]   
     Calaveras_rotas_video: List[str]    
     Molduras_completas_video: List[str] 
+    IdFlotilla: int
 
 
 class Token(BaseModel):
