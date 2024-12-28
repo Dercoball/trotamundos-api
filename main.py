@@ -2021,7 +2021,7 @@ def getsflotillas():
 @app.get(
         path="/api/obtenerflotilla",
         name='Obtener flotilla',
-        tags=['Flotilla'],
+        tags=['Flotillas'],
         description='Método para obtener la informacion de 1 flotilla',
         response_model=Flotillas
 )
