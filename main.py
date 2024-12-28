@@ -2032,6 +2032,28 @@ def getflotilla(IdFlotilla: int):
     print(resultado)
     return JSONResponse(status_code=200,content=resultado[0])
 
+
+@app.post(
+        path="/api/flotilla",
+        name='Insertar flotilla',
+        tags=['Flotillas'],
+        description='Método para insertar las flotillas',
+        response_model=Flotillas
+)
+def saveflotilla(payload: Flotillas):
+    query = f"""
+    EXEC Insertflotillas
+        @IdFlotilla = '{payload.NamesFlotillas}', \
+        @IdVehiculo = '{payload.Encargado}', \
+       """
+    print (query)
+    with engine.begin() as conn:
+          conn.execution_options(autocommit = True)
+          roles_df = pd.read_sql(query, conn)
+    dumpp = ResponseModel(id_resultado=1,respuesta="La flotilla se guardó de manera correcta")
+    dict = dumpp.model_dump()
+    return JSONResponse(status_code=200, content=dict)
+
 @app.get(
         path="/api/obtenerservicios",
         name='Obtener servicios',
