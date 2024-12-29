@@ -2046,8 +2046,8 @@ def getflotilla(IdFlotilla: int):
 def saveflotilla(payload: Flotillas):
     query = f"""
     EXEC Insertflotillas
-        @IdFlotilla = '{payload.NamesFlotillas}', \
-        @IdVehiculo = '{payload.Encargado}', \
+        @NamesFlotillas = '{payload.NamesFlotillas}', \
+        @Encargado = '{payload.Encargado}', \
        """
     print (query)
     with engine.begin() as conn:
