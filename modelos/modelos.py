@@ -262,7 +262,7 @@ class CheckListHistorico(BaseModel):
     
 class Flotillas(BaseModel):
     IdFlotilla: int
-    NameFlotillas: str
+    NamesFlotillas: str
     Encargado: str
 
 class Checklist(BaseModel):
