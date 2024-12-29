@@ -533,56 +533,6 @@ def getvehiculos(parametro=""):
         description='Método para guardar la informacion de los vehiculos del cliente}',
     response_model=ResponseModel
 )
-# def guardarVehiculo(payload: saveVehiculo):
-#     try: 
-        
-#         query = f"exec dbo.InsertarVehiculo @Id_Cliente = {payload.IdCliente}, @Id_Empleado = {payload.Id_empleado},@Marca = '{payload.Marca}' \
-#         ,@Modelo = '{payload.Modelo}', @Color = '{payload.Color}', @No_serie ='{payload.No_serie}',@Placa = '{payload.Placa}',@Tipo = '{payload.Tipo}' \
-#         ,@Motor = '{payload.Motor}', @Kms = '{payload.Kms}', @Espejo_retrovisor = {payload.Espejo_retrovisor},@Espejo_izquierdo = {payload.Espejo_izquierdo}\
-#         ,@Espejo_derecho = {payload.Espejo_derecho}, \
-#         @Antena			   = {payload.Antena}, \
-#         @Tapones_ruedas	   = {payload.Tapones_ruedas}, \
-#         @Radio		   = {payload.Radio}, \
-#         @Encendedor		   = {payload.Encendedor}, \
-#         @Gato			   = {payload.Gato}, \
-#         @Herramienta   = {payload.Herramienta}, \
-#         @Llanta_refaccion  ={payload.Llanta_refaccion}, \
-#         @Limpiadores	   ={payload.Limpiadores}, \
-#         @Pintura_rayada	   ={payload.Pintura_rayada}, \
-#         @Cristales_rotos   ={payload.Cristales_rotos}, \
-#         @Golpes		={payload.Golpes}, \
-#         @Tapetes	={payload.Tapetes}, \
-#         @Extintor	={payload.Extintor}, \
-#         @Tapones_gasolina  ={payload.Tapones_gasolina}, \
-#         @Calaveras_rotas   ={payload.Calaveras_rotas}, \
-#         @Molduras_completas ={payload.Molduras_completas}, \
-#         @Espejo_retrovisor_foto	 = '{payload.Espejo_retrovisor_foto}',\
-#         @Espejo_izquierdo_foto 	 = '{payload.Espejo_izquierdo_foto}',\
-#         @Espejo_derecho_foto 	 = '{payload.Espejo_derecho_foto}',\
-#         @Antena_foto			 = '{payload.Antena_foto}',\
-#         @Tapones_ruedas_foto	 = '{payload.Tapones_ruedas_foto}',\
-#         @Radio_foto				 = '{payload.Radio_foto}',\
-#         @Encendedor_foto		 = '{payload.Encendedor_foto}',\
-#         @Gato_foto				 = '{payload.Gato_foto}',\
-#         @Herramienta_foto		 = '{payload.Herramienta_foto}',\
-#         @Llanta_refaccion_foto	 = '{payload.Llanta_refaccion_foto}',\
-#         @Limpiadores_foto		 = '{payload.Limpiadores_foto}',\
-#         @Pintura_rayada_foto	 = '{payload.Pintura_rayada_foto}',\
-#         @Cristales_rotos_foto	 = '{payload.Cristales_rotos_foto}',\
-#         @Golpes_foto			 = '{payload.Golpes_foto}',\
-#         @Tapetes_foto			 = '{payload.Tapetes_foto}',\
-#         @Extintor_foto			 = '{payload.Extintor_foto}',\
-#         @Tapones_gasolina_foto	 = '{payload.Tapones_ruedas_foto}',\
-#         @Calaveras_rotas_foto	 = '{payload.Calaveras_rotas_foto}',\
-#         @Molduras_completas_foto = '{payload.Molduras_completas_foto}'"
-#         with engine.begin() as conn:
-#             conn.execution_options(autocommit = True)
-#             roles_df = pd.read_sql(query, conn)
-#         dumpp = ResponseModel(id_resultado=1,respuesta="Se guardó la información del vehiculo de manera correcta")
-#         dict = dumpp.model_dump()
-#         return JSONResponse(status_code=200, content=dict)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
 def guardarVehiculo(payload: saveVehiculo):
     try:
         # Convertir listas de fotos a cadenas de Base64 separadas por comas
@@ -628,8 +578,8 @@ def guardarVehiculo(payload: saveVehiculo):
             "Extintor_video": ",".join(payload.Extintor_video),
             "Tapones_gasolina_video": ",".join(payload.Tapones_gasolina_video),
             "Calaveras_rotas_video": ",".join(payload.Calaveras_rotas_video),
-            "Molduras_completas_video": ",".join(payload.Molduras_completas_video),
-            "IdFlotilla": ",".join(payload.IdFlotilla)
+            "Molduras_completas_video": ",".join(payload.Molduras_completas_video)
+           
         }
         
         # Crear el diccionario de parámetros sin conflicto
