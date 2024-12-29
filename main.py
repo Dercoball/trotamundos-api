@@ -2036,26 +2036,44 @@ def getflotilla(IdFlotilla: int):
     return JSONResponse(status_code=200,content=resultado[0])
 
 
-@app.post(
-        path="/api/flotilla",
-        name='Insertar flotilla',
-        tags=['Flotillas'],
-        description='Método para insertar las flotillas',
-        response_model=Flotillas
-)
-def saveflotilla(payload: Flotillas):
-    query = f"""
-    EXEC Insertflotillas
-        @NamesFlotillas = '{payload.NamesFlotillas}', \
-        @Encargado = '{payload.Encargado}', \
-       """
-    print (query)
-    with engine.begin() as conn:
-          conn.execution_options(autocommit = True)
-          roles_df = pd.read_sql(query, conn)
-    dumpp = ResponseModel(id_resultado=1,respuesta="La flotilla se guardó de manera correcta")
-    dict = dumpp.model_dump()
-    return JSONResponse(status_code=200, content=dict)
+def guardarFlotilla(payload: Flotillas):
+    try:
+        # Convertir listas de fotos a cadenas de Base64 separadas por comas
+        fotos = {
+            
+            
+            "NamesFlotillas": ",".join(payload.NamesFlotillas),
+            "Encargado": ",".join(payload.Encargado),
+
+        }
+        
+        # Crear el diccionario de parámetros sin conflicto
+        parametros = payload.dict(exclude=fotos.keys())
+        parametros.update(fotos)
+
+        query = text("""
+            exec dbo.Insertflotillas 
+                @NamesFlotillas = :NamesFlotillas,
+                @Id_Empleado = :Encargado,
+
+                
+        """)
+
+        # Ejecutar la consulta pasando `parametros` como un solo diccionario
+        with engine.begin() as conn:
+            conn.execute(query, parametros)
+
+        # Respuesta de éxito
+        return JSONResponse(status_code=200, content={
+            "id_resultado": 1,
+            "respuesta": "Se guardó la información del vehículo de manera correcta",
+            "detalles": parametros
+        })
+
+    except Exception as e:
+        # Respuesta de error
+        raise HTTPException(status_code=500, detail=f"Error al guardar el vehículo: {str(e)}")
+
 
 @app.get(
         path="/api/obtenerservicios",
