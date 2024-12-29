@@ -2037,25 +2037,33 @@ def getflotilla(IdFlotilla: int):
 
 
 @app.post(
-        path="/api/flotilla",
-        name='Insertar flotilla',
-        tags=['Flotillas'],
-        description='Método para insertar las flotillas',
-        response_model=Flotillas
+    path="/api/flotilla",
+    name='Insertar flotilla',
+    tags=['Flotillas'],
+    description='Método para insertar las flotillas',
+    response_model=ResponseModel
 )
 def saveflotilla(payload: Flotillas):
-    query = f"""
+    query = """
     EXEC Insertflotillas
-        @NamesFlotillas = '{payload.NamesFlotillas}', \
-        @Encargado = '{payload.Encargado}', \
-       """
-    print (query)
-    with engine.begin() as conn:
-          conn.execution_options(autocommit = True)
-          roles_df = pd.read_sql(query, conn)
-    dumpp = ResponseModel(id_resultado=1,respuesta="La flotilla se guardó de manera correcta")
-    dict = dumpp.model_dump()
-    return JSONResponse(status_code=200, content=dict)
+        @NamesFlotillas = :NamesFlotillas,
+        @Encargado = :Encargado
+    """
+    try:
+        with engine.begin() as conn:
+            conn.execution_options(autocommit=True)
+            conn.execute(
+                query, 
+                {"NamesFlotillas": payload.NamesFlotillas, "Encargado": payload.Encargado}
+            )
+        return ResponseModel(id_resultado=1, respuesta="La flotilla se guardó de manera correcta").dict()
+    except Exception as e:
+        print(f"Error al insertar flotilla: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error al insertar flotilla: {str(e)}"}
+        )
+
 
 @app.get(
         path="/api/obtenerservicios",
