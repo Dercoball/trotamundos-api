@@ -2035,44 +2035,45 @@ def getflotilla(IdFlotilla: int):
     print(resultado)
     return JSONResponse(status_code=200,content=resultado[0])
 
-
+@app.post(
+    path="/api/flotilla",
+    name="Guarda Flotilla",
+    tags=["Flotillas"],
+    description="Método para guardar la información de las flotillas",
+    response_model=Flotillas,
+)
 def guardarFlotilla(payload: Flotillas):
     try:
-        # Convertir listas de fotos a cadenas de Base64 separadas por comas
-        fotos = {
-            
-            
-            "NamesFlotillas": ",".join(payload.NamesFlotillas),
-            "Encargado": ",".join(payload.Encargado),
+        # Crear el diccionario de parámetros desde el payload
+        parametros = payload.dict()
 
-        }
-        
-        # Crear el diccionario de parámetros sin conflicto
-        parametros = payload.dict(exclude=fotos.keys())
-        parametros.update(fotos)
-
+        # Definir la consulta SQL para ejecutar el procedimiento almacenado
         query = text("""
-            exec dbo.Insertflotillas 
+            EXEC dbo.Insertflotillas 
                 @NamesFlotillas = :NamesFlotillas,
-                @Id_Empleado = :Encargado,
-
-                
+                @Encargado = :Encargado
         """)
 
-        # Ejecutar la consulta pasando `parametros` como un solo diccionario
+        # Ejecutar la consulta SQL
         with engine.begin() as conn:
             conn.execute(query, parametros)
 
         # Respuesta de éxito
-        return JSONResponse(status_code=200, content={
-            "id_resultado": 1,
-            "respuesta": "Se guardó la información del vehículo de manera correcta",
-            "detalles": parametros
-        })
+        return JSONResponse(
+            status_code=200,
+            content={
+                "id_resultado": 1,
+                "respuesta": "La flotilla se guardó de manera correcta",
+                "detalles": parametros,
+            },
+        )
 
     except Exception as e:
         # Respuesta de error
-        raise HTTPException(status_code=500, detail=f"Error al guardar el vehículo: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al guardar la flotilla: {str(e)}",
+        )
 
 
 @app.get(
