@@ -680,17 +680,92 @@ def guardarVehiculo(payload: saveVehiculo):
         # Respuesta de error
         raise HTTPException(status_code=500, detail=f"Error al guardar el vehículo: {str(e)}")
 @app.put(
-        path="/api/vehiculo",
-        name='Actualizar vehiculo',
-        tags=['Vehiculo'],
-        description='Método para actualizar la informacion de los vehiculos del cliente}',
+    path="/api/vehiculo",
+    name='Actualizar vehiculo',
+    tags=['Vehiculo'],
+    description='Método para actualizar la información de los vehículos del cliente',
     response_model=ResponseModel
 )
 def updateVehiculo(payload: GetVehiculo):
-    dumpp = ResponseModel(id_resultado=1,respuesta="Se actualizó la información del vehiculo de manera correcta")
-    dict = dumpp.model_dump()
-    return JSONResponse(status_code=200, content=dict)
+    # Query seguro usando parámetros
+    query = text("""
+        EXEC ModificarVehiculo 
+            :ID, :Id_Cliente, :Id_Empleado, :Marca, :Modelo, :Color, :No_serie, :Placa, :Tipo, :Motor, :Kms,
+            :Espejo_retrovisor, :Espejo_izquierdo, :Antena, :Tapones_ruedas, :Radio, :Encendedor, :Gato, :Herramienta,
+            :Llanta_refaccion, :Limpiadores, :Pintura_rayada, :Cristales_rotos, :Golpes, :Tapetes, :Extintor,
+            :Tapones_gasolina, :Calaveras_rotas, :Molduras_completas, :Espejo_retrovisor_foto, :Espejo_izquierdo_foto,
+            :Antena_foto, :Tapones_ruedas_foto, :Radio_foto, :Encendedor_foto, :Gato_foto, :Herramienta_foto,
+            :Llanta_refaccion_foto, :Limpiadores_foto, :Pintura_rayada_foto, :Cristales_rotos_foto, :Golpes_foto,
+            :Tapetes_foto, :Extintor_foto, :Tapones_gasolina_foto, :Calaveras_rotas_foto, :Molduras_completas_foto, 
+            :Activo
+    """)
 
+    # Parámetros del procedimiento almacenado
+    params = {
+        "ID": payload.ID,
+        "Id_Cliente": payload.Id_Cliente,
+        "Id_Empleado": payload.Id_Empleado,
+        "Marca": payload.Marca,
+        "Modelo": payload.Modelo,
+        "Color": payload.Color,
+        "No_serie": payload.No_serie,
+        "Placa": payload.Placa,
+        "Tipo": payload.Tipo,
+        "Motor": payload.Motor,
+        "Kms": payload.Kms,
+        "Espejo_retrovisor": payload.Espejo_retrovisor,
+        "Espejo_izquierdo": payload.Espejo_izquierdo,
+        "Antena": payload.Antena,
+        "Tapones_ruedas": payload.Tapones_ruedas,
+        "Radio": payload.Radio,
+        "Encendedor": payload.Encendedor,
+        "Gato": payload.Gato,
+        "Herramienta": payload.Herramienta,
+        "Llanta_refaccion": payload.Llanta_refaccion,
+        "Limpiadores": payload.Limpiadores,
+        "Pintura_rayada": payload.Pintura_rayada,
+        "Cristales_rotos": payload.Cristales_rotos,
+        "Golpes": payload.Golpes,
+        "Tapetes": payload.Tapetes,
+        "Extintor": payload.Extintor,
+        "Tapones_gasolina": payload.Tapones_gasolina,
+        "Calaveras_rotas": payload.Calaveras_rotas,
+        "Molduras_completas": payload.Molduras_completas,
+        "Espejo_retrovisor_foto": payload.Espejo_retrovisor_foto,
+        "Espejo_izquierdo_foto": payload.Espejo_izquierdo_foto,
+        "Antena_foto": payload.Antena_foto,
+        "Tapones_ruedas_foto": payload.Tapones_ruedas_foto,
+        "Radio_foto": payload.Radio_foto,
+        "Encendedor_foto": payload.Encendedor_foto,
+        "Gato_foto": payload.Gato_foto,
+        "Herramienta_foto": payload.Herramienta_foto,
+        "Llanta_refaccion_foto": payload.Llanta_refaccion_foto,
+        "Limpiadores_foto": payload.Limpiadores_foto,
+        "Pintura_rayada_foto": payload.Pintura_rayada_foto,
+        "Cristales_rotos_foto": payload.Cristales_rotos_foto,
+        "Golpes_foto": payload.Golpes_foto,
+        "Tapetes_foto": payload.Tapetes_foto,
+        "Extintor_foto": payload.Extintor_foto,
+        "Tapones_gasolina_foto": payload.Tapones_gasolina_foto,
+        "Calaveras_rotas_foto": payload.Calaveras_rotas_foto,
+        "Molduras_completas_foto": payload.Molduras_completas_foto,
+        "Activo": payload.Activo
+    }
+
+    # Ejecutar el procedimiento almacenado
+    try:
+        with engine.begin() as conn:
+            conn.execute(query, params)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al actualizar el vehículo: {e}")
+
+    # Respuesta exitosa
+    dumpp = ResponseModel(
+        id_resultado=1,
+        respuesta="El vehículo se actualizó de manera correcta"
+    )
+    dict_response = dumpp.model_dump()
+    return JSONResponse(status_code=200, content=dict_response)
 @app.put(
         path="/api/cliente",
         name='Actualizar cliente',
