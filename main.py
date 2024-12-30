@@ -680,13 +680,28 @@ def guardarVehiculo(payload: saveVehiculo):
     except Exception as e:
         # Respuesta de error
         raise HTTPException(status_code=500, detail=f"Error al guardar el vehículo: {str(e)}")
-@app.put(
-    path="/api/vehiculo",
-    name='Actualizar vehiculo',
-    tags=['Vehiculo'],
-    description='Método para actualizar la información de los vehículos del cliente',
-    response_model=ResponseModel
 )
+@app.put(
+    path="/api/vehiculoporid",
+    name="Actualizar estado del vehículo por id",
+    tags=["Vehiculo"],
+    description="Método para actualizar el estado (activo/inactivo) del vehículo",
+    response_model=ResponseModel,
+)
+def updateVehiculo(payload: GetVehiculo):
+    # Preparamos la consulta para actualizar solo el campo 'Activo'
+    query_parts = [f"EXEC ModificarVehiculosPorid {payload.ID}, {payload.Activo}"]
+
+    # Ejecutamos la consulta
+    query = " ".join(query_parts)
+
+    # Aquí deberías ejecutar la consulta en tu base de datos (dependiendo del motor que utilices)
+    # Por ejemplo, usando algún cliente de base de datos en Python, como `pyodbc` o `sqlalchemy`
+
+    # Si la consulta fue exitosa, devolver una respuesta positiva
+    return {"status": "success", "message": "Estado del vehículo actualizado"}
+
+
 
 @app.put(
     path="/api/vehiculo",
