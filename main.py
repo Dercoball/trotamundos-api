@@ -1932,6 +1932,35 @@ def getservicio(Idchecklist: int):
     print(resultado)
     return JSONResponse(status_code=200,content=resultado[0])
 
+
+@app.get(
+        path="/api/obtenerflotillaporid",
+        name='Obtener flotilla por id',
+        tags=['Flotillas'],
+        description='Método para obtener la informacion de 1 flotilla',
+        response_model=Flotillas
+)
+def getflotillaevidencia(IdFlotilla: int):
+    query = f"exec [dbo].[ObtenerAllFlotillasPorID] @IdFlotilla = {IdFlotilla}"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    print(resultado)
+    return JSONResponse(status_code=200,content=resultado[0])
+
+@app.get(
+        path="/api/obtenerallflotillas",
+        name='Obtener todas las flotillas',
+        tags=['Flotillas'],
+        description='Método para obtener la informacion de todos las flotillas',
+        response_model=Flotillas
+)
+def getsallflotillas():
+    query = f"exec [dbo].[ObtenerAllFlotillas]"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado)
+
+
 @app.get(
         path="/api/obtenerhistoricos",
         name='Obtener históricos',
