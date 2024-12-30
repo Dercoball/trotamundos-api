@@ -689,17 +689,14 @@ def guardarVehiculo(payload: saveVehiculo):
 )
 def updateVehiculo(payload: ModificarVehiculo):
     # Preparamos la consulta para actualizar solo el campo 'Activo'
-    query_parts = [f"EXEC ModificarVehiculosPorid {payload.ID}, {payload.Activo}"]
-
-    # Ejecutamos la consulta (asegurate de usar tu cliente de base de datos adecuado)
-    query = " ".join(query_parts)
-
-    # Aquí deberías ejecutar la consulta en tu base de datos (usando pyodbc, SQLAlchemy, etc.)
-    # Asumimos que la ejecución de la consulta fue exitosa
-
-    return {"status": "success", "message": "Estado del vehículo actualizado"}
-
-
+    query = f"EXEC ModificarVehiculosPorid @ID = {payload.ID}, @Activo = {payload.Activo}"
+    
+    with engine.begin() as conn:
+        conn.execution_options(autocommit = True)
+        roles_df = pd.read_sql(query, conn)
+    dumpp = ResponseModel(id_resultado=1,respuesta="El vehículo se actualizó de manera correcta")
+    dict = dumpp.model_dump()
+    return JSONResponse(status_code=200, content=dict)
 
 @app.put(
     path="/api/vehiculo",
