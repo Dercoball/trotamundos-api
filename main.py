@@ -680,7 +680,7 @@ def guardarVehiculo(payload: saveVehiculo):
     except Exception as e:
         # Respuesta de error
         raise HTTPException(status_code=500, detail=f"Error al guardar el vehículo: {str(e)}")
-)
+
 @app.put(
     path="/api/vehiculoporid",
     name="Actualizar estado del vehículo por id",
