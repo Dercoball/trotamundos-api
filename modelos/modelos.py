@@ -113,7 +113,7 @@ class Vehiculo(BaseModel):
     Calaveras_rotas_video: List[str]    
     Molduras_completas_video: List[str] 
     IdFlotilla: int
-    idOrden: int
+    IdOrdenServicio: int
     Activo: int
 
 class saveVehiculo(Vehiculo):
@@ -164,7 +164,7 @@ class GetVehiculo(Vehiculo):
     Calaveras_rotas_video: List[str]    
     Molduras_completas_video: List[str] 
     IdFlotilla: int
-    idOrden: int
+    IdOrdenServicio: int
     Activo: int
 
 
