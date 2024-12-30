@@ -26,17 +26,6 @@ class SaveCliente(BaseModel):
 class GetCliente(SaveCliente):
     ID : int
 
-class Tecnicos(BaseModel):
-    IdUsuario : int
-    Nombre : str
-    Estatus : int
-
-class AsignarOrden(BaseModel):
-    IdOrden : int
-    IdTecnico : int
-    
-
-
 class SaveOrden(BaseModel):
     ID : int
     No_orden : int
@@ -509,3 +498,12 @@ class Checklist(BaseModel):
     id: Optional[int] = None
     id_checklist: Optional[int] = None
     #NuevasVariables
+    
+class Tecnicos(BaseModel):
+    IdUsuario : int
+    Nombre : str
+    Estatus : int
+
+class AsignarOrden(BaseModel):
+    IdOrden : int
+    IdTecnico : int

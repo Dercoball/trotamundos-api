@@ -409,31 +409,33 @@ async def login(payload: DatosLogin):
 #     return JSONResponse(status_code=200,content=resultado)
 
 @app.get(
-        path="/api/cliente",
-        name='Obtener cliente',
-        tags=['Cliente'],
-        description='Método para obtener la informacion de un cliente',
-        response_model=List[GetCliente]
+    path="/api/cliente",
+    name='Obtener cliente',
+    tags=['Cliente'],
+    description='Método para obtener la informacion de un cliente',
+    response_model=List[GetCliente]
 )
-def getcliente(idCliente = 0):
+def getcliente(idCliente=0):
     query = f"exec Clientes.clienteinsupdel @Accion = 4,@IdCliente ={idCliente}"
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
-    resultado = resultado[0]
-    return JSONResponse(status_code=200,content=resultado)
+    resultado = resultado[0]  # Solo toma el primer registro, lo cual podría ser un problema si no se encuentra el cliente
+    return JSONResponse(status_code=200, content=resultado)
+
 
 @app.get(
-        path="/api/clientes",
-        name='Obtener clientes',
-        tags=['Cliente'],
-        description='Método para obtener la informacion de todos los clientes',
-        response_model=List[GetCliente]
+    path="/api/clientes",
+    name='Obtener clientes',
+    tags=['Cliente'],
+    description='Método para obtener la informacion de todos los clientes',
+    response_model=List[GetCliente]
 )
-def getclientes(busqueda = ""):
+def getclientes(busqueda=""):
     query = f"exec Clientes.clienteinsupdel @Accion = 2,@ParametroBusqueda = '{busqueda}' "
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
-    return JSONResponse(status_code=200,content=resultado)
+    return JSONResponse(status_code=200, content=resultado)
+
 
 
 @app.post(
