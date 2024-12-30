@@ -692,61 +692,247 @@ def guardarVehiculo(payload: saveVehiculo):
     path="/api/vehiculo",
     name="Actualizar vehiculo",
     tags=["Vehiculo"],
-    description="Método para actualizar la información de los vehículos del cliente",
+    description="Método para actualizar los datos de los vehículos del cliente",
     response_model=ResponseModel,
 )
 def updateVehiculo(payload: GetVehiculo):
-    query = f"""
-    EXEC ModificarVehiculo 
-        {payload.ID}, 
-        {payload.Id_empleado}, 
-        '{payload.Marca}', 
-        '{payload.Modelo}', 
-        '{payload.Color}', 
-        '{payload.No_serie}', 
-        '{payload.Placa}', 
-        '{payload.Tipo}', 
-        '{payload.Motor}', 
-        {payload.Kms}, 
-        {payload.Espejo_retrovisor}, 
-        {payload.Espejo_izquierdo}, 
-        {payload.Antena}, 
-        {payload.Tapones_ruedas}, 
-        {payload.Radio}, 
-        {payload.Encendedor}, 
-        {payload.Gato}, 
-        {payload.Herramienta}, 
-        {payload.Llanta_refaccion}, 
-        {payload.Limpiadores}, 
-        {payload.Pintura_rayada}, 
-        {payload.Cristales_rotos}, 
-        {payload.Golpes}, 
-        {payload.Tapetes}, 
-        {payload.Extintor}, 
-        {payload.Tapones_gasolina}, 
-        {payload.Calaveras_rotas}, 
-        {payload.Molduras_completas}, 
-        '{payload.Espejo_retrovisor_foto}', 
-        '{payload.Espejo_izquierdo_foto}', 
-        '{payload.Antena_foto}', 
-        '{payload.Tapones_ruedas_foto}', 
-        '{payload.Radio_foto}', 
-        '{payload.Encendedor_foto}', 
-        '{payload.Gato_foto}', 
-        '{payload.Herramienta_foto}', 
-        '{payload.Llanta_refaccion_foto}', 
-        '{payload.Limpiadores_foto}', 
-        '{payload.Pintura_rayada_foto}', 
-        '{payload.Cristales_rotos_foto}', 
-        '{payload.Golpes_foto}', 
-        '{payload.Tapetes_foto}', 
-        '{payload.Extintor_foto}', 
-        '{payload.Tapones_gasolina_foto}', 
-        '{payload.Calaveras_rotas_foto}', 
-        '{payload.Molduras_completas_foto}', 
-        {payload.IdFlotilla}, 
-        {payload.Activo}
-    """
+    # Preparamos la lista de campos que se actualizarán
+    query_parts = [f"EXEC ModificarVehiculo {payload.ID}"]
+
+    # Solo agregamos los campos que han sido modificados
+    if payload.Marca is not None:
+        query_parts.append(f"'{payload.Marca}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Modelo is not None:
+        query_parts.append(f"'{payload.Modelo}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Color is not None:
+        query_parts.append(f"'{payload.Color}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.No_serie is not None:
+        query_parts.append(f"'{payload.No_serie}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Placa is not None:
+        query_parts.append(f"'{payload.Placa}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Tipo is not None:
+        query_parts.append(f"'{payload.Tipo}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Motor is not None:
+        query_parts.append(f"'{payload.Motor}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Kms is not None:
+        query_parts.append(f"{payload.Kms}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Espejo_retrovisor is not None:
+        query_parts.append(f"{payload.Espejo_retrovisor}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Espejo_izquierdo is not None:
+        query_parts.append(f"{payload.Espejo_izquierdo}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Antena is not None:
+        query_parts.append(f"{payload.Antena}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Tapones_ruedas is not None:
+        query_parts.append(f"{payload.Tapones_ruedas}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Radio is not None:
+        query_parts.append(f"{payload.Radio}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Encendedor is not None:
+        query_parts.append(f"{payload.Encendedor}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Gato is not None:
+        query_parts.append(f"{payload.Gato}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Herramienta is not None:
+        query_parts.append(f"{payload.Herramienta}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Llanta_refaccion is not None:
+        query_parts.append(f"{payload.Llanta_refaccion}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Limpiadores is not None:
+        query_parts.append(f"{payload.Limpiadores}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Pintura_rayada is not None:
+        query_parts.append(f"{payload.Pintura_rayada}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Cristales_rotos is not None:
+        query_parts.append(f"{payload.Cristales_rotos}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Golpes is not None:
+        query_parts.append(f"{payload.Golpes}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Tapetes is not None:
+        query_parts.append(f"{payload.Tapetes}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Extintor is not None:
+        query_parts.append(f"{payload.Extintor}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Tapones_gasolina is not None:
+        query_parts.append(f"{payload.Tapones_gasolina}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Calaveras_rotas is not None:
+        query_parts.append(f"{payload.Calaveras_rotas}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Molduras_completas is not None:
+        query_parts.append(f"{payload.Molduras_completas}")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Espejo_retrovisor_foto is not None:
+        query_parts.append(f"'{payload.Espejo_retrovisor_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Espejo_izquierdo_foto is not None:
+        query_parts.append(f"'{payload.Espejo_izquierdo_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Antena_foto is not None:
+        query_parts.append(f"'{payload.Antena_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Tapones_ruedas_foto is not None:
+        query_parts.append(f"'{payload.Tapones_ruedas_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Radio_foto is not None:
+        query_parts.append(f"'{payload.Radio_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Encendedor_foto is not None:
+        query_parts.append(f"'{payload.Encendedor_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Gato_foto is not None:
+        query_parts.append(f"'{payload.Gato_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Herramienta_foto is not None:
+        query_parts.append(f"'{payload.Herramienta_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Llanta_refaccion_foto is not None:
+        query_parts.append(f"'{payload.Llanta_refaccion_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Limpiadores_foto is not None:
+        query_parts.append(f"'{payload.Limpiadores_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Pintura_rayada_foto is not None:
+        query_parts.append(f"'{payload.Pintura_rayada_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Cristales_rotos_foto is not None:
+        query_parts.append(f"'{payload.Cristales_rotos_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Golpes_foto is not None:
+        query_parts.append(f"'{payload.Golpes_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Tapetes_foto is not None:
+        query_parts.append(f"'{payload.Tapetes_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Extintor_foto is not None:
+        query_parts.append(f"'{payload.Extintor_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Tapones_gasolina_foto is not None:
+        query_parts.append(f"'{payload.Tapones_gasolina_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Calaveras_rotas_foto is not None:
+        query_parts.append(f"'{payload.Calaveras_rotas_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.Molduras_completas_foto is not None:
+        query_parts.append(f"'{payload.Molduras_completas_foto}'")
+    else:
+        query_parts.append("NULL")
+
+    if payload.IdFlotilla is not None:
+        query_parts.append(f"{payload.IdFlotilla}")
+    else:
+        query_parts.append("NULL")
+
+    # Actualizar el estado del vehículo (campo Activo)
+    if payload.Activo is not None:
+        query_parts.append(f"{payload.Activo}")
+    else:
+        query_parts.append("NULL")
+
+    query = ", ".join(query_parts)
+
     try:
         with engine.begin() as conn:
             conn.execution_options(autocommit=True)
@@ -754,6 +940,7 @@ def updateVehiculo(payload: GetVehiculo):
         return ResponseModel(id_resultado=1, respuesta="El vehículo se actualizó correctamente")
     except SQLAlchemyError as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
+
 @app.put(
         path="/api/cliente",
         name='Actualizar cliente',
