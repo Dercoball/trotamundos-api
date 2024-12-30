@@ -3,7 +3,7 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist,CheckListHistorico,Flotillas,ModificarVehiculo
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist,CheckListHistorico,Flotillas,ModificarVehiculo,Tecnicos
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -663,6 +663,8 @@ def guardarVehiculo(payload: saveVehiculo):
                 @Calaveras_rotas_video = :Calaveras_rotas_video,
                 @Molduras_completas_video = :Molduras_completas_video,
                 @IdFlotilla = :IdFlotilla
+                @idOrden = :idOrden
+                @Activo = 0
                 
         """)
 
@@ -2342,6 +2344,19 @@ def getempleados(Idchecklist: int):
     print(resultado)
     return JSONResponse(status_code=200,content=resultado[0])
 
+
+@app.get(
+        path="/api/obtenertecnicos",
+        name='Obtener tecnicos',
+        tags=['Tecnicos'],
+        description='Método para obtener la informacion todos los técnicos',
+        response_model=Tecnicos
+)
+def getchecklists():
+    query = f"exec [dbo].[ObtenerTecnicos]"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado)
 
 @app.get(
         path="/api/obtenerchecklists",

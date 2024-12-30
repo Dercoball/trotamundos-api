@@ -26,6 +26,11 @@ class SaveCliente(BaseModel):
 class GetCliente(SaveCliente):
     ID : int
 
+class Tecnicos(BaseModel):
+    IdUsuario : int
+    Nombre : str
+    Estatus : int
+
 class SaveOrden(BaseModel):
     ID : int
     No_orden : int
@@ -113,6 +118,7 @@ class Vehiculo(BaseModel):
     Calaveras_rotas_video: List[str]    
     Molduras_completas_video: List[str] 
     IdFlotilla: int
+    idOrden: int
     Activo: int
 
 class saveVehiculo(Vehiculo):
@@ -163,6 +169,7 @@ class GetVehiculo(Vehiculo):
     Calaveras_rotas_video: List[str]    
     Molduras_completas_video: List[str] 
     IdFlotilla: int
+    idOrden: int
     Activo: int
 
 
