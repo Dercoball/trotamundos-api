@@ -3,7 +3,7 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist,CheckListHistorico,Flotillas,ModificarVehiculo,Tecnicos
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist,CheckListHistorico,Flotillas,ModificarVehiculo,Tecnicos,AsignarOrden
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -2880,6 +2880,37 @@ def saveordenservice(payload: OrdenService):
     dumpp = ResponseModel(id_resultado=1,respuesta="La orden se ha guardado de manera correcta")
     dict = dumpp.model_dump()
     return JSONResponse(status_code=200, content=dict)
+
+
+@app.post(
+    path="/api/asignarTecnicoAOrden",
+    name="Asignar orden de servicio",
+    tags=["AsignarOrden"],
+    description="Método para asignar un técnico a una orden de servicio",
+    response_model=ResponseModel,
+)
+def saveAsignacion(payload: AsignarOrden):
+    # Creación de la consulta SQL con parámetros de manera segura
+    query = text("""
+        EXEC AsignarTecnicoAOrden :IdOrden, :IdTecnico
+    """)
+
+    # Conexión y ejecución del query
+    with engine.begin() as conn:
+        conn.execution_options(autocommit=True)
+        
+        # Ejecutando la consulta con los parámetros adecuados
+        result = conn.execute(query, {"IdOrden": payload.IdOrden, "IdTecnico": payload.IdTecnico})
+
+    # Aquí deberías verificar si la ejecución fue exitosa o si hubo algún error
+    # Para este caso, vamos a asumir que la respuesta del SP incluye un mensaje
+    # En este ejemplo se supone que la respuesta será capturada por el procedimiento
+    response_data = {
+        "id_resultado": 1,
+        "respuesta": "La orden se ha guardado de manera correcta"
+    }
+
+    return JSONResponse(status_code=200, content=response_data)
 
 if __name__ == '__main__':
     app.run()

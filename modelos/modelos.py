@@ -31,6 +31,12 @@ class Tecnicos(BaseModel):
     Nombre : str
     Estatus : int
 
+class AsignarOrden(BaseModel):
+    IdOrden : int
+    IdTecnico : int
+    
+
+
 class SaveOrden(BaseModel):
     ID : int
     No_orden : int
