@@ -665,7 +665,8 @@ def guardarVehiculo(payload: saveVehiculo):
                 @Calaveras_rotas_video = :Calaveras_rotas_video,
                 @Molduras_completas_video = :Molduras_completas_video,
                 @IdFlotilla = :IdFlotilla,
-                @IdOrdenServicio = :IdOrdenServicio
+                @IdOrdenServicio = :IdOrdenServicio,
+                @Activo = :Activo
              
                 
         """)
