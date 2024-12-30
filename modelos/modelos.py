@@ -5,6 +5,9 @@ class ResponseModel(BaseModel):
     id_resultado : int
     respuesta : str
 
+class ModificarVehiculo(BaseModel):
+    ID : int
+    Activo : int
 class SaveCliente(BaseModel):
     Facturar_a : str
     Nombre : str

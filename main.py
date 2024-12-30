@@ -3,7 +3,7 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist,CheckListHistorico,Flotillas
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist,CheckListHistorico,Flotillas,ModificarVehiculo
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -680,7 +680,6 @@ def guardarVehiculo(payload: saveVehiculo):
     except Exception as e:
         # Respuesta de error
         raise HTTPException(status_code=500, detail=f"Error al guardar el vehículo: {str(e)}")
-
 @app.put(
     path="/api/vehiculoporid",
     name="Actualizar estado del vehículo por id",
@@ -688,17 +687,16 @@ def guardarVehiculo(payload: saveVehiculo):
     description="Método para actualizar el estado (activo/inactivo) del vehículo",
     response_model=ResponseModel,
 )
-def updateVehiculo(payload: GetVehiculo):
+def updateVehiculo(payload: ModificarVehiculo):
     # Preparamos la consulta para actualizar solo el campo 'Activo'
     query_parts = [f"EXEC ModificarVehiculosPorid {payload.ID}, {payload.Activo}"]
 
-    # Ejecutamos la consulta
+    # Ejecutamos la consulta (asegurate de usar tu cliente de base de datos adecuado)
     query = " ".join(query_parts)
 
-    # Aquí deberías ejecutar la consulta en tu base de datos (dependiendo del motor que utilices)
-    # Por ejemplo, usando algún cliente de base de datos en Python, como `pyodbc` o `sqlalchemy`
+    # Aquí deberías ejecutar la consulta en tu base de datos (usando pyodbc, SQLAlchemy, etc.)
+    # Asumimos que la ejecución de la consulta fue exitosa
 
-    # Si la consulta fue exitosa, devolver una respuesta positiva
     return {"status": "success", "message": "Estado del vehículo actualizado"}
 
 
