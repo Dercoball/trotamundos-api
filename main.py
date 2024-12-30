@@ -687,7 +687,7 @@ def guardarVehiculo(payload: saveVehiculo):
     description="Método para actualizar el estado (activo/inactivo) del vehículo",
     response_model=ResponseModel,
 )
-def updateVehiculo(payload: ModificarVehiculo):
+def updateVehiculoPorId(payload: ModificarVehiculo):
     # Preparamos la consulta para actualizar solo el campo 'Activo'
     query = f"EXEC ModificarVehiculosPorid @ID = {payload.ID}, @Activo = {payload.Activo}"
     
