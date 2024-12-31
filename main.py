@@ -2916,18 +2916,31 @@ def saveAsignacion(payload: AsignarOrden):
     return JSONResponse(status_code=200, content=response_data)
 
 @app.get(
-        path="/api/reportesdeventas",
-        name='Obtener reporte de ventas',
-        tags=['ReporteVentas'],
-        description='Método para obtener la informacion todos los reportes',
-        response_model=ReporteVentas
+    path="/api/obtenerreportes",
+    name='Obtener todos los reportes de ventas',
+    tags=['ReporteVentas'],
+    description='Método para obtener todos los reportes de ventas',
+    response_model=list[ReporteVentas]  # Ajustar para un listado de ReporteVentas
 )
 def getreportes():
-    query = f"exec [dbo].[ObtenerAllReporteVentas]"
-    roles_df = pd.read_sql(query, engine)
-    resultado = roles_df.to_dict(orient="records")
-    return JSONResponse(status_code=200,content=resultado)
+    query = text("EXEC [dbo].[ObtenerAllReporteVentas]")  # Sin parámetros
 
+    try:
+        # Ejecutar la consulta
+        roles_df = pd.read_sql(query, engine)
+
+        # Convertir el resultado a un diccionario
+        resultado = roles_df.to_dict(orient="records")
+
+        if not resultado:
+            raise HTTPException(status_code=404, detail="No se encontraron reportes")
+
+        # Retornar los resultados
+        return JSONResponse(status_code=200, content=resultado)
+
+    except Exception as e:
+        # Manejo de errores
+        raise HTTPException(status_code=500, detail=f"Hubo un error al obtener los reportes: {str(e)}")
 @app.get(
         path="/api/obtenerreporteporId",
         name='Obtener reporte de ventas',
@@ -2935,78 +2948,91 @@ def getreportes():
         description='Método para obtener la informacion de 1 reporte',
         response_model=ReporteVentas
 )
-def getreporte(IdReporte: int):
-    query = f"exec [dbo].[ObtenerReporteVentasPorID] @IdReporte = {IdReporte}"
-    roles_df = pd.read_sql(query, engine)
-    resultado = roles_df.to_dict(orient="records")
-    print(resultado)
-    return JSONResponse(status_code=200,content=resultado[0])
-
-
-@app.post(
-    path="/api/reporteventas",
-    name='Insertar reporte',
+@app.get(
+    path="/api/obtenerreporteporId",
+    name='Obtener reporte de ventas',
     tags=['ReporteVentas'],
-    description='Método para insertar el reporte de ventas',
+    description='Método para obtener la información de un reporte',
     response_model=ReporteVentas
 )
-def savereporteventas(payload: ReporteVentas):
-    # Preparar la consulta SQL con parámetros
-    query = """EXEC InsertServiceForm
-        @Date = :date, 
-        @ServiceOrderId = :service_order_id, 
-        @VehicleId = :vehicle_id,
-        @Credit = :credit, 
-        @InitialService = :initial_service,
-        @Finalized = :finalized,
-        @Reception = :reception, 
-        @Entry = :entry,
-        @Repair = :repair, 
-        @Checklist = :checklist,
-        @Technician = :technician, 
-        @Quotation = :quotation, 
-        @Authorization = :authorization,
-        @Additional = :additional,
-        @Washing = :washing,
-        @Delivery = :delivery,
-        @Comments = :comments
-    """
+def getreporte(IdReporte: int):
+    query = text("EXEC [dbo].[ObtenerReporteVentasPorID] @IdReporte = :IdReporte")
     
-    # Definir los parámetros que se pasarán a la consulta SQL
+    try:
+        # Ejecutar la consulta con parámetros
+        roles_df = pd.read_sql(query, engine, params={"IdReporte": IdReporte})
+
+        # Convertir el resultado a un diccionario
+        resultado = roles_df.to_dict(orient="records")
+
+        if not resultado:
+            raise HTTPException(status_code=404, detail="Reporte no encontrado")
+
+        # Retornar el primer elemento del resultado
+        return JSONResponse(status_code=200, content=resultado[0])
+
+    except Exception as e:
+        # Manejo de errores
+        raise HTTPException(status_code=500, detail=f"Hubo un error al obtener el reporte: {str(e)}")
+def savereporteventas(payload: ReporteVentas):
+    # Query SQL con placeholders adecuados para SQL Server
+    query = text("""
+        EXEC InsertServiceForm
+            @Date = :date, 
+            @ServiceOrderId = :service_order_id, 
+            @VehicleId = :vehicle_id,
+            @Credit = :credit, 
+            @InitialService = :initial_service,
+            @Finalized = :finalized,
+            @Reception = :reception, 
+            @Entry = :entry,
+            @Repair = :repair,
+            @Checklist = :checklist,
+            @Technician = :technician, 
+            @Quotation = :quotation, 
+            @Authorization = :authorization, 
+            @Additional = :additional,
+            @Washing = :washing, 
+            @Delivery = :delivery, 
+            @Comments = :comments
+    """)
+
     params = {
-        "date": payload.date,  # Asegúrate de que la fecha esté en formato 'YYYY-MM-DD'
-        "service_order_id": payload.service_order_id,
-        "vehicle_id": payload.vehicle_id,
-        "credit": payload.credit,
-        "initial_service": payload.initial_service,
-        "finalized": payload.finalized,
-        "reception": 1 if payload.reception else 0,
-        "entry": 1 if payload.entry else 0,
-        "repair": 1 if payload.repair else 0,
-        "checklist": 1 if payload.checklist else 0,
-        "technician": payload.technician,
-        "quotation": 1 if payload.quotation else 0,
-        "authorization": 1 if payload.authorization else 0,
-        "additional": 1 if payload.additional else 0,
-        "washing": 1 if payload.washing else 0,
-        "delivery": 1 if payload.delivery else 0,
-        "comments": payload.comments
+        'date': payload.date,
+        'service_order_id': payload.service_order_id,
+        'vehicle_id': payload.vehicle_id,
+        'credit': payload.credit,
+        'initial_service': payload.initial_service,
+        'finalized': payload.finalized,
+        'reception': 1 if payload.reception else 0,
+        'entry': 1 if payload.entry else 0,
+        'repair': 1 if payload.repair else 0,
+        'checklist': 1 if payload.checklist else 0,
+        'technician': payload.technician,
+        'quotation': 1 if payload.quotation else 0,
+        'authorization': 1 if payload.authorization else 0,
+        'additional': 1 if payload.additional else 0,
+        'washing': 1 if payload.washing else 0,
+        'delivery': 1 if payload.delivery else 0,
+        'comments': payload.comments
     }
 
     try:
-        # Ejecutar la consulta SQL usando los parámetros
+        # Ejecutar la consulta con los parámetros
         with engine.begin() as conn:
             conn.execution_options(autocommit=True)
-            roles_df = pd.read_sql(query, conn, params=params)
-
+            conn.execute(query, **params)
+        
         # Respuesta de éxito
-        dumpp = ResponseModel(id_resultado=1, respuesta="El reporte se guardó de manera correcta")
-        dict = dumpp.model_dump()
-        return JSONResponse(status_code=200, content=dict)
-    
+        response = {
+            'id_resultado': 1,
+            'respuesta': 'El reporte se guardó de manera correcta'
+        }
+        return JSONResponse(status_code=200, content=response)
+
     except Exception as e:
-        # Manejo de errores en la ejecución de la consulta
-        return JSONResponse(status_code=500, content={"error": f"Hubo un error al guardar el reporte: {str(e)}"})
+        # Manejo de errores
+        raise HTTPException(status_code=500, detail=f"Hubo un error al guardar el reporte: {str(e)}")
 
 
 
