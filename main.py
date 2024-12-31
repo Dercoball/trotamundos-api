@@ -2914,6 +2914,12 @@ def saveAsignacion(payload: AsignarOrden):
     }
 
     return JSONResponse(status_code=200, content=response_data)
+from fastapi import HTTPException
+from sqlalchemy import text
+from fastapi.responses import JSONResponse
+import pandas as pd
+from datetime import date
+
 @app.get(
     path="/api/obtenerreportes",
     name='Obtener todos los reportes de ventas',
@@ -2928,8 +2934,14 @@ def getreportes():
         # Ejecutar la consulta
         roles_df = pd.read_sql(query, engine)
 
-        # Convertir el resultado a un diccionario
+        # Convertir el DataFrame a un diccionario
         resultado = roles_df.to_dict(orient="records")
+
+        # Convertir las fechas a formato de cadena
+        for reporte in resultado:
+            for key, value in reporte.items():
+                if isinstance(value, (date)):  # Verificar si el valor es una fecha
+                    reporte[key] = value.strftime('%Y-%m-%d')  # Convertir a formato de cadena
 
         if not resultado:
             raise HTTPException(status_code=404, detail="No se encontraron reportes")
@@ -2941,11 +2953,11 @@ def getreportes():
         # Manejo de errores
         raise HTTPException(status_code=500, detail=f"Hubo un error al obtener los reportes: {str(e)}")
 @app.get(
-        path="/api/obtenerreporteporId",
-        name='Obtener reporte de ventas',
-        tags=['ReporteVentas'],
-        description='Método para obtener la informacion de 1 reporte',
-        response_model=ReporteVentas
+    path="/api/obtenerreporteporId",
+    name='Obtener reporte de ventas',
+    tags=['ReporteVentas'],
+    description='Método para obtener la informacion de 1 reporte',
+    response_model=ReporteVentas
 )
 def getreporte(IdReporte: int):
     query = text("EXEC [dbo].[ObtenerReporteVentasPorID] @IdReporte = :IdReporte")
@@ -2959,6 +2971,14 @@ def getreporte(IdReporte: int):
 
         if not resultado:
             raise HTTPException(status_code=404, detail="Reporte no encontrado")
+
+        # Convertir las fechas a formato de cadena
+        for reporte in resultado:
+            for key, value in reporte.items():
+                if isinstance(value, (date, datetime)):  # Verificar si el valor es una fecha o datetime
+                    reporte[key] = value.strftime('%Y-%m-%d')  # Convertir a formato de cadena (fecha)
+                elif isinstance(value, datetime):  # Si es datetime, se puede incluir la hora
+                    reporte[key] = value.strftime('%Y-%m-%d %H:%M:%S')  # Convertir a cadena con hora
 
         # Retornar el primer elemento del resultado
         return JSONResponse(status_code=200, content=resultado[0])
