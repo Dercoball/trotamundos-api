@@ -27,6 +27,7 @@ from docx.oxml import OxmlElement
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 import logging
 from PIL import Image
+from datetime import datetime
 import io
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
@@ -2967,8 +2968,6 @@ def getreporte(IdReporte: int):
         # Manejo de errores
         raise HTTPException(status_code=500, detail=f"Hubo un error al obtener el reporte: {str(e)}")
 
-
-
 @app.post(
     path="/api/reporteventas",
     name='Insertar reporte',
@@ -2998,6 +2997,13 @@ def savereporteventas(payload: ReporteVentas):
             @Delivery = :delivery, 
             @Comments = :comments
     """)
+
+    # Asegurarse de que la fecha está en el formato correcto (si es una fecha o datetime)
+    if isinstance(payload.date, str):
+        try:
+            payload.date = datetime.strptime(payload.date, '%Y-%m-%d')  # O usa el formato que corresponda
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail="Fecha en formato incorrecto")
 
     params = {
         'date': payload.date,
