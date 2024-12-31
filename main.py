@@ -2914,7 +2914,6 @@ def saveAsignacion(payload: AsignarOrden):
     }
 
     return JSONResponse(status_code=200, content=response_data)
-
 @app.get(
     path="/api/obtenerreportes",
     name='Obtener todos los reportes de ventas',
@@ -2948,13 +2947,6 @@ def getreportes():
         description='Método para obtener la informacion de 1 reporte',
         response_model=ReporteVentas
 )
-@app.get(
-    path="/api/obtenerreporteporId",
-    name='Obtener reporte de ventas',
-    tags=['ReporteVentas'],
-    description='Método para obtener la información de un reporte',
-    response_model=ReporteVentas
-)
 def getreporte(IdReporte: int):
     query = text("EXEC [dbo].[ObtenerReporteVentasPorID] @IdReporte = :IdReporte")
     
@@ -2974,6 +2966,16 @@ def getreporte(IdReporte: int):
     except Exception as e:
         # Manejo de errores
         raise HTTPException(status_code=500, detail=f"Hubo un error al obtener el reporte: {str(e)}")
+
+
+
+@app.post(
+    path="/api/reporteventas",
+    name='Insertar reporte',
+    tags=['ReporteVentas'],
+    description='Método para insertar el reporte de ventas',
+    response_model=ReporteVentas
+)
 def savereporteventas(payload: ReporteVentas):
     # Query SQL con placeholders adecuados para SQL Server
     query = text("""
@@ -3033,8 +3035,6 @@ def savereporteventas(payload: ReporteVentas):
     except Exception as e:
         # Manejo de errores
         raise HTTPException(status_code=500, detail=f"Hubo un error al guardar el reporte: {str(e)}")
-
-
 
 if __name__ == '__main__':
     app.run()
