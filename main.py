@@ -2943,7 +2943,6 @@ def getreporte(IdReporte: int):
     return JSONResponse(status_code=200,content=resultado[0])
 
 
-
 @app.post(
     path="/api/reporteventas",
     name='Insertar reporte',
@@ -2952,36 +2951,64 @@ def getreporte(IdReporte: int):
     response_model=ReporteVentas
 )
 def savereporteventas(payload: ReporteVentas):
-    # Convertir los valores booleanos a 1 (True) o 0 (False)
-    query = f"""EXEC InsertServiceForm
-        @Date = '{payload.date}', 
-        @ServiceOrderId = {payload.service_order_id}, 
-        @VehicleId = {payload.vehicle_id},
-        @Credit = N'{payload.credit}', 
-        @InitialService = N'{payload.initial_service}',
-        @Finalized = N'{payload.finalized}',
-        @Reception = {1 if payload.reception else 0}, 
-        @Entry = {1 if payload.entry else 0},  -- Convertir a 1 o 0
-        @Repair = {1 if payload.repair else 0},  -- Convertir a 1 o 0
-        @Checklist = {1 if payload.checklist else 0},  -- Convertir a 1 o 0
-        @Technician = N'{payload.technician}', 
-        @Quotation = {1 if payload.quotation else 0},  -- Convertir a 1 o 0
-        @Authorization = {1 if payload.authorization else 0},  -- Convertir a 1 o 0
-        @Additional = {1 if payload.additional else 0},  -- Convertir a 1 o 0
-        @Washing = {1 if payload.washing else 0},  -- Convertir a 1 o 0
-        @Delivery = {1 if payload.delivery else 0},  -- Convertir a 1 o 0
-        @Comments = N'{payload.comments}' 
+    # Preparar la consulta SQL con parámetros
+    query = """EXEC InsertServiceForm
+        @Date = :date, 
+        @ServiceOrderId = :service_order_id, 
+        @VehicleId = :vehicle_id,
+        @Credit = :credit, 
+        @InitialService = :initial_service,
+        @Finalized = :finalized,
+        @Reception = :reception, 
+        @Entry = :entry,
+        @Repair = :repair, 
+        @Checklist = :checklist,
+        @Technician = :technician, 
+        @Quotation = :quotation, 
+        @Authorization = :authorization,
+        @Additional = :additional,
+        @Washing = :washing,
+        @Delivery = :delivery,
+        @Comments = :comments
     """
-    print(query)
     
-    with engine.begin() as conn:
-        conn.execution_options(autocommit=True)
-        roles_df = pd.read_sql(query, conn)
+    # Definir los parámetros que se pasarán a la consulta SQL
+    params = {
+        "date": payload.date,  # Asegúrate de que la fecha esté en formato 'YYYY-MM-DD'
+        "service_order_id": payload.service_order_id,
+        "vehicle_id": payload.vehicle_id,
+        "credit": payload.credit,
+        "initial_service": payload.initial_service,
+        "finalized": payload.finalized,
+        "reception": 1 if payload.reception else 0,
+        "entry": 1 if payload.entry else 0,
+        "repair": 1 if payload.repair else 0,
+        "checklist": 1 if payload.checklist else 0,
+        "technician": payload.technician,
+        "quotation": 1 if payload.quotation else 0,
+        "authorization": 1 if payload.authorization else 0,
+        "additional": 1 if payload.additional else 0,
+        "washing": 1 if payload.washing else 0,
+        "delivery": 1 if payload.delivery else 0,
+        "comments": payload.comments
+    }
+
+    try:
+        # Ejecutar la consulta SQL usando los parámetros
+        with engine.begin() as conn:
+            conn.execution_options(autocommit=True)
+            roles_df = pd.read_sql(query, conn, params=params)
+
+        # Respuesta de éxito
+        dumpp = ResponseModel(id_resultado=1, respuesta="El reporte se guardó de manera correcta")
+        dict = dumpp.model_dump()
+        return JSONResponse(status_code=200, content=dict)
     
-    # Respuesta de éxito
-    dumpp = ResponseModel(id_resultado=1, respuesta="El reporte se guardó de manera correcta")
-    dict = dumpp.model_dump()
-    return JSONResponse(status_code=200, content=dict)
+    except Exception as e:
+        # Manejo de errores en la ejecución de la consulta
+        return JSONResponse(status_code=500, content={"error": f"Hubo un error al guardar el reporte: {str(e)}"})
+
+
 
 if __name__ == '__main__':
     app.run()
