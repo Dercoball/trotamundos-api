@@ -509,7 +509,7 @@ class AsignarOrden(BaseModel):
     IdTecnico : int
     
 class ReporteVentas(BaseModel):
-    Id: int
+    Id: Optional[int] = None  # Haciendo que Id sea opcional
     date: str
     service_order_id: int
     vehicle_id: int
