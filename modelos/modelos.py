@@ -509,6 +509,7 @@ class AsignarOrden(BaseModel):
     IdTecnico : int
     
 class ReporteVentas(BaseModel):
+    Id: int
     date: str
     service_order_id: int
     vehicle_id: int

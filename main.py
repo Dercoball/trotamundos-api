@@ -2915,6 +2915,35 @@ def saveAsignacion(payload: AsignarOrden):
 
     return JSONResponse(status_code=200, content=response_data)
 
+@app.get(
+        path="/api/reportesdeventas",
+        name='Obtener reporte de ventas',
+        tags=['ReporteVentas'],
+        description='Método para obtener la informacion todos los reportes',
+        response_model=ReporteVentas
+)
+def getreportes():
+    query = f"exec [dbo].[ObtenerAllReporteVentas]"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado)
+
+@app.get(
+        path="/api/obtenerreporteporId",
+        name='Obtener reporte de ventas',
+        tags=['ReporteVentas'],
+        description='Método para obtener la informacion de 1 reporte',
+        response_model=ReporteVentas
+)
+def getreporte(IdReporte: int):
+    query = f"exec [dbo].[ObtenerReporteVentasPorID] @IdReporte = {IdReporte}"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    print(resultado)
+    return JSONResponse(status_code=200,content=resultado[0])
+
+
+
 @app.post(
     path="/api/reporteventas",
     name='Insertar reporte',
