@@ -507,3 +507,22 @@ class Tecnicos(BaseModel):
 class AsignarOrden(BaseModel):
     IdOrden : int
     IdTecnico : int
+    
+class ReporteVentas(BaseModel):
+    date: str
+    service_order_id: int
+    vehicle_id: int
+    credit: Optional[str] = None
+    initial_service: Optional[str] = None
+    finalized: int
+    reception: bool
+    entry: bool
+    repair: bool
+    checklist: bool
+    technician: Optional[str] = None
+    quotation: bool
+    authorization: bool
+    additional: bool
+    washing: bool
+    delivery: bool
+    comments: Optional[str] = None

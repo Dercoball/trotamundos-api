@@ -3,7 +3,7 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist,CheckListHistorico,Flotillas,ModificarVehiculo,Tecnicos,AsignarOrden
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist,CheckListHistorico,Flotillas,ModificarVehiculo,Tecnicos,AsignarOrden,ReporteVentas
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -2914,6 +2914,45 @@ def saveAsignacion(payload: AsignarOrden):
     }
 
     return JSONResponse(status_code=200, content=response_data)
+
+@app.post(
+    path="/api/reporteventas",
+    name='Insertar reporte',
+    tags=['ReporteVentas'],
+    description='Método para insertar el reporte de ventas',
+    response_model=ReporteVentas
+)
+def savereporteventas(payload: ReporteVentas):
+    # Convertir los valores booleanos a 1 (True) o 0 (False)
+    query = f"""EXEC InsertServiceForm
+        @Date = '{payload.date}', 
+        @ServiceOrderId = {payload.service_order_id}, 
+        @VehicleId = {payload.vehicle_id},
+        @Credit = N'{payload.credit}', 
+        @InitialService = N'{payload.initial_service}',
+        @Finalized = N'{payload.finalized}',
+        @Reception = {1 if payload.reception else 0}, 
+        @Entry = {1 if payload.entry else 0},  -- Convertir a 1 o 0
+        @Repair = {1 if payload.repair else 0},  -- Convertir a 1 o 0
+        @Checklist = {1 if payload.checklist else 0},  -- Convertir a 1 o 0
+        @Technician = N'{payload.technician}', 
+        @Quotation = {1 if payload.quotation else 0},  -- Convertir a 1 o 0
+        @Authorization = {1 if payload.authorization else 0},  -- Convertir a 1 o 0
+        @Additional = {1 if payload.additional else 0},  -- Convertir a 1 o 0
+        @Washing = {1 if payload.washing else 0},  -- Convertir a 1 o 0
+        @Delivery = {1 if payload.delivery else 0},  -- Convertir a 1 o 0
+        @Comments = N'{payload.comments}' 
+    """
+    print(query)
+    
+    with engine.begin() as conn:
+        conn.execution_options(autocommit=True)
+        roles_df = pd.read_sql(query, conn)
+    
+    # Respuesta de éxito
+    dumpp = ResponseModel(id_resultado=1, respuesta="El reporte se guardó de manera correcta")
+    dict = dumpp.model_dump()
+    return JSONResponse(status_code=200, content=dict)
 
 if __name__ == '__main__':
     app.run()
