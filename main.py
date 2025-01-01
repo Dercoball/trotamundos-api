@@ -26,6 +26,7 @@ from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 import logging
+from fastapi.encoders import jsonable_encoder
 from PIL import Image
 from datetime import datetime
 import io
@@ -2926,28 +2927,39 @@ def getreporteporId(IdReporte: int):
     try:
         query = f"exec [dbo].[ObtenerReporteVentasPorID] @IdReporte = {IdReporte}"
         roles_df = pd.read_sql(query, engine)
-        resultado = roles_df.to_dict(orient="records")
-        print(resultado)
-        return JSONResponse(status_code=200,content=resultado[0])
+        
+        # Convertir todo el DataFrame a cadenas antes de convertir a dict
+        resultado = roles_df.astype(str).to_dict(orient="records")
+        
+        return JSONResponse(status_code=200, content=resultado[0])
     except Exception as e:
         # Respuesta de error
         raise HTTPException(
             status_code=500,
             detail=f"Error al obtener el reporte: {str(e)}",
         )
+
 @app.get(
-        path="/api/obtenerreportes",
-        name='Obtener todos los reportes de venta',
-        tags=['ReporteVentas'],
-        description='Método para obtener la informacion de todos los reportes de venta',
-        response_model=ReporteVentas
+    path="/api/obtenerreportes",
+    name='Obtener todos los reportes de venta',
+    tags=['ReporteVentas'],
+    description='Método para obtener la información de todos los reportes de venta',
+    response_model=List[ReporteVentas]  # Ajusta según corresponda
 )
 def getallreportes():
     try:
-        query = f"exec [dbo].[ObtenerAllReporteVentas]"
+        query = "exec [dbo].[ObtenerAllReporteVentas]"
         roles_df = pd.read_sql(query, engine)
+
+        # Convertir columnas datetime a cadenas en formato ISO
+        for col in roles_df.select_dtypes(include=["datetime64[ns]", "datetime64[ns, UTC]"]).columns:
+            roles_df[col] = roles_df[col].dt.strftime('%Y-%m-%dT%H:%M:%S')
+
+        # Convertir a lista de diccionarios
         resultado = roles_df.to_dict(orient="records")
-        return JSONResponse(status_code=200,content=resultado)
+
+        # Serializar el contenido con jsonable_encoder para manejar tipos complejos
+        return JSONResponse(status_code=200, content=jsonable_encoder(resultado))
     except Exception as e:
         # Respuesta de error
         raise HTTPException(
