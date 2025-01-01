@@ -3026,7 +3026,7 @@ def savereporteventas(payload: ReporteVentas):
     }
 
     try:
-        # Ejecutar la consulta con los parámetros
+        # Ejecutar la consulta con los parámetros utilizando el método 'bindparam'
         with engine.begin() as conn:
             conn.execution_options(autocommit=True)
             conn.execute(query, **params)
