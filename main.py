@@ -2915,7 +2915,7 @@ def saveAsignacion(payload: AsignarOrden):
     }
 
     return JSONResponse(status_code=200, content=response_data)
-app.get(
+@app.get(
         path="/api/obtenerreporteporId",
         name='Obtener reporte de venta por id',
         tags=['ReporteVentas'],
