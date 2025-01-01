@@ -2923,12 +2923,18 @@ def saveAsignacion(payload: AsignarOrden):
         response_model=ReporteVentas
 )
 def getreporteporId(IdReporte: int):
-    query = f"exec [dbo].[ObtenerReporteVentasPorID] @IdReporte = {IdReporte}"
-    roles_df = pd.read_sql(query, engine)
-    resultado = roles_df.to_dict(orient="records")
-    print(resultado)
-    return JSONResponse(status_code=200,content=resultado[0])
-
+    try:
+        query = f"exec [dbo].[ObtenerReporteVentasPorID] @IdReporte = {IdReporte}"
+        roles_df = pd.read_sql(query, engine)
+        resultado = roles_df.to_dict(orient="records")
+        print(resultado)
+        return JSONResponse(status_code=200,content=resultado[0])
+    except Exception as e:
+        # Respuesta de error
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener el reporte: {str(e)}",
+        )
 @app.get(
         path="/api/obtenerreportes",
         name='Obtener todos los reportes de venta',
@@ -2937,10 +2943,17 @@ def getreporteporId(IdReporte: int):
         response_model=ReporteVentas
 )
 def getallreportes():
-    query = f"exec [dbo].[ObtenerAllReporteVentas]"
-    roles_df = pd.read_sql(query, engine)
-    resultado = roles_df.to_dict(orient="records")
-    return JSONResponse(status_code=200,content=resultado)
+    try:
+        query = f"exec [dbo].[ObtenerAllReporteVentas]"
+        roles_df = pd.read_sql(query, engine)
+        resultado = roles_df.to_dict(orient="records")
+        return JSONResponse(status_code=200,content=resultado)
+    except Exception as e:
+        # Respuesta de error
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al obtener los reportes: {str(e)}",
+        )
 
 @app.post(
     path="/api/reporteventas",
@@ -2993,7 +3006,7 @@ def savereporteventas(payload: ReporteVentas):
         # Respuesta de error
         raise HTTPException(
             status_code=500,
-            detail=f"Error al guardar la flotilla: {str(e)}",
+            detail=f"Error al guardar el reporte: {str(e)}",
         )
 if __name__ == '__main__':
     app.run()
