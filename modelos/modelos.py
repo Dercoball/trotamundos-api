@@ -116,6 +116,7 @@ class Vehiculo(BaseModel):
     IdOrdenServicio: int
     Activo: int
 
+
 class saveVehiculo(Vehiculo):
     IdCliente: int
     
@@ -166,6 +167,8 @@ class GetVehiculo(Vehiculo):
     IdFlotilla: int
     IdOrdenServicio: int
     Activo: int
+    NombreCliente: str
+    NamesFlotillas: str
 
 
 class Token(BaseModel):
