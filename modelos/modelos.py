@@ -38,7 +38,83 @@ class SaveOrden(BaseModel):
 
 class GetOrden(SaveOrden):
     ID : int
-
+class VehiculoV2(BaseModel):
+    Id_empleado: int
+    IdCliente: int
+    Marca: str
+    Modelo: str
+    Color: str
+    No_serie: str
+    Placa: str
+    Tipo: str
+    Motor: str
+    Kms: str
+    MotorVehiculo: int
+    Acumulador: int
+    Espejo_retrovisor: int
+    Espejo_izquierdo: int
+    Espejo_derecho: int
+    Antena: int
+    Tapones_ruedas: int
+    Radio: int
+    Encendedor: int
+    Gato: int
+    Herramienta: int
+    Llanta_refaccion: int
+    Limpiadores: int
+    Pintura_rayada: int
+    Cristales_rotos: int
+    Golpes: int
+    Tapetes: int
+    Extintor: int
+    Tapones_gasolina: int
+    Calaveras_rotas: int
+    Molduras_completas: int
+    MotorVehiculo_foto: List[str]
+    Acumulador_foto: List[str]
+    Espejo_retrovisor_foto: List[str]
+    Espejo_izquierdo_foto: List[str]
+    Espejo_derecho_foto: List[str]
+    Antena_foto: List[str]
+    Tapones_ruedas_foto: List[str]
+    Radio_foto: List[str]
+    Encendedor_foto: List[str]
+    Gato_foto: List[str]
+    Herramienta_foto: List[str]
+    Llanta_refaccion_foto: List[str]
+    Limpiadores_foto: List[str]
+    Pintura_rayada_foto: List[str]
+    Cristales_rotos_foto: List[str]
+    Golpes_foto: List[str]
+    Tapetes_foto: List[str]
+    Extintor_foto: List[str]
+    Tapones_gasolina_foto: List[str]
+    Calaveras_rotas_foto: List[str]
+    Molduras_completas_foto: List[str]
+    MotorVehiculo_video: List[str]
+    Acumulador_video: List[str]
+    Espejo_retrovisor_video: List[str]  
+    Espejo_izquierdo_video: List[str]   
+    Espejo_derecho_video: List[str]     
+    Antena_video: List[str]             
+    Tapones_ruedas_video: List[str]     
+    Radio_video: List[str]              
+    Encendedor_video: List[str]         
+    Gato_video: List[str]               
+    Herramienta_video: List[str]        
+    Llanta_refaccion_video: List[str]   
+    Limpiadores_video: List[str]        
+    Pintura_rayada_video: List[str]     
+    Cristales_rotos_video: List[str]    
+    Golpes_video: List[str]             
+    Tapetes_video: List[str]            
+    Extintor_video: List[str]           
+    Tapones_gasolina_video: List[str]   
+    Calaveras_rotas_video: List[str]    
+    Molduras_completas_video: List[str] 
+    IdFlotilla: int
+    IdOrdenServicio: int
+    Activo: int
 class Vehiculo(BaseModel):
     Id_empleado: int
     Marca: str

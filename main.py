@@ -3,7 +3,7 @@ from sqlalchemy import text
 from database import engine
 import pandas as pd  # Importa Pandas
 from fastapi.middleware.cors import CORSMiddleware
-from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist,CheckListHistorico,Flotillas,ModificarVehiculo,Tecnicos,AsignarOrden,ReporteVentas
+from modelos import GetCliente, ResponseModel, SaveCliente, Vehiculo, GetOrden, GetVehiculo, SaveOrden, DatosLogin, Token, OrdenCompleta, Roles, Estatus, SaveUsuario, saveVehiculo, ImageData, Empleado,OrdenService,Checklist,CheckListHistorico,Flotillas,ModificarVehiculo,Tecnicos,AsignarOrden,ReporteVentas,VehiculoV2
 from fastapi.responses import JSONResponse
 import json
 from typing import List
@@ -712,7 +712,7 @@ def updateVehiculoPorId(payload: ModificarVehiculo):
     description="Método para actualizar los datos de los vehículos del cliente",
     response_model=ResponseModel,
 )
-def updateVehiculo(payload: Vehiculo):
+def updateVehiculo(payload: VehiculoV2):
     try:
         # Convertir listas de fotos a cadenas de Base64 separadas por comas
         fotos = {
