@@ -712,7 +712,7 @@ def updateVehiculoPorId(payload: ModificarVehiculo):
     description="Método para actualizar los datos de los vehículos del cliente",
     response_model=ResponseModel,
 )
-def updateVehiculo(payload: GetVehiculo):
+def updateVehiculo(payload: Vehiculo):
     try:
         # Convertir listas de fotos a cadenas de Base64 separadas por comas
         fotos = {
