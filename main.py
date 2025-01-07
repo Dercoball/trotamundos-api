@@ -713,111 +713,152 @@ def updateVehiculoPorId(payload: ModificarVehiculo):
     response_model=ResponseModel,
 )
 def updateVehiculo(payload: GetVehiculo):
-    # Creamos un diccionario con los parámetros del vehículo
-    params = {
-        "ID": payload.ID,
-        "Marca": payload.Marca,
-        "Modelo": payload.Modelo,
-        "Color": payload.Color,
-        "No_serie": payload.No_serie,
-        "Placa": payload.Placa,
-        "Tipo": payload.Tipo,
-        "Motor": payload.Motor,
-        "Kms": payload.Kms,
-        "Espejo_retrovisor": payload.Espejo_retrovisor,
-        "Espejo_izquierdo": payload.Espejo_izquierdo,
-        "Antena": payload.Antena,
-        "Tapones_ruedas": payload.Tapones_ruedas,
-        "Radio": payload.Radio,
-        "Encendedor": payload.Encendedor,
-        "Gato": payload.Gato,
-        "Herramienta": payload.Herramienta,
-        "Llanta_refaccion": payload.Llanta_refaccion,
-        "Limpiadores": payload.Limpiadores,
-        "Pintura_rayada": payload.Pintura_rayada,
-        "Cristales_rotos": payload.Cristales_rotos,
-        "Golpes": payload.Golpes,
-        "Tapetes": payload.Tapetes,
-        "Extintor": payload.Extintor,
-        "Tapones_gasolina": payload.Tapones_gasolina,
-        "Calaveras_rotas": payload.Calaveras_rotas,
-        "Molduras_completas": payload.Molduras_completas,
-        "Espejo_retrovisor_foto": payload.Espejo_retrovisor_foto,
-        "Espejo_izquierdo_foto": payload.Espejo_izquierdo_foto,
-        "Antena_foto": payload.Antena_foto,
-        "Tapones_ruedas_foto": payload.Tapones_ruedas_foto,
-        "Radio_foto": payload.Radio_foto,
-        "Encendedor_foto": payload.Encendedor_foto,
-        "Gato_foto": payload.Gato_foto,
-        "Herramienta_foto": payload.Herramienta_foto,
-        "Llanta_refaccion_foto": payload.Llanta_refaccion_foto,
-        "Limpiadores_foto": payload.Limpiadores_foto,
-        "Pintura_rayada_foto": payload.Pintura_rayada_foto,
-        "Cristales_rotos_foto": payload.Cristales_rotos_foto,
-        "Golpes_foto": payload.Golpes_foto,
-        "Tapetes_foto": payload.Tapetes_foto,
-        "Extintor_foto": payload.Extintor_foto,
-        "Tapones_gasolina_foto": payload.Tapones_gasolina_foto,
-        "Calaveras_rotas_foto": payload.Calaveras_rotas_foto,
-        "Molduras_completas_foto": payload.Molduras_completas_foto,
-        "MotorVehiculo_foto": payload.MotorVehiculo_foto,
-        "Acumulador_foto": payload.Acumulador_foto,
-        "Espejo_derecho_foto": payload.Espejo_derecho_foto,
-        "MotorVehiculo_video": payload.MotorVehiculo_video,
-        "Acumulador_video": payload.Acumulador_video,
-        "Espejo_retrovisor_video": payload.Espejo_retrovisor_video,
-        "Espejo_izquierdo_video": payload.Espejo_izquierdo_video,
-        "Espejo_derecho_video": payload.Espejo_derecho_video,
-        "Antena_video": payload.Antena_video,
-        "Tapones_ruedas_video": payload.Tapones_ruedas_video,
-        "Radio_video": payload.Radio_video,
-        "Encendedor_video": payload.Encendedor_video,
-        "Gato_video": payload.Gato_video,
-        "Herramienta_video": payload.Herramienta_video,
-        "Llanta_refaccion_video": payload.Llanta_refaccion_video,
-        "Limpiadores_video": payload.Limpiadores_video,
-        "Pintura_rayada_video": payload.Pintura_rayada_video,
-        "Cristales_rotos_video": payload.Cristales_rotos_video,
-        "Golpes_video": payload.Golpes_video,
-        "Tapetes_video": payload.Tapetes_video,
-        "Extintor_video": payload.Extintor_video,
-        "Tapones_gasolina_video": payload.Tapones_gasolina_video,
-        "Calaveras_rotas_video": payload.Calaveras_rotas_video,
-        "Molduras_completas_video": payload.Molduras_completas_video,
-        "IdFlotilla": payload.IdFlotilla,
-        "IdOrdenServicio": payload.IdOrdenServicio,
-        "Activo": payload.Activo
-    }
-
-
-    # Construimos la consulta dinámica con parámetros
-    query = """
-        EXEC ModificarVehiculo :ID, :Marca, :Modelo, :Color, :No_serie, :Placa, 
-        :Tipo, :Motor, :Kms, :Espejo_retrovisor, :Espejo_izquierdo, :Antena, 
-        :Tapones_ruedas, :Radio, :Encendedor, :Gato, :Herramienta, :Llanta_refaccion, 
-        :Limpiadores, :Pintura_rayada, :Cristales_rotos, :Golpes, :Tapetes, :Extintor, 
-        :Tapones_gasolina, :Calaveras_rotas, :Molduras_completas, :Espejo_retrovisor_foto, 
-        :Espejo_izquierdo_foto, :Antena_foto, :Tapones_ruedas_foto, :Radio_foto, 
-        :Encendedor_foto, :Gato_foto, :Herramienta_foto, :Llanta_refaccion_foto, 
-        :Limpiadores_foto, :Pintura_rayada_foto, :Cristales_rotos_foto, :Golpes_foto, 
-        :Tapetes_foto, :Extintor_foto, :Tapones_gasolina_foto, :Calaveras_rotas_foto, 
-        :Molduras_completas_foto, :MotorVehiculo_foto, :Acumulador_foto, :Espejo_derecho_foto, 
-        :MotorVehiculo_video, :Acumulador_video, :Espejo_retrovisor_video, :Espejo_izquierdo_video, 
-        :Espejo_derecho_video, :Antena_video, :Tapones_ruedas_video, :Radio_video, :Encendedor_video, 
-        :Gato_video, :Herramienta_video, :Llanta_refaccion_video, :Limpiadores_video, :Pintura_rayada_video, 
-        :Cristales_rotos_video, :Golpes_video, :Tapetes_video, :Extintor_video, :Tapones_gasolina_video, 
-        :Calaveras_rotas_video, :Molduras_completas_video, :IdFlotilla, :IdOrdenServicio, :Activo
-        """
-
-
     try:
-        # Ejecutamos la consulta con los parámetros
+        # Convertir listas de fotos a cadenas de Base64 separadas por comas
+        fotos = {
+            "MotorVehiculo_foto": ",".join(payload.MotorVehiculo_foto),
+            "Acumulador_foto": ",".join(payload.Acumulador_foto),
+            "Espejo_retrovisor_foto": ",".join(payload.Espejo_retrovisor_foto),
+            "Espejo_izquierdo_foto": ",".join(payload.Espejo_izquierdo_foto),
+            "Espejo_derecho_foto": ",".join(payload.Espejo_derecho_foto),
+            "Antena_foto": ",".join(payload.Antena_foto),
+            "Tapones_ruedas_foto": ",".join(payload.Tapones_ruedas_foto),
+            "Radio_foto": ",".join(payload.Radio_foto),
+            "Encendedor_foto": ",".join(payload.Encendedor_foto),
+            "Gato_foto": ",".join(payload.Gato_foto),
+            "Herramienta_foto": ",".join(payload.Herramienta_foto),
+            "Llanta_refaccion_foto": ",".join(payload.Llanta_refaccion_foto),
+            "Limpiadores_foto": ",".join(payload.Limpiadores_foto),
+            "Pintura_rayada_foto": ",".join(payload.Pintura_rayada_foto),
+            "Cristales_rotos_foto": ",".join(payload.Cristales_rotos_foto),
+            "Golpes_foto": ",".join(payload.Golpes_foto),
+            "Tapetes_foto": ",".join(payload.Tapetes_foto),
+            "Extintor_foto": ",".join(payload.Extintor_foto),
+            "Tapones_gasolina_foto": ",".join(payload.Tapones_gasolina_foto),
+            "Calaveras_rotas_foto": ",".join(payload.Calaveras_rotas_foto),
+            "Molduras_completas_foto": ",".join(payload.Molduras_completas_foto),
+            "MotorVehiculo_video": ",".join(payload.MotorVehiculo_video),
+            "Acumulador_video": ",".join(payload.Acumulador_video),
+            "Espejo_retrovisor_video": ",".join(payload.Espejo_retrovisor_video),
+            "Espejo_izquierdo_video": ",".join(payload.Espejo_izquierdo_video),
+            "Espejo_derecho_video": ",".join(payload.Espejo_derecho_video),
+            "Antena_video": ",".join(payload.Antena_video),
+            "Tapones_ruedas_video": ",".join(payload.Tapones_ruedas_video),
+            "Radio_video": ",".join(payload.Radio_video),
+            "Encendedor_video": ",".join(payload.Encendedor_video),
+            "Gato_video": ",".join(payload.Gato_video),
+            "Herramienta_video": ",".join(payload.Herramienta_video),
+            "Llanta_refaccion_video": ",".join(payload.Llanta_refaccion_video),
+            "Limpiadores_video": ",".join(payload.Limpiadores_video),
+            "Pintura_rayada_video": ",".join(payload.Pintura_rayada_video),
+            "Cristales_rotos_video": ",".join(payload.Cristales_rotos_video),
+            "Golpes_video": ",".join(payload.Golpes_video),
+            "Tapetes_video": ",".join(payload.Tapetes_video),
+            "Extintor_video": ",".join(payload.Extintor_video),
+            "Tapones_gasolina_video": ",".join(payload.Tapones_gasolina_video),
+            "Calaveras_rotas_video": ",".join(payload.Calaveras_rotas_video),
+            "Molduras_completas_video": ",".join(payload.Molduras_completas_video)
+           
+        }
+        
+        # Crear el diccionario de parámetros sin conflicto
+        parametros = payload.dict(exclude=fotos.keys())
+        parametros.update(fotos)
+
+        query = text("""
+            exec dbo.ModificarVehiculo 
+                @Id_Cliente = :IdCliente,
+                @Id_Empleado = :Id_empleado,
+                @Marca = :Marca,
+                @Modelo = :Modelo,
+                @Color = :Color,
+                @No_serie = :No_serie,
+                @Placa = :Placa,
+                @Tipo = :Tipo,
+                @Motor = :Motor,
+                @Kms = :Kms,
+                @MotorVehiculo = :MotorVehiculo,
+                @Acumulador = :Acumulador,
+                @Espejo_retrovisor = :Espejo_retrovisor,
+                @Espejo_izquierdo = :Espejo_izquierdo,
+                @Espejo_derecho = :Espejo_derecho,
+                @Antena = :Antena,
+                @Tapones_ruedas = :Tapones_ruedas,
+                @Radio = :Radio,
+                @Encendedor = :Encendedor,
+                @Gato = :Gato,
+                @Herramienta = :Herramienta,
+                @Llanta_refaccion = :Llanta_refaccion,
+                @Limpiadores = :Limpiadores,
+                @Pintura_rayada = :Pintura_rayada,
+                @Cristales_rotos = :Cristales_rotos,
+                @Golpes = :Golpes,
+                @Tapetes = :Tapetes,
+                @Extintor = :Extintor,
+                @Tapones_gasolina = :Tapones_gasolina,
+                @Calaveras_rotas = :Calaveras_rotas,
+                @Molduras_completas = :Molduras_completas,
+                @MotorVehiculo_foto = :MotorVehiculo_foto,
+                @Acumulador_foto = :Acumulador_foto,
+                @Espejo_retrovisor_foto = :Espejo_retrovisor_foto,
+                @Espejo_izquierdo_foto = :Espejo_izquierdo_foto,
+                @Espejo_derecho_foto = :Espejo_derecho_foto,
+                @Antena_foto = :Antena_foto,
+                @Tapones_ruedas_foto = :Tapones_ruedas_foto,
+                @Radio_foto = :Radio_foto,
+                @Encendedor_foto = :Encendedor_foto,
+                @Gato_foto = :Gato_foto,
+                @Herramienta_foto = :Herramienta_foto,
+                @Llanta_refaccion_foto = :Llanta_refaccion_foto,
+                @Limpiadores_foto = :Limpiadores_foto,
+                @Pintura_rayada_foto = :Pintura_rayada_foto,
+                @Cristales_rotos_foto = :Cristales_rotos_foto,
+                @Golpes_foto = :Golpes_foto,
+                @Tapetes_foto = :Tapetes_foto,
+                @Extintor_foto = :Extintor_foto,
+                @Tapones_gasolina_foto = :Tapones_gasolina_foto,
+                @Calaveras_rotas_foto = :Calaveras_rotas_foto,
+                @Molduras_completas_foto = :Molduras_completas_foto,
+                @MotorVehiculo_video = :MotorVehiculo_video,
+                @Acumulador_video = :Acumulador_video,
+                @Espejo_retrovisor_video = :Espejo_retrovisor_video,
+                @Espejo_izquierdo_video = :Espejo_izquierdo_video,
+                @Espejo_derecho_video = :Espejo_derecho_video,
+                @Antena_video = :Antena_video,
+                @Tapones_ruedas_video = :Tapones_ruedas_video,
+                @Radio_video = :Radio_video,
+                @Encendedor_video = :Encendedor_video,
+                @Gato_video = :Gato_video,
+                @Herramienta_video = :Herramienta_video,
+                @Llanta_refaccion_video = :Llanta_refaccion_video,
+                @Limpiadores_video = :Limpiadores_video,
+                @Pintura_rayada_video = :Pintura_rayada_video,
+                @Cristales_rotos_video = :Cristales_rotos_video,
+                @Golpes_video = :Golpes_video,
+                @Tapetes_video = :Tapetes_video,
+                @Extintor_video = :Extintor_video,
+                @Tapones_gasolina_video = :Tapones_gasolina_video,
+                @Calaveras_rotas_video = :Calaveras_rotas_video,
+                @Molduras_completas_video = :Molduras_completas_video,
+                @IdFlotilla = :IdFlotilla,
+                @IdOrdenServicio = :IdOrdenServicio,
+                @Activo = :Activo   
+        """)
+
+        # Ejecutar la consulta pasando `parametros` como un solo diccionario
         with engine.begin() as conn:
-            conn.execution_options(autocommit=True)
-            conn.execute(text(query), params)
-        return ResponseModel(id_resultado=1, respuesta="El vehículo se actualizó correctamente")
-    except SQLAlchemyError as e:
-        raise HTTPException(status_code=500, detail=str(e))
+            conn.execute(query, parametros)
+
+        # Respuesta de éxito
+        return JSONResponse(status_code=200, content={
+            "id_resultado": 1,
+            "respuesta": "Se modificó la información del vehículo de manera correcta",
+            "detalles": parametros
+        })
+
+    except Exception as e:
+        # Respuesta de error
+        raise HTTPException(status_code=500, detail=f"Error al modificar el vehículo: {str(e)}")
 
 @app.put(
         path="/api/cliente",
