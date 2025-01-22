@@ -764,9 +764,12 @@ def updateVehiculo(payload: VehiculoV2):
         # Crear el diccionario de parámetros sin conflicto
         parametros = payload.dict(exclude=fotos.keys())
         parametros.update(fotos)
-
+#Prueba de git
         query = text("""
             exec dbo.ModificarVehiculo 
+                @ID = :ID, 
+                @IdFlotilla = :IdFlotilla,
+                @IdOrdenServicio = :IdOrdenServicio,
                 @Id_Cliente = :IdCliente,
                 @Id_Empleado = :Id_empleado,
                 @Marca = :Marca,
