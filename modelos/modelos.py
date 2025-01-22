@@ -114,6 +114,7 @@ class VehiculoV2(BaseModel):
     Molduras_completas_video: List[str] 
     IdFlotilla: int
     IdOrdenServicio: int
+    ID : int 
     Activo: int
 class Vehiculo(BaseModel):
     Id_empleado: int
