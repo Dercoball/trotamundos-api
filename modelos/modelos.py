@@ -39,8 +39,9 @@ class SaveOrden(BaseModel):
 class GetOrden(SaveOrden):
     ID : int
 class VehiculoV2(BaseModel):
-    Id_empleado: int
-    IdCliente: int
+    ID: int
+    Id_Cliente: int
+    Id_Empleado: int
     Marca: str
     Modelo: str
     Color: str
@@ -114,7 +115,6 @@ class VehiculoV2(BaseModel):
     Molduras_completas_video: List[str] 
     IdFlotilla: int
     IdOrdenServicio: int
-    ID : int 
     Activo: int
 class Vehiculo(BaseModel):
     Id_empleado: int
