@@ -593,7 +593,7 @@ def guardarVehiculo(payload: saveVehiculo):
 
         query = text("""
             exec dbo.InsertarVehiculo 
-                @Id_Cliente = :Id_Cliente,
+                @Id_Cliente = :IdCliente,
                 @Id_Empleado = :Id_empleado,
                 @Marca = :Marca,
                 @Modelo = :Modelo,
@@ -766,10 +766,10 @@ def updateVehiculo(payload: VehiculoV2):
         parametros.update(fotos)
 #Prueba de git
         query = text("""
-            exec dbo.ModificarVehiculo 
+        exec dbo.ModificarVehiculo 
             @ID = :ID,
-            @Id_Cliente = :IdCliente,
-            @Id_Empleado = :Id_empleado,
+            @Id_Cliente = :Id_Cliente,
+            @Id_Empleado = :Id_Empleado,
             @Marca = :Marca,
             @Modelo = :Modelo,
             @Color = :Color,
