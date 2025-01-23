@@ -593,7 +593,7 @@ def guardarVehiculo(payload: saveVehiculo):
 
         query = text("""
             exec dbo.InsertarVehiculo 
-                @Id_Cliente = :IdCliente,
+                @Id_Cliente = :Id_Cliente,
                 @Id_Empleado = :Id_empleado,
                 @Marca = :Marca,
                 @Modelo = :Modelo,
