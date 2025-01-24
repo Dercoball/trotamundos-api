@@ -848,13 +848,13 @@ def updateVehiculo(payload: VehiculoV2):
 
         # Ejecutar la consulta pasando `parametros` como un solo diccionario
         with engine.begin() as conn:
-            conn.execute(query, parametros)
+            result = conn.execute(query, parametros)
 
         # Respuesta de éxito
         return JSONResponse(status_code=200, content={
             "id_resultado": 1,
             "respuesta": "Se modificó la información del vehículo de manera correcta",
-            "detalles": parametros
+            "detalles": result,
         })
 
     except Exception as e:
