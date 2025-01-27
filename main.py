@@ -2390,8 +2390,6 @@ def guardarFlotilla(payload: Flotillas):
             status_code=500,
             detail=f"Error al guardar la flotilla: {str(e)}",
         )
-
-
 @app.get(
         path="/api/obtenerservicios",
         name='Obtener servicios',
@@ -2399,8 +2397,8 @@ def guardarFlotilla(payload: Flotillas):
         description='Método para obtener la informacion todos los servicios',
         response_model=Checklist
 )
-def getservicios():
-    query = f"exec [dbo].[ObtenerServicios]"
+def getservicios(IdEmpleado:int):
+    query = f"exec [dbo].[ObtenerServicios] @IdEmpleado = {IdEmpleado}"
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
     return JSONResponse(status_code=200,content=resultado)
