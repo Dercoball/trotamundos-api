@@ -2432,6 +2432,7 @@ def getchecklists():
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
     return JSONResponse(status_code=200,content=resultado)
+#Modificación de endpoints
 
 @app.get(
         path="/api/obtenerchecklists",
@@ -2440,8 +2441,8 @@ def getchecklists():
         description='Método para obtener la informacion todos los checklist',
         response_model=Checklist
 )
-def getchecklists():
-    query = f"exec [dbo].[ObtenerCheckLists]"
+def getchecklists(IdEmpleado:int):
+    query = f"exec [dbo].[ObtenerCheckLists] @IdEmpleado = {IdEmpleado} "
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
     return JSONResponse(status_code=200,content=resultado)
