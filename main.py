@@ -1880,297 +1880,189 @@ def savechecklist(payload: Checklist):
     response_model=Checklist
 )
 def put_checklist(payload: Checklist):
-    # Función para convertir SI/NO a 1/0
-    def si_no_a_boolean(valor):
-        return 1 if valor == "SI" else 0 if valor == "NO" else valor
-
     # Construcción de la consulta SQL para ejecutar el procedimiento almacenado
     query = f"""
     exec [dbo].[UpdateCheckList] 
-                @lectura_codigos = {si_no_a_boolean(payload.lectura_codigos)}, \
+        @lectura_codigos = {payload.lectura_codigos}, \
         @lectura_codigos_observacion = N'{payload.lectura_codigos_observacion}' , \
         @lectura_codigos_foto = N'{payload.lectura_codigos_foto}' , \
-        @servofreno = {si_no_a_boolean(payload.servofreno)}, \
+        @servofreno = {payload.servofreno}, \
         @servofreno_observacion = N'{payload.servofreno_observacion}' , \
         @servofreno_foto = N'{payload.servofreno_foto}' , \
-        @pedal_freno = {si_no_a_boolean(payload.pedal_freno)}, \
+        @pedal_freno = {payload.pedal_freno}, \
         @pedal_freno_observacion = N'{payload.pedal_freno_observacion}' , \
         @pedal_freno_foto = N'{payload.pedal_freno_foto}' , \
-        @pedal_estacionamiento = {si_no_a_boolean(payload.pedal_estacionamiento)}, \
+        @pedal_estacionamiento = {payload.pedal_estacionamiento}, \
         @pedal_estacionamiento_observacion = N'{payload.pedal_estacionamiento_observacion}' , \
         @pedal_estacionamiento_foto = N'{payload.pedal_estacionamiento_foto}' , \
-        @cinturon_seguridad = {si_no_a_boolean(payload.cinturon_seguridad)}, \
+        @cinturon_seguridad = {payload.cinturon_seguridad}, \
         @cinturon_seguridad_observacion = N'{payload.cinturon_seguridad_observacion}' , \
         @cinturon_seguridad_foto = N'{payload.cinturon_seguridad_foto}' , \
-        @cuadro_instrumentos = {si_no_a_boolean(payload.cuadro_instrumentos)}, \
+        @cuadro_instrumentos = {payload.cuadro_instrumentos}, \
         @cuadro_instrumentos_observacion = N'{payload.cuadro_instrumentos_observacion}' ,\
         @cuadro_instrumentos_foto = N'{payload.cuadro_instrumentos_foto}' ,\
-        @aire_acondicionado = {si_no_a_boolean(payload.aire_acondicionado)},\
+        @aire_acondicionado = {payload.aire_acondicionado},\
         @aire_acondicionado_observacion = N'{payload.aire_acondicionado_observacion}' ,\
         @aire_acondicionado_foto = N'{payload.aire_acondicionado_foto}' ,\
-        @bocina_claxon = {si_no_a_boolean(payload.bocina_claxon)},\
+        @bocina_claxon = {payload.bocina_claxon},\
         @bocina_claxon_observacion = N'{payload.bocina_claxon_observacion}' ,\
         @bocina_claxon_foto = N'{payload.bocina_claxon_foto}' ,\
-        @iluminacion_interior = {si_no_a_boolean(payload.iluminacion_interior)},\
+        @iluminacion_interior = {payload.iluminacion_interior},\
         @iluminacion_interior_observacion = N'{payload.iluminacion_interior_observacion}' ,\
         @iluminacion_interior_foto = N'{payload.iluminacion_interior_foto}' ,\
-        @iluminacion_externa = {si_no_a_boolean(payload.iluminacion_externa)},\
+        @iluminacion_externa = {payload.iluminacion_externa},\
         @iluminacion_externa_observacion = N'{payload.iluminacion_externa_observacion}' ,\
         @iluminacion_externa_foto = N'{payload.iluminacion_externa_foto}' ,\
-        @limpiaparabrisas = {si_no_a_boolean(payload.limpiaparabrisas)}, \
+        @limpiaparabrisas = {payload.limpiaparabrisas}, \
         @limpiaparabrisas_observacion = N'{payload.limpiaparabrisas_observacion}' ,\
         @limpiaparabrisas_foto = N'{payload.limpiaparabrisas_foto}' , \
-        @limpia_medallon = {si_no_a_boolean(payload.limpia_medallon)}, \
+        @limpia_medallon = {payload.limpia_medallon}, \
         @limpia_medallon_observacion = N'{payload.limpia_medallon_observacion}' , \
         @limpia_medallon_foto = N'{payload.limpia_medallon_foto}' , \
-        @neumaticos_friccion = {si_no_a_boolean(payload.neumaticos_friccion)}, \
+        @neumaticos_friccion = {payload.neumaticos_friccion}, \
         @neumaticos_friccion_observacion = N'{payload.neumaticos_friccion_observacion}' ,  \
         @neumaticos_friccion_foto = N'{payload.neumaticos_friccion_foto}' , \
-        @otros_vehiculo_en_piso = {si_no_a_boolean(payload.otros_vehiculo_en_piso)}, \
+        @otros_vehiculo_en_piso = {payload.otros_vehiculo_en_piso}, \
         @otros_vehiculo_en_piso_observacion = N'{payload.otros_vehiculo_en_piso_observacion}' , \
         @otros_vehiculo_en_piso_foto = N'{payload.otros_vehiculo_en_piso_foto}' , \
-        @estado_fugas_aceite = {si_no_a_boolean(payload.estado_fugas_aceite)}, \
+        @estado_fugas_aceite = {payload.estado_fugas_aceite}, \
         @estado_fugas_aceite_observacion = N'{payload.estado_fugas_aceite_observacion}' , \
         @estado_fugas_aceite_foto = N'{payload.estado_fugas_aceite_foto}' , \
-        @estado_nivel_calidad_lubricante_transmision = {si_no_a_boolean(payload.estado_nivel_calidad_lubricante_transmision)}, \
+        @estado_nivel_calidad_lubricante_transmision = {payload.estado_nivel_calidad_lubricante_transmision}, \
         @estado_nivel_calidad_lubricante_transmision_observacion = N'{payload.estado_nivel_calidad_lubricante_transmision_observacion}' , \
         @estado_nivel_calidad_lubricante_transmision_foto = N'{payload.estado_nivel_calidad_lubricante_transmision_foto}' , \
-        @estado_nivel_calidad_lubricante_diferencial = {si_no_a_boolean(payload.estado_nivel_calidad_lubricante_diferencial)}, \
+        @estado_nivel_calidad_lubricante_diferencial = {payload.estado_nivel_calidad_lubricante_diferencial}, \
         @estado_nivel_calidad_lubricante_diferencial_observacion = N'{payload.estado_nivel_calidad_lubricante_diferencial_observacion}' , \
         @estado_nivel_calidad_lubricante_diferencial_foto = N'{payload.estado_nivel_calidad_lubricante_diferencial_foto}' , \
-        @cubrepolvos_flechas = {si_no_a_boolean(payload.cubrepolvos_flechas)}, \
+        @cubrepolvos_flechas = {payload.cubrepolvos_flechas}, \
         @cubrepolvos_flechas_observacion = N'{payload.cubrepolvos_flechas_observacion}' , \
         @cubrepolvos_flechas_foto = N'{payload.cubrepolvos_flechas_foto}' , \
-        @componentes_direccion = {si_no_a_boolean(payload.componentes_direccion)}, \
+        @componentes_direccion = {payload.componentes_direccion}, \
         @componentes_direccion_observacion = N'{payload.componentes_direccion_observacion}' , \
         @componentes_direccion_foto = N'{payload.componentes_direccion_foto}' , \
-        @componentes_suspesion = {si_no_a_boolean(payload.componentes_suspesion)}, \
+        @componentes_suspesion = {payload.componentes_suspesion}, \
         @componentes_suspesion_observacion = N'{payload.componentes_suspesion_observacion}' , \
         @componentes_suspesion_foto = N'{payload.componentes_suspesion_foto}' , \
-        @sistema_escape_completo = {si_no_a_boolean(payload.sistema_escape_completo)}, \
+        @sistema_escape_completo = {payload.sistema_escape_completo}, \
         @sistema_escape_completo_observacion = N'{payload.sistema_escape_completo_observacion}' , \
         @sistema_escape_completo_foto = N'{payload.sistema_escape_completo_foto}' , \
-        @sistema_alimentacion_combustible = {si_no_a_boolean(payload.sistema_alimentacion_combustible)}, \
+        @sistema_alimentacion_combustible = {payload.sistema_alimentacion_combustible}, \
         @sistema_alimentacion_combustible_observacion = N'{payload.sistema_alimentacion_combustible_observacion}' , \
         @sistema_alimentacion_combustible_foto = N'{payload.sistema_alimentacion_combustible_foto}' , \
-        @filtro_combustible = {si_no_a_boolean(payload.filtro_combustible)}, \
+        @filtro_combustible = {payload.filtro_combustible}, \
         @filtro_combustible_observacion = N'{payload.filtro_combustible_observacion}' , \
         @filtro_combustible_foto = N'{payload.filtro_combustible_foto}' , \
-        @control_fugas_direccion_hidraulica = {si_no_a_boolean(payload.control_fugas_direccion_hidraulica)}, \
+        @control_fugas_direccion_hidraulica = {payload.control_fugas_direccion_hidraulica}, \
         @control_fugas_direccion_hidraulica_observacion = N'{payload.control_fugas_direccion_hidraulica_observacion}' , \
         @control_fugas_direccion_hidraulica_foto = N'{payload.control_fugas_direccion_hidraulica_foto}' , \
-        @otros_altura_total = {si_no_a_boolean(payload.otros_altura_total)}, \
+        @otros_altura_total = {payload.otros_altura_total}, \
         @otros_altura_total_observacion = N'{payload.otros_altura_total_observacion}' , \
         @otros_altura_total_foto = N'{payload.otros_altura_total_foto}' , \
-        @rodamiento_mazas_aceites = {si_no_a_boolean(payload.rodamiento_mazas_aceites)}, \
-        @rodamiento_mazas_aceites_observacion = N'{payload.rodamiento_mazas_aceites_observacion}' , \
-        @rodamiento_mazas_aceites_foto = N'{payload.rodamiento_mazas_aceites_foto}' , \
-        @cilindro_salida_aceites = {si_no_a_boolean(payload.cilindro_salida_aceites)}, \
-        @cilindro_salida_aceites_observacion = N'{payload.cilindro_salida_aceites_observacion}' , \
-        @cilindro_salida_aceites_foto = N'{payload.cilindro_salida_aceites_foto}' , \
-        @capacidad_bateria = {si_no_a_boolean(payload.capacidad_bateria)}, \
-        @capacidad_bateria_observacion = N'{payload.capacidad_bateria_observacion}' , \
-        @capacidad_bateria_foto = N'{payload.capacidad_bateria_foto}' , \
-        @nivel_aceite_motor = {si_no_a_boolean(payload.nivel_aceite_motor)}, \
-        @nivel_aceite_motor_observacion = N'{payload.nivel_aceite_motor_observacion}' , \
-        @nivel_aceite_motor_foto = N'{payload.nivel_aceite_motor_foto}' , \
-        @otro = {si_no_a_boolean(payload.otro)} , \
-        @otro_observacion = N'{payload.otro_observacion}' ,\
-        @otro_foto = N'{payload.otro_foto}' ,\
-        @IdVehiculo = {payload.idvehiculo} 
-    """
-    return query
+        @rodamiento_mazas_rueda = {payload.rodamiento_mazas_rueda}, \
+        @rodamiento_mazas_rueda_observacion = N'{payload.rodamiento_mazas_rueda_observacion}' , \
+        @rodamiento_mazas_rueda_foto = N'{payload.rodamiento_mazas_rueda_foto}' , \
+        @holgura_partes_suspension_rueda = {payload.holgura_partes_suspension_rueda}, \
+        @holgura_partes_suspension_rueda_observacion = N'{payload.holgura_partes_suspension_rueda_observacion}' , \
+        @holgura_partes_suspension_rueda_foto = N'{payload.holgura_partes_suspension_rueda_foto}' , \
+        @control_neumaticos_desgaste_presion = {payload.control_neumaticos_desgaste_presion}, \
+        @control_neumaticos_desgaste_presion_observacion = N'{payload.control_neumaticos_desgaste_presion_observacion}' , \
+        @control_neumaticos_desgaste_presion_foto = N'{payload.control_neumaticos_desgaste_presion_foto}' , \
+        @profundidad = {payload.profundidad}, \
+        @profundidad_observacion = N'{payload.profundidad_observacion}' , \
+        @profundidad_foto = N'{payload.profundidad_foto}' , \
+        @presion = {payload.presion}, \
+        @presion_observacion = N'{payload.presion_observacion}' , \
+        @presion_foto = N'{payload.presion_foto}' , \
+        @otros_altura_media = {payload.otros_altura_media}, \
+        @otros_altura_media_observacion = N'{payload.otros_altura_media_observacion}' , \
+        @otros_altura_media_foto = N'{payload.otros_altura_media_foto}' , \
+        @nivel_calidad_aceite_motor = {payload.nivel_calidad_aceite_motor}, \
+        @nivel_calidad_aceite_motor_observacion = N'{payload.nivel_calidad_aceite_motor_observacion}' , \
+        @nivel_calidad_aceite_motor_foto = N'{payload.nivel_calidad_aceite_motor_foto}' , \
+        @filtro_aire = {payload.filtro_aire}, \
+        @filtro_aire_observacion = N'{payload.filtro_aire_observacion}' , \
+        @filtro_aire_foto = N'{payload.filtro_aire_foto}' , \
+        @filtro_polen = {payload.filtro_polen}, \
+        @filtro_polen_observacion = N'{payload.filtro_polen_observacion}' , \
+        @filtro_polen_foto = N'{payload.filtro_polen_foto}' , \
+        @filtro_pcv = {payload.filtro_pcv}, \
+        @filtro_pcv_observacion = N'{payload.filtro_pcv_observacion}' , \
+        @filtro_pcv_foto = N'{payload.filtro_pcv_foto}' , \
+        @valvula_pcv = {payload.valvula_pcv}, \
+        @valvula_pcv_observacion = N'{payload.valvula_pcv_observacion}' , \
+        @valvula_pcv_foto = N'{payload.valvula_pcv_foto}' , \
+        @bujias_encendido = {payload.bujias_encendido}, \
+        @bujias_encendido_observacion = N'{payload.bujias_encendido_observacion}' , \
+        @bujias_encendido_foto = N'{payload.bujias_encendido_foto}' , \
+        @cables_bujias_bobinas_ignicion = {payload.cables_bujias_bobinas_ignicion}, \
+        @cables_bujias_bobinas_ignicion_observacion = N'{payload.cables_bujias_bobinas_ignicion_observacion}' , \
+        @cables_bujias_bobinas_ignicion_foto = N'{payload.cables_bujias_bobinas_ignicion_foto}' , \
+        @nivel_anticongenlante = {payload.nivel_anticongenlante}, \
+        @nivel_anticongenlante_observacion = N'{payload.nivel_anticongenlante_observacion}' , \
+        @nivel_anticongenlante_foto = N'{payload.nivel_anticongenlante_foto}' , \
+        @tapon_radiador = {payload.tapon_radiador}, \
+        @tapon_radiador_observacion = N'{payload.tapon_radiador_observacion}' , \
+        @tapon_radiador_foto = N'{payload.tapon_radiador_foto}' , \
+        @mangueras_sistema = {payload.mangueras_sistema}, \
+        @mangueras_sistema_observacion = N'{payload.mangueras_sistema_observacion}' , \
+        @mangueras_sistema_foto = N'{payload.mangueras_sistema_foto}' , \
+        @desempeño_ventilador = {payload.desempeño_ventilador}, \
+        @desempeño_ventilador_observacion = N'{payload.desempeño_ventilador_observacion}' , \
+        @desempeño_ventilador_foto = N'{payload.desempeño_ventilador_foto}' , \
+        @calidad_liquido_limpiaparabrisas = {payload.calidad_liquido_limpiaparabrisas}, \
+        @calidad_liquido_limpiaparabrisas_observacion = N'{payload.calidad_liquido_limpiaparabrisas_observacion}' , \
+        @calidad_liquido_limpiaparabrisas_foto = N'{payload.calidad_liquido_limpiaparabrisas_foto}' , \
+        @calidad_aceite_direccion_hidraulica = {payload.calidad_aceite_direccion_hidraulica}, \
+        @calidad_aceite_direccion_hidraulica_observacion = N'{payload.calidad_aceite_direccion_hidraulica_observacion}' , \
+        @calidad_aceite_direccion_hidraulica_foto = N'{payload.calidad_aceite_direccion_hidraulica_foto}' , \
+        @calidad_aceite_transmision_bayoneta = {payload.calidad_aceite_transmision_bayoneta}, \
+        @calidad_aceite_transmision_bayoneta_observacion = N'{payload.calidad_aceite_transmision_bayoneta_observacion}' , \
+        @calidad_aceite_transmision_bayoneta_foto = N'{payload.calidad_aceite_transmision_bayoneta_foto}' , \
+        @liquido_bateria_condiciones = {payload.liquido_bateria_condiciones}, \
+        @liquido_bateria_condiciones_observacion = N'{payload.liquido_bateria_condiciones_observacion}' , \
+        @liquido_bateria_condiciones_foto = N'{payload.liquido_bateria_condiciones_foto}' ,    \
+        @bandas_poly_v = {payload.bandas_poly_v}, \
+        @bandas_poly_v_observacion = N'{payload.bandas_poly_v_observacion}' , \
+        @bandas_poly_v_foto = N'{payload.bandas_poly_v_foto}' , \
+        @poleas_banda = {payload.poleas_banda}, \
+        @poleas_banda_observacion = N'{payload.poleas_banda_observacion}' , \
+        @poleas_banda_foto = N'{payload.poleas_banda_foto}' , \
+        @banda_tiempo = {payload.banda_tiempo}, \
+        @banda_tiempo_observacion = N'{payload.banda_tiempo_observacion}' , \
+        @banda_tiempo_foto = N'{payload.banda_tiempo_foto}' , \
+        @otros_habitaculo_motor = {payload.otros_habitaculo_motor}, \
+        @otros_habitaculo_motor_observacion = N'{payload.otros_habitaculo_motor_observacion}' , \
+        @otros_habitaculo_motor_foto = N'{payload.otros_habitaculo_motor_foto}' , \
+        @reset_intervalo_servicio = {payload.reset_intervalo_servicio}, \
+        @reset_intervalo_servicio_observacion = N'{payload.reset_intervalo_servicio_observacion}' , \
+        @reset_intervalo_servicio_foto = N'{payload.reset_intervalo_servicio_foto}' , \
+        @ajuste_tornillos_neumaticos_torquimetro = {payload.ajuste_tornillos_neumaticos_torquimetro}, \
+        @ajuste_tornillos_neumaticos_torquimetro_observacion = N'{payload.ajuste_tornillos_neumaticos_torquimetro_observacion}' , \
+        @ajuste_tornillos_neumaticos_torquimetro_foto = N'{payload.ajuste_tornillos_neumaticos_torquimetro_foto}' , \
+        @limpiar_libricar_puertas_cerraduras = {payload.limpiar_libricar_puertas_cerraduras}, \
+        @limpiar_libricar_puertas_cerraduras_observacion = N'{payload.limpiar_libricar_puertas_cerraduras_observacion}' , \
+        @limpiar_libricar_puertas_cerraduras_foto = N'{payload.limpiar_libricar_puertas_cerraduras_foto}' , \
+        @completar_plan_mantenimiento = {payload.completar_plan_mantenimiento}, \
+        @completar_plan_mantenimiento_observacion = N'{payload.completar_plan_mantenimiento_observacion}' , \
+        @completar_plan_mantenimiento_foto = N'{payload.completar_plan_mantenimiento_foto}' , \
+        @fecha = N'{payload.Fecha}' , \
+        @Id_empleado = {payload.IdEmpleado} , \
+        @Id_vehiculo = {payload.IdVehiculo} , \
+        @id_ordendeservicio = {payload.Id_ordendeservicio} , \
+        @NumeroSerie = '{payload.NumeroSerie}' """
 
-
-
-# def put_checklist(payload: Checklist):
-#     # Construcción de la consulta SQL para ejecutar el procedimiento almacenado
-#     query = f"""
-#     exec [dbo].[UpdateCheckList] 
-#                 @lectura_codigos = {payload.lectura_codigos}, \
-#         @lectura_codigos_observacion = N'{payload.lectura_codigos_observacion}' , \
-#         @lectura_codigos_foto = N'{payload.lectura_codigos_foto}' , \
-#         @servofreno = {payload.servofreno}, \
-#         @servofreno_observacion = N'{payload.servofreno_observacion}' , \
-#         @servofreno_foto = N'{payload.servofreno_foto}' , \
-#         @pedal_freno = {payload.pedal_freno}, \
-#         @pedal_freno_observacion = N'{payload.pedal_freno_observacion}' , \
-#         @pedal_freno_foto = N'{payload.pedal_freno_foto}' , \
-#         @pedal_estacionamiento = {payload.pedal_estacionamiento}, \
-#         @pedal_estacionamiento_observacion = N'{payload.pedal_estacionamiento_observacion}' , \
-#         @pedal_estacionamiento_foto = N'{payload.pedal_estacionamiento_foto}' , \
-#         @cinturon_seguridad = {payload.cinturon_seguridad}, \
-#         @cinturon_seguridad_observacion = N'{payload.cinturon_seguridad_observacion}' , \
-#         @cinturon_seguridad_foto = N'{payload.cinturon_seguridad_foto}' , \
-#         @cuadro_instrumentos = {payload.cuadro_instrumentos}, \
-#         @cuadro_instrumentos_observacion = N'{payload.cuadro_instrumentos_observacion}' ,\
-#         @cuadro_instrumentos_foto = N'{payload.cuadro_instrumentos_foto}' ,\
-#         @aire_acondicionado = {payload.aire_acondicionado},\
-#         @aire_acondicionado_observacion = N'{payload.aire_acondicionado_observacion}' ,\
-#         @aire_acondicionado_foto = N'{payload.aire_acondicionado_foto}' ,\
-#         @bocina_claxon = {payload.bocina_claxon},\
-#         @bocina_claxon_observacion = N'{payload.bocina_claxon_observacion}' ,\
-#         @bocina_claxon_foto = N'{payload.bocina_claxon_foto}' ,\
-#         @iluminacion_interior = {payload.iluminacion_interior},\
-#         @iluminacion_interior_observacion = N'{payload.iluminacion_interior_observacion}' ,\
-#         @iluminacion_interior_foto = N'{payload.iluminacion_interior_foto}' ,\
-#         @iluminacion_externa = {payload.iluminacion_externa},\
-#         @iluminacion_externa_observacion = N'{payload.iluminacion_externa_observacion}' ,\
-#         @iluminacion_externa_foto = N'{payload.iluminacion_externa_foto}' ,\
-#         @limpiaparabrisas = {payload.limpiaparabrisas}, \
-#         @limpiaparabrisas_observacion = N'{payload.limpiaparabrisas_observacion}' ,\
-#         @limpiaparabrisas_foto = N'{payload.limpiaparabrisas_foto}' , \
-#         @limpia_medallon = {payload.limpia_medallon}, \
-#         @limpia_medallon_observacion = N'{payload.limpia_medallon_observacion}' , \
-#         @limpia_medallon_foto = N'{payload.limpia_medallon_foto}' , \
-#         @neumaticos_friccion = {payload.neumaticos_friccion}, \
-#         @neumaticos_friccion_observacion = N'{payload.neumaticos_friccion_observacion}' ,  \
-#         @neumaticos_friccion_foto = N'{payload.neumaticos_friccion_foto}' , \
-#         @otros_vehiculo_en_piso = {payload.otros_vehiculo_en_piso}, \
-#         @otros_vehiculo_en_piso_observacion = N'{payload.otros_vehiculo_en_piso_observacion}' , \
-#         @otros_vehiculo_en_piso_foto = N'{payload.otros_vehiculo_en_piso_foto}' , \
-#         @estado_fugas_aceite = {payload.estado_fugas_aceite}, \
-#         @estado_fugas_aceite_observacion = N'{payload.estado_fugas_aceite_observacion}' , \
-#         @estado_fugas_aceite_foto = N'{payload.estado_fugas_aceite_foto}' , \
-#         @estado_nivel_calidad_lubricante_transmision = {payload.estado_nivel_calidad_lubricante_transmision}, \
-#         @estado_nivel_calidad_lubricante_transmision_observacion = N'{payload.estado_nivel_calidad_lubricante_transmision_observacion}' , \
-#         @estado_nivel_calidad_lubricante_transmision_foto = N'{payload.estado_nivel_calidad_lubricante_transmision_foto}' , \
-#         @estado_nivel_calidad_lubricante_diferencial = {payload.estado_nivel_calidad_lubricante_diferencial}, \
-#         @estado_nivel_calidad_lubricante_diferencial_observacion = N'{payload.estado_nivel_calidad_lubricante_diferencial_observacion}' , \
-#         @estado_nivel_calidad_lubricante_diferencial_foto = N'{payload.estado_nivel_calidad_lubricante_diferencial_foto}' , \
-#         @cubrepolvos_flechas = {payload.cubrepolvos_flechas}, \
-#         @cubrepolvos_flechas_observacion = N'{payload.cubrepolvos_flechas_observacion}' , \
-#         @cubrepolvos_flechas_foto = N'{payload.cubrepolvos_flechas_foto}' , \
-#         @componentes_direccion = {payload.componentes_direccion}, \
-#         @componentes_direccion_observacion = N'{payload.componentes_direccion_observacion}' , \
-#         @componentes_direccion_foto = N'{payload.componentes_direccion_foto}' , \
-#         @componentes_suspesion = {payload.componentes_suspesion}, \
-#         @componentes_suspesion_observacion = N'{payload.componentes_suspesion_observacion}' , \
-#         @componentes_suspesion_foto = N'{payload.componentes_suspesion_foto}' , \
-#         @sistema_escape_completo = {payload.sistema_escape_completo}, \
-#         @sistema_escape_completo_observacion = N'{payload.sistema_escape_completo_observacion}' , \
-#         @sistema_escape_completo_foto = N'{payload.sistema_escape_completo_foto}' , \
-#         @sistema_alimentacion_combustible = {payload.sistema_alimentacion_combustible}, \
-#         @sistema_alimentacion_combustible_observacion = N'{payload.sistema_alimentacion_combustible_observacion}' , \
-#         @sistema_alimentacion_combustible_foto = N'{payload.sistema_alimentacion_combustible_foto}' , \
-#         @filtro_combustible = {payload.filtro_combustible}, \
-#         @filtro_combustible_observacion = N'{payload.filtro_combustible_observacion}' , \
-#         @filtro_combustible_foto = N'{payload.filtro_combustible_foto}' , \
-#         @control_fugas_direccion_hidraulica = {payload.control_fugas_direccion_hidraulica}, \
-#         @control_fugas_direccion_hidraulica_observacion = N'{payload.control_fugas_direccion_hidraulica_observacion}' , \
-#         @control_fugas_direccion_hidraulica_foto = N'{payload.control_fugas_direccion_hidraulica_foto}' , \
-#         @otros_altura_total = {payload.otros_altura_total}, \
-#         @otros_altura_total_observacion = N'{payload.otros_altura_total_observacion}' , \
-#         @otros_altura_total_foto = N'{payload.otros_altura_total_foto}' , \
-#         @rodamiento_mazas_rueda = {payload.rodamiento_mazas_rueda}, \
-#         @rodamiento_mazas_rueda_observacion = N'{payload.rodamiento_mazas_rueda_observacion}' , \
-#         @rodamiento_mazas_rueda_foto = N'{payload.rodamiento_mazas_rueda_foto}' , \
-#         @holgura_partes_suspension_rueda = {payload.holgura_partes_suspension_rueda}, \
-#         @holgura_partes_suspension_rueda_observacion = N'{payload.holgura_partes_suspension_rueda_observacion}' , \
-#         @holgura_partes_suspension_rueda_foto = N'{payload.holgura_partes_suspension_rueda_foto}' , \
-#         @control_neumaticos_desgaste_presion = {payload.control_neumaticos_desgaste_presion}, \
-#         @control_neumaticos_desgaste_presion_observacion = N'{payload.control_neumaticos_desgaste_presion_observacion}' , \
-#         @control_neumaticos_desgaste_presion_foto = N'{payload.control_neumaticos_desgaste_presion_foto}' , \
-#         @profundidad = {payload.profundidad}, \
-#         @profundidad_observacion = N'{payload.profundidad_observacion}' , \
-#         @profundidad_foto = N'{payload.profundidad_foto}' , \
-#         @presion = {payload.presion}, \
-#         @presion_observacion = N'{payload.presion_observacion}' , \
-#         @presion_foto = N'{payload.presion_foto}' , \
-#         @otros_altura_media = {payload.otros_altura_media}, \
-#         @otros_altura_media_observacion = N'{payload.otros_altura_media_observacion}' , \
-#         @otros_altura_media_foto = N'{payload.otros_altura_media_foto}' , \
-#         @nivel_calidad_aceite_motor = {payload.nivel_calidad_aceite_motor}, \
-#         @nivel_calidad_aceite_motor_observacion = N'{payload.nivel_calidad_aceite_motor_observacion}' , \
-#         @nivel_calidad_aceite_motor_foto = N'{payload.nivel_calidad_aceite_motor_foto}' , \
-#         @filtro_aire = {payload.filtro_aire}, \
-#         @filtro_aire_observacion = N'{payload.filtro_aire_observacion}' , \
-#         @filtro_aire_foto = N'{payload.filtro_aire_foto}' , \
-#         @filtro_polen = {payload.filtro_polen}, \
-#         @filtro_polen_observacion = N'{payload.filtro_polen_observacion}' , \
-#         @filtro_polen_foto = N'{payload.filtro_polen_foto}' , \
-#         @filtro_pcv = {payload.filtro_pcv}, \
-#         @filtro_pcv_observacion = N'{payload.filtro_pcv_observacion}' , \
-#         @filtro_pcv_foto = N'{payload.filtro_pcv_foto}' , \
-#         @valvula_pcv = {payload.valvula_pcv}, \
-#         @valvula_pcv_observacion = N'{payload.valvula_pcv_observacion}' , \
-#         @valvula_pcv_foto = N'{payload.valvula_pcv_foto}' , \
-#         @bujias_encendido = {payload.bujias_encendido}, \
-#         @bujias_encendido_observacion = N'{payload.bujias_encendido_observacion}' , \
-#         @bujias_encendido_foto = N'{payload.bujias_encendido_foto}' , \
-#         @cables_bujias_bobinas_ignicion = {payload.cables_bujias_bobinas_ignicion}, \
-#         @cables_bujias_bobinas_ignicion_observacion = N'{payload.cables_bujias_bobinas_ignicion_observacion}' , \
-#         @cables_bujias_bobinas_ignicion_foto = N'{payload.cables_bujias_bobinas_ignicion_foto}' , \
-#         @nivel_anticongenlante = {payload.nivel_anticongenlante}, \
-#         @nivel_anticongenlante_observacion = N'{payload.nivel_anticongenlante_observacion}' , \
-#         @nivel_anticongenlante_foto = N'{payload.nivel_anticongenlante_foto}' , \
-#         @tapon_radiador = {payload.tapon_radiador}, \
-#         @tapon_radiador_observacion = N'{payload.tapon_radiador_observacion}' , \
-#         @tapon_radiador_foto = N'{payload.tapon_radiador_foto}' , \
-#         @mangueras_sistema = {payload.mangueras_sistema}, \
-#         @mangueras_sistema_observacion = N'{payload.mangueras_sistema_observacion}' , \
-#         @mangueras_sistema_foto = N'{payload.mangueras_sistema_foto}' , \
-#         @desempeño_ventilador = {payload.desempeño_ventilador}, \
-#         @desempeño_ventilador_observacion = N'{payload.desempeño_ventilador_observacion}' , \
-#         @desempeño_ventilador_foto = N'{payload.desempeño_ventilador_foto}' , \
-#         @calidad_liquido_limpiaparabrisas = {payload.calidad_liquido_limpiaparabrisas}, \
-#         @calidad_liquido_limpiaparabrisas_observacion = N'{payload.calidad_liquido_limpiaparabrisas_observacion}' , \
-#         @calidad_liquido_limpiaparabrisas_foto = N'{payload.calidad_liquido_limpiaparabrisas_foto}' , \
-#         @calidad_aceite_direccion_hidraulica = {payload.calidad_aceite_direccion_hidraulica}, \
-#         @calidad_aceite_direccion_hidraulica_observacion = N'{payload.calidad_aceite_direccion_hidraulica_observacion}' , \
-#         @calidad_aceite_direccion_hidraulica_foto = N'{payload.calidad_aceite_direccion_hidraulica_foto}' , \
-#         @calidad_aceite_transmision_bayoneta = {payload.calidad_aceite_transmision_bayoneta}, \
-#         @calidad_aceite_transmision_bayoneta_observacion = N'{payload.calidad_aceite_transmision_bayoneta_observacion}' , \
-#         @calidad_aceite_transmision_bayoneta_foto = N'{payload.calidad_aceite_transmision_bayoneta_foto}' , \
-#         @liquido_bateria_condiciones = {payload.liquido_bateria_condiciones}, \
-#         @liquido_bateria_condiciones_observacion = N'{payload.liquido_bateria_condiciones_observacion}' , \
-#         @liquido_bateria_condiciones_foto = N'{payload.liquido_bateria_condiciones_foto}' ,    \
-#         @bandas_poly_v = {payload.bandas_poly_v}, \
-#         @bandas_poly_v_observacion = N'{payload.bandas_poly_v_observacion}' , \
-#         @bandas_poly_v_foto = N'{payload.bandas_poly_v_foto}' , \
-#         @poleas_banda = {payload.poleas_banda}, \
-#         @poleas_banda_observacion = N'{payload.poleas_banda_observacion}' , \
-#         @poleas_banda_foto = N'{payload.poleas_banda_foto}' , \
-#         @banda_tiempo = {payload.banda_tiempo}, \
-#         @banda_tiempo_observacion = N'{payload.banda_tiempo_observacion}' , \
-#         @banda_tiempo_foto = N'{payload.banda_tiempo_foto}' , \
-#         @otros_habitaculo_motor = {payload.otros_habitaculo_motor}, \
-#         @otros_habitaculo_motor_observacion = N'{payload.otros_habitaculo_motor_observacion}' , \
-#         @otros_habitaculo_motor_foto = N'{payload.otros_habitaculo_motor_foto}' , \
-#         @reset_intervalo_servicio = {payload.reset_intervalo_servicio}, \
-#         @reset_intervalo_servicio_observacion = N'{payload.reset_intervalo_servicio_observacion}' , \
-#         @reset_intervalo_servicio_foto = N'{payload.reset_intervalo_servicio_foto}' , \
-#         @ajuste_tornillos_neumaticos_torquimetro = {payload.ajuste_tornillos_neumaticos_torquimetro}, \
-#         @ajuste_tornillos_neumaticos_torquimetro_observacion = N'{payload.ajuste_tornillos_neumaticos_torquimetro_observacion}' , \
-#         @ajuste_tornillos_neumaticos_torquimetro_foto = N'{payload.ajuste_tornillos_neumaticos_torquimetro_foto}' , \
-#         @limpiar_libricar_puertas_cerraduras = {payload.limpiar_libricar_puertas_cerraduras}, \
-#         @limpiar_libricar_puertas_cerraduras_observacion = N'{payload.limpiar_libricar_puertas_cerraduras_observacion}' , \
-#         @limpiar_libricar_puertas_cerraduras_foto = N'{payload.limpiar_libricar_puertas_cerraduras_foto}' , \
-#         @completar_plan_mantenimiento = {payload.completar_plan_mantenimiento}, \
-#         @completar_plan_mantenimiento_observacion = N'{payload.completar_plan_mantenimiento_observacion}' , \
-#         @completar_plan_mantenimiento_foto = N'{payload.completar_plan_mantenimiento_foto}' , \
-#         @fecha = N'{payload.Fecha}' , \
-#         @Id_empleado = {payload.IdEmpleado} , \
-#         @Id_vehiculo = {payload.IdVehiculo} , \
-#         @id_ordendeservicio = {payload.Id_ordendeservicio} , \
-#         @NumeroSerie = '{payload.NumeroSerie}' """
-
-#     try:
-#         with engine.begin() as conn:
-#             # Ejecutar la consulta SQL
-#             roles_df = pd.read_sql(query, conn)
+    try:
+        with engine.begin() as conn:
+            # Ejecutar la consulta SQL
+            roles_df = pd.read_sql(query, conn)
         
-#         # Crear el objeto de respuesta
-#         response = ResponseModel(id_resultado=1, respuesta="El checklist se actualizó correctamente.")
-#         return JSONResponse(status_code=200, content=response.dict())
+        # Crear el objeto de respuesta
+        response = ResponseModel(id_resultado=1, respuesta="El checklist se actualizó correctamente.")
+        return JSONResponse(status_code=200, content=response.dict())
     
-#     except Exception as e:
-#         # Manejo de errores
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
-
-
+    except Exception as e:
+        # Manejo de errores
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post(
         path="/api/servicio",
