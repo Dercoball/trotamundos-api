@@ -2046,11 +2046,10 @@ def put_checklist(payload: Checklist):
         @completar_plan_mantenimiento_observacion = N'{payload.completar_plan_mantenimiento_observacion}' , \
         @completar_plan_mantenimiento_foto = N'{payload.completar_plan_mantenimiento_foto}' , \
         @fecha = N'{payload.Fecha}' , \
-        @Id_empleado = {payload.IdEmpleado} , \
+        @IdEmpleado = {payload.IdEmpleado} , \
         @Id_vehiculo = {payload.IdVehiculo} , \
-        @id_ordendeservicio = {payload.Id_ordendeservicio} , \
-        @NumeroSerie = '{payload.NumeroSerie}' """
-
+        @Id_ordendeservicio = {payload.Id_ordendeservicio} """
+#modificaciones adjuntas pruebas
     try:
         with engine.begin() as conn:
             # Ejecutar la consulta SQL
