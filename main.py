@@ -2047,7 +2047,7 @@ def put_checklist(payload: Checklist):
         @completar_plan_mantenimiento_foto = N'{payload.completar_plan_mantenimiento_foto}' , \
         @fecha = N'{payload.Fecha}' , \
         @IdEmpleado = {payload.IdEmpleado} , \
-        @Id_vehiculo = {payload.IdVehiculo} , \
+        @IdVehiculo = {payload.IdVehiculo} , \
         @Id_ordendeservicio = {payload.Id_ordendeservicio} """
 #modificaciones adjuntas pruebas
     try:
