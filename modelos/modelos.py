@@ -195,11 +195,11 @@ class Vehiculo(BaseModel):
 
 
 class saveVehiculo(Vehiculo):
-    IdCliente: int
+    Id_Cliente: int
     
 class GetVehiculo(Vehiculo):
     ID : int
-    IdCliente : int
+    Id_Cliente : int
     Id_Empleado : int
     MotorVehiculo_foto: List[str]
     Acumulador_foto: List[str]
