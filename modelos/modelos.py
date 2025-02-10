@@ -200,7 +200,7 @@ class saveVehiculo(Vehiculo):
 class GetVehiculo(Vehiculo):
     ID : int
     IdCliente : int
-    Id_empleado : int
+    Id_Empleado : int
     MotorVehiculo_foto: List[str]
     Acumulador_foto: List[str]
     Espejo_retrovisor_foto: List[str]  

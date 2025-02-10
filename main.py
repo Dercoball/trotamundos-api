@@ -594,7 +594,7 @@ def guardarVehiculo(payload: saveVehiculo):
         query = text("""
             exec dbo.InsertarVehiculo 
                 @Id_Cliente = :IdCliente,
-                @Id_Empleado = :Id_empleado,
+                @Id_Empleado = :Id_Empleado,
                 @Marca = :Marca,
                 @Modelo = :Modelo,
                 @Color = :Color,
@@ -2240,7 +2240,8 @@ def saveservicio(payload: Checklist):
         @Id_vehiculo = {payload.IdVehiculo} , \
         @id_ordendeservicio = {payload.Id_ordendeservicio} , \
         @id_checklist = {payload.id_checklist} , \
-        @NumeroSerie = '{payload.NumeroSerie}' """
+        @NumeroSerie = '{payload.NumeroSerie}', \
+        @Activo = {payload.Activo}"""
     print (query)
     with engine.begin() as conn:
           conn.execution_options(autocommit = True)
