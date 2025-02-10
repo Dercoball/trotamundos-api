@@ -577,6 +577,7 @@ class Checklist(BaseModel):
     TiempoTranscurrido: str
     id: Optional[int] = None
     id_checklist: Optional[int] = None
+    Activo: Optional[int] = None
     #NuevasVariables
     
 class Tecnicos(BaseModel):
