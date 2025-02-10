@@ -117,7 +117,7 @@ class VehiculoV2(BaseModel):
     IdOrdenServicio: int
     Activo: int
 class Vehiculo(BaseModel):
-    Id_empleado: int
+    Id_Empleado: int
     Marca: str
     Modelo: str
     Color: str
