@@ -11,11 +11,11 @@ class ModificarVehiculo(BaseModel):
 class SaveCliente(BaseModel):
     Facturar_a : str
     Nombre : str
-    Calle : str
+    Calle: Optional[str] = ""
+    Colonia: Optional[str] = ""
+    Ciudad: Optional[str] = ""
+    Estado: Optional[str] = ""
     No_int : int
-    Colonia : str
-    Ciudad : str
-    Estado : str
     Tel : str
     Cel : str
     Email : str
