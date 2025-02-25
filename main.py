@@ -373,52 +373,64 @@ class DocumentRequestOrden(BaseModel):
     inventario: Dict[str, str]
     logo_base64: Optional[str]
 
-def obtener_datos_orden_servicio(id_cliente: int) -> DocumentRequestOrden:
-    query = f"exec Clientes.ordendeservicio @idCliente = {id_cliente}"
-    orden_df = pd.read_sql(query, engine)
+# def obtener_datos_orden_servicio(id_cliente: int) -> DocumentRequestOrden:
+#     query = f"exec Clientes.ordendeservicio @idCliente = {id_cliente}"
+#     orden_df = pd.read_sql(query, engine)
     
-    if not orden_df.empty:
-        row = orden_df.iloc[0]
+#     if not orden_df.empty:
+#         row = orden_df.iloc[0]
         
-        inventario = {
-            "Espejo_retrovisor": row['Espejo_retrovisor'],
-            "Espejo_izquierdo": row['Espejo_izquierdo'],
-            "Antena": row['Antena'],
-            "Tapones_ruedas": row['Tapones_ruedas'],
-            "Radio": row['Radio'],
-            "Encendedor": row['Encendedor'],
-            "Gato": row['Gato'],
-            "Herramienta": row['Herramienta'],
-            "Llanta_refaccion": row['Llanta_refaccion'],
-            "Limpiadores": row['Limpiadores'],
-            "Pintura_rayada": row['Pintura_rayada'],
-            "Cristales_rotos": row['Cristales_rotos'],
-            "Golpes": row['Golpes'],
-            "Tapetes": row['Tapetes'],
-            "Extintor": row['Extintor'],
-            "Tapones_gasolina": row['Tapones_gasolina'],
-            "Calaveras_rotas": row['Calaveras_rotas'],
-            "Molduras_completas": row['Molduras_completas'],
-        }
+#         inventario = {
+#             "Espejo_retrovisor": row['Espejo_retrovisor'],
+#             "Espejo_izquierdo": row['Espejo_izquierdo'],
+#             "Antena": row['Antena'],
+#             "Tapones_ruedas": row['Tapones_ruedas'],
+#             "Radio": row['Radio'],
+#             "Encendedor": row['Encendedor'],
+#             "Gato": row['Gato'],
+#             "Herramienta": row['Herramienta'],
+#             "Llanta_refaccion": row['Llanta_refaccion'],
+#             "Limpiadores": row['Limpiadores'],
+#             "Pintura_rayada": row['Pintura_rayada'],
+#             "Cristales_rotos": row['Cristales_rotos'],
+#             "Golpes": row['Golpes'],
+#             "Tapetes": row['Tapetes'],
+#             "Extintor": row['Extintor'],
+#             "Tapones_gasolina": row['Tapones_gasolina'],
+#             "Calaveras_rotas": row['Calaveras_rotas'],
+#             "Molduras_completas": row['Molduras_completas'],
+#         }
 
-        # Usando la fecha actual
-        fecha_actual = datetime.now().strftime("%Y-%m-%d")
+#         # Usando la fecha actual
+#         fecha_actual = datetime.now().strftime("%Y-%m-%d")
         
-        datos_orden = DocumentRequestOrden(
-            cliente=row['Nombre'],
-            telefono=row['Tel'],
-            vehiculo=row['Marca'] + ' ' + row['Modelo'],
-            placas=row['Placa'],
-            fecha=fecha_actual,
-            kilometraje=row['kms'],
-            inventario=inventario,
-            logo_base64=row.get("LogoBase64", "")  # LogoBase64 puede estar vacío
-        )
+#         datos_orden = DocumentRequestOrden(
+#             cliente=row['Nombre'],
+#             telefono=row['Tel'],
+#             vehiculo=row['Marca'] + ' ' + row['Modelo'],
+#             placas=row['Placa'],
+#             fecha=fecha_actual,
+#             kilometraje=row['kms'],
+#             inventario=inventario,
+#             logo_base64=row.get("LogoBase64", "")  # LogoBase64 puede estar vacío
+#         )
         
-        return datos_orden
-    else:
-        raise Exception("No se encontraron datos para el cliente.")
+#         return datos_orden
+#     else:
+#         raise Exception("No se encontraron datos para el cliente.")
 
+
+@app.get(
+    path="/api/obtener_orden_service/{IdCliente}",  # Se pasa como parámetro de la URL
+    name='Obtener ordenes de servicio',
+    tags=['Orden'],
+    description='Método para obtener la información de todas las ordenes de servicio por cliente'
+)
+def getchecklists(IdCliente: int):
+    query = f"exec [Clientes].[ordendeservicio] @idCliente = {IdCliente}"
+    roles_df = pd.read_sql(query, engine)
+    resultado = roles_df.to_dict(orient="records")
+    return JSONResponse(status_code=200, content=resultado)
 
 
 def generar_orden_servicio(datos: DocumentRequestOrden) -> BytesIO:
