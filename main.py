@@ -12,6 +12,7 @@ from datetime import timedelta
 from utils import utilsclass
 import os
 import pdfkit
+from typing import Optional
 import base64
 from PIL import Image
 from io import BytesIO
@@ -359,8 +360,123 @@ async def generate_and_download(request: DocumentRequest):
                                  headers={"Content-Disposition": "attachment; filename=EvidenciaFotografica.docx"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+    
+# Definir el modelo para la entrada de datos
+
+class DocumentRequestOrden(BaseModel):
+    cliente: str
+    telefono: str
+    vehiculo: str
+    placas: str
+    fecha: str
+    kilometraje: str
+    inventario: Dict[str, str]
+    logo_base64: Optional[str]
+
+def obtener_datos_orden_servicio(id_cliente: int) -> DocumentRequestOrden:
+    query = f"exec Clientes.ordendeservicio @idCliente = {id_cliente}"
+    orden_df = pd.read_sql(query, engine)
+    
+    if not orden_df.empty:
+        row = orden_df.iloc[0]
+        
+        inventario = {
+            "Espejo_retrovisor": row['Espejo_retrovisor'],
+            "Espejo_izquierdo": row['Espejo_izquierdo'],
+            "Antena": row['Antena'],
+            "Tapones_ruedas": row['Tapones_ruedas'],
+            "Radio": row['Radio'],
+            "Encendedor": row['Encendedor'],
+            "Gato": row['Gato'],
+            "Herramienta": row['Herramienta'],
+            "Llanta_refaccion": row['Llanta_refaccion'],
+            "Limpiadores": row['Limpiadores'],
+            "Pintura_rayada": row['Pintura_rayada'],
+            "Cristales_rotos": row['Cristales_rotos'],
+            "Golpes": row['Golpes'],
+            "Tapetes": row['Tapetes'],
+            "Extintor": row['Extintor'],
+            "Tapones_gasolina": row['Tapones_gasolina'],
+            "Calaveras_rotas": row['Calaveras_rotas'],
+            "Molduras_completas": row['Molduras_completas'],
+        }
+
+        # Usando la fecha actual
+        fecha_actual = datetime.now().strftime("%Y-%m-%d")
+        
+        datos_orden = DocumentRequestOrden(
+            cliente=row['Nombre'],
+            telefono=row['Tel'],
+            vehiculo=row['Marca'] + ' ' + row['Modelo'],
+            placas=row['Placa'],
+            fecha=fecha_actual,
+            kilometraje=row['kms'],
+            inventario=inventario,
+            logo_base64=row.get("LogoBase64", "")  # LogoBase64 puede estar vacío
+        )
+        
+        return datos_orden
+    else:
+        raise Exception("No se encontraron datos para el cliente.")
 
 
+
+def generar_orden_servicio(datos: DocumentRequestOrden) -> BytesIO:
+    doc = Document()
+    
+    # Agregar logo desde base64 si está presente
+    if datos.logo_base64:
+        from io import BytesIO
+        import base64
+        logo_data = base64.b64decode(datos.logo_base64)
+        logo_stream = BytesIO(logo_data)
+        doc.add_picture(logo_stream, width=Inches(2))
+    
+    doc.add_paragraph("\nORDEN DE SERVICIO", style='Title')
+    
+    tabla = doc.add_table(rows=3, cols=2)
+    tabla.style = 'Table Grid'
+    
+    tabla.cell(0, 0).text = "Cliente: " + datos.cliente
+    tabla.cell(0, 1).text = "Teléfono: " + datos.telefono
+    tabla.cell(1, 0).text = "Vehículo: " + datos.vehiculo
+    tabla.cell(1, 1).text = "Placas: " + datos.placas
+    tabla.cell(2, 0).text = "Fecha: " + datos.fecha
+    tabla.cell(2, 1).text = "Kilometraje: " + datos.kilometraje
+    
+    doc.add_paragraph("\n")
+    
+    doc.add_paragraph("INVENTARIO DEL VEHÍCULO", style='Heading 2')
+    tabla_inv = doc.add_table(rows=len(datos.inventario) + 1, cols=2)
+    tabla_inv.style = 'Table Grid'
+    
+    tabla_inv.cell(0, 0).text = "Elemento"
+    tabla_inv.cell(0, 1).text = "Estado"
+    
+    for i, (elemento, estado) in enumerate(datos.inventario.items()):
+        tabla_inv.cell(i + 1, 0).text = elemento
+        tabla_inv.cell(i + 1, 1).text = estado
+    
+    word_stream = BytesIO()
+    doc.save(word_stream)
+    word_stream.seek(0)
+    
+    return word_stream
+
+@app.post("/generate_and_download_orden/")
+async def generate_and_download_orden(id_cliente: int):
+    try:
+        # Obtener los datos del SP
+        datos_orden = obtener_datos_orden_servicio(id_cliente)
+        
+        # Generar el documento
+        word_stream = generar_orden_servicio(datos_orden)
+        
+        return StreamingResponse(word_stream,
+                                 media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                 headers={"Content-Disposition": "attachment; filename=orden_servicio.docx"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
 @app.post(
     path="/api/seguridad/iniciarsesion",
     name='Inicio de sesion',
@@ -437,39 +553,47 @@ def getclientes(busqueda=""):
     roles_df = pd.read_sql(query, engine)
     resultado = roles_df.to_dict(orient="records")
     return JSONResponse(status_code=200, content=resultado)
-
-
-
 @app.post(
-        path="/api/cliente",
-        name='Guardar cliente',
-        tags=['Cliente'],
-        description='Método para guardar la informacion del cliente}',
-        response_model=ResponseModel
+    path="/api/cliente",
+    name='Guardar cliente',
+    tags=['Cliente'],
+    description='Método para guardar la información del cliente',
+    response_model=ResponseModel
 )
-def saveCliente(payload: SaveCliente ):
+def saveCliente(payload: SaveCliente):
+    # Convertir valores None a cadenas vacías
+    payload_dict = payload.model_dump()
+    for key, value in payload_dict.items():
+        if value is None:
+            payload_dict[key] = ""
+
     query = f"EXEC clientes.clienteinsupdel \
-    @Nombre='{payload.Nombre}', \
-    @Calle='{payload.Calle}',  \
-    @Colonia='{payload.Colonia}', \
-    @Ciudad='{payload.Ciudad}', \
-    @Estado='{payload.Estado}', \
-    @Tel='{payload.Tel}', \
-    @Cel='{payload.Cel}', \
-    @Email='{payload.Email}', \
-    @RFC='{payload.RFC}', \
-    @Autorizacion_ext='{payload.Autorizacion_ext}', \
-    @No_int='{payload.No_int}', \
-    @Facturar_a='{payload.Facturar_a}', \
-    @IdUsuarioEmpleado='{payload.Id_empleado}', @Accion = 1" 
+    @Nombre='{payload_dict['Nombre']}', \
+    @Calle='{payload_dict['Calle']}',  \
+    @Colonia='{payload_dict['Colonia']}', \
+    @Ciudad='{payload_dict['Ciudad']}', \
+    @Estado='{payload_dict['Estado']}', \
+    @Tel='{payload_dict['Tel']}', \
+    @Cel='{payload_dict['Cel']}', \
+    @Email='{payload_dict['Email']}', \
+    @RFC='{payload_dict['RFC']}', \
+    @Autorizacion_ext='{payload_dict['Autorizacion_ext']}', \
+    @No_int='{payload_dict['No_int']}', \
+    @Facturar_a='{payload_dict['Facturar_a']}', \
+    @IdUsuarioEmpleado='{payload_dict['Id_empleado']}', @Accion = 1" 
+
     print(query)
 
     with engine.begin() as conn:
-        conn.execution_options(autocommit = True)
+        conn.execution_options(autocommit=True)
         roles_df = pd.read_sql(query, conn)
-    dumpp = ResponseModel(id_resultado=1,respuesta="El cliente se guardo de manera correcta")
-    dict = dumpp.model_dump()
-    return JSONResponse(status_code=200, content=dict)
+
+    dumpp = ResponseModel(id_resultado=1, respuesta="El cliente se guardó de manera correcta")
+    dict_response = dumpp.model_dump()
+    return JSONResponse(status_code=200, content=dict_response)
+
+
+
 #################################################################################################################
 @app.get(
     path="/api/vehiculo",
