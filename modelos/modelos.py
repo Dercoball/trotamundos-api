@@ -147,6 +147,14 @@ class Vehiculo(BaseModel):
     Tapones_gasolina: int
     Calaveras_rotas: int
     Molduras_completas: int
+    Panel_instrumentos: int
+    Lado_izquierdo: int
+    Lado_izquierdo_inf: int
+    Lado_derecho:int
+    Lado_derecho_inf: int
+    Tablero:int
+    Guantera:int
+    Consola:int
     MotorVehiculo_foto: List[str]
     Acumulador_foto: List[str]
     Espejo_retrovisor_foto: List[str]
@@ -168,6 +176,14 @@ class Vehiculo(BaseModel):
     Tapones_gasolina_foto: List[str]
     Calaveras_rotas_foto: List[str]
     Molduras_completas_foto: List[str]
+    Panel_instrumentos_foto :List[str] 
+    Lado_izquierdo_foto: List[str]
+    Lado_izquierdo_inf_foto: List[str]
+    Lado_derecho_foto:List[str]
+    Lado_derecho_inf_foto: List[str]
+    Tablero_foto:List[str]
+    Guantera_foto:List[str]
+    Consola_foto:List[str]
     MotorVehiculo_video: List[str]
     Acumulador_video: List[str]
     Espejo_retrovisor_video: List[str]  
@@ -189,6 +205,14 @@ class Vehiculo(BaseModel):
     Tapones_gasolina_video: List[str]   
     Calaveras_rotas_video: List[str]    
     Molduras_completas_video: List[str] 
+    Panel_instrumentos_video :List[str] 
+    Lado_izquierdo_video: List[str]
+    Lado_izquierdo_inf_video: List[str]
+    Lado_derecho_video:List[str]
+    Lado_derecho_inf_video: List[str]
+    Tablero_video:List[str]
+    Guantera_video:List[str]
+    Consola_video:List[str]
     IdFlotilla: int
     IdOrdenServicio: int
     Activo: int
@@ -222,6 +246,13 @@ class GetVehiculo(Vehiculo):
     Tapones_gasolina_foto: List[str]   
     Calaveras_rotas_foto: List[str]    
     Molduras_completas_foto: List[str] 
+    Lado_izquierdo_foto: List[str]
+    Lado_izquierdo_inf_foto: List[str]
+    Lado_derecho_foto:List[str]
+    Lado_derecho_inf_foto: List[str]
+    Tablero_foto:List[str]
+    Guantera_foto:List[str]
+    Consola_foto:List[str]
     MotorVehiculo_video: List[str]
     Acumulador_video: List[str]  
     Espejo_retrovisor_video: List[str]  
@@ -243,6 +274,13 @@ class GetVehiculo(Vehiculo):
     Tapones_gasolina_video: List[str]   
     Calaveras_rotas_video: List[str]    
     Molduras_completas_video: List[str] 
+    Lado_izquierdo_video: List[str]
+    Lado_izquierdo_inf_video: List[str]
+    Lado_derecho_video:List[str]
+    Lado_derecho_inf_video: List[str]
+    Tablero_video:List[str]
+    Guantera_video:List[str]
+    Consola_video:List[str]
     IdFlotilla: int
     IdOrdenServicio: int
     Activo: int
