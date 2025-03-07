@@ -9,18 +9,17 @@ class ModificarVehiculo(BaseModel):
     ID : int
     Activo : int
 class SaveCliente(BaseModel):
-    Facturar_a : str
+    Facturar_a : Optional[str] = ""
     Nombre : str
     Calle: Optional[str] = ""
     Colonia: Optional[str] = ""
     Ciudad: Optional[str] = ""
     Estado: Optional[str] = ""
-    No_int : int
+    No_int : Optional[str] = ""
     Tel : str
     Cel : str
-    Email : str
-    RFC : str
-    Autorizacion_ext : str
+    Email : Optional[str] = ""
+    RFC : Optional[str] = ""
     Id_empleado: int
 
 class GetCliente(SaveCliente):
