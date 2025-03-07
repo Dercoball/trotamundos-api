@@ -373,7 +373,11 @@ class DocumentRequestOrden(BaseModel):
     inventario: Dict[str, str]
     logo_base64: Optional[str]
 
-# Función para generar la orden de servicio en formato Word
+
+from docx import Document
+from io import BytesIO
+from docx.shared import Pt
+
 def generate_word_order(clienteId: int):
     try:
         query = f"exec [Clientes].[ordendeservicio]  @idCliente = {clienteId}"
@@ -381,32 +385,37 @@ def generate_word_order(clienteId: int):
             conn.execution_options(autocommit=True)
             roles_df = pd.read_sql(query, conn)
 
-        # Obtener datos del cliente y vehículo
-        orden = roles_df['idOrden'].iloc[0]
-        nombre = roles_df['Nombre'].iloc[0]
-        factura = roles_df['Facturar_a'].iloc[0]
-        calle = roles_df['Calle'].iloc[0]
-        colonia = roles_df['Colonia'].iloc[0]
-        ciudad = roles_df['Ciudad'].iloc[0]
-        estado = roles_df['Estado'].iloc[0]
-        tel = roles_df['Tel'].iloc[0]
-        cel = roles_df['Cel'].iloc[0]
-        email = roles_df['Email'].iloc[0]
-        rfc = roles_df['RFC'].iloc[0]
-        marca = roles_df['Marca'].iloc[0]
-        tipo = roles_df['Tipo'].iloc[0]
-        modelo = roles_df['Modelo'].iloc[0]
-        motor = roles_df['Motor'].iloc[0]
-        color = roles_df['Color'].iloc[0]
-        kms = roles_df['kms'].iloc[0]
-        noserie = roles_df['No_Serie'].iloc[0]
-        placa = roles_df['Placa'].iloc[0]
+        if roles_df.empty:
+            return {"error": "No se encontró información para el cliente."}
 
-        # Crear el diccionario de inventario
-        inventario_data = {
+        roles_df.fillna("N/A", inplace=True)
+
+        data = {
+            "Orden": roles_df['idOrden'].iloc[0],
+            "Nombre": roles_df['Nombre'].iloc[0],
+            "Facturar a": roles_df['Facturar_a'].iloc[0],
+            "Dirección": f"{roles_df['Calle'].iloc[0]}, {roles_df['Colonia'].iloc[0]}, {roles_df['Ciudad'].iloc[0]}, {roles_df['Estado'].iloc[0]}",
+            "Teléfono": roles_df['Tel'].iloc[0],
+            "Celular": roles_df['Cel'].iloc[0],
+            "Email": roles_df['Email'].iloc[0],
+            "RFC": roles_df['RFC'].iloc[0]
+        }
+
+        vehicle_data = {
+            "Marca": roles_df['Marca'].iloc[0],
+            "Tipo": roles_df['Tipo'].iloc[0],
+            "Modelo": roles_df['Modelo'].iloc[0],
+            "Motor": roles_df['Motor'].iloc[0],
+            "Color": roles_df['Color'].iloc[0],
+            "Kilometraje": roles_df['kms'].iloc[0],
+            "No. Serie": roles_df['No_Serie'].iloc[0],
+            "Placa": roles_df['Placa'].iloc[0]
+        }
+
+        inventory_data = {
             "Espejo Retrovisor": roles_df['Espejo_retrovisor'].iloc[0],
             "Espejo Izquierdo": roles_df['Espejo_izquierdo'].iloc[0],
-            "Espejo Derecho": "",
+            "Espejo Derecho": roles_df['Espejo_derecho'].iloc[0],
             "Antena": roles_df['Antena'].iloc[0],
             "Tapones de Ruedas": roles_df['Tapones_ruedas'].iloc[0],
             "Radio": roles_df['Radio'].iloc[0],
@@ -425,88 +434,148 @@ def generate_word_order(clienteId: int):
             "Molduras Completas": roles_df['Molduras_completas'].iloc[0],
         }
 
-        # Crear el objeto DocumentRequestOrden
-        document_request = DocumentRequestOrden(
-            cliente=nombre,
-            telefono=tel,
-            vehiculo=modelo,  # Aquí podrías especificar la información que deseas
-            placas=placa,
-            fecha=str(roles_df['Fecha'].iloc[0]),  # Supuesto que hay un campo 'Fecha'
-            kilometraje=str(kms),
-            inventario=inventario_data,
-            logo_base64=None  # Si tienes un logo en base64, lo agregarías aquí
-        )
-        
         # Crear documento Word
         doc = Document()
-        doc.add_heading('Orden de Servicio', level=1)
 
-        # Información del cliente
-        doc.add_paragraph(f"Orden: {orden}")
-        doc.add_paragraph(f"Facturar a: {factura}")
-        doc.add_paragraph(f"Nombre: {nombre}")
-        doc.add_paragraph(f"Dirección: {calle}, {colonia}, {ciudad}, {estado}")
-        doc.add_paragraph(f"Teléfono: {tel}, Celular: {cel}")
-        doc.add_paragraph(f"Email: {email}, RFC: {rfc}")
+        # Ajustar márgenes
+        sections = doc.sections
+        for section in sections:
+            section.top_margin = Pt(30)
+            section.bottom_margin = Pt(30)
+            section.left_margin = Pt(30)
+            section.right_margin = Pt(30)
 
-        doc.add_heading('Detalles del Vehículo', level=2)
-        doc.add_paragraph(f"Marca: {marca}, Tipo: {tipo}")
-        doc.add_paragraph(f"Modelo: {modelo}, Motor: {motor}, Color: {color}")
-        doc.add_paragraph(f"Kilometraje: {kms}, No. Serie: {noserie}, Placa: {placa}")
+        doc.add_heading('Orden de Servicio', level=1).alignment = 1
 
-        # Inventario del Vehículo
-        doc.add_heading('Inventario de Vehículo', level=2)
+        def add_table(doc, data_dict):
+            table = doc.add_table(rows=len(data_dict), cols=2)
+            table.style = 'Table Grid'
+            for row_idx, (key, value) in enumerate(data_dict.items()):
+                table.rows[row_idx].cells[0].text = key
+                table.rows[row_idx].cells[1].text = str(value)
+                for cell in table.rows[row_idx].cells:
+                    for paragraph in cell.paragraphs:
+                        paragraph.alignment = 1  # Centrar contenido
+                        paragraph.runs[0].font.size = Pt(8)  # Reducir tamaño de letra
+            return table
 
-        # Agregar tabla de inventario
-        table = doc.add_table(rows=1, cols=2)
-        table.style = 'Table Grid'
-        hdr_cells = table.rows[0].cells
-        hdr_cells[0].text = 'Elemento'
-        hdr_cells[1].text = 'Estado'
+        doc.add_paragraph("\nInformación del Cliente").bold = True
+        add_table(doc, data)
 
-        for item, state in inventario_data.items():
-            row_cells = table.add_row().cells
-            row_cells[0].text = item
-            row_cells[1].text = state
+        doc.add_paragraph("\nDetalles del Vehículo").bold = True
+        add_table(doc, vehicle_data)
 
-        # Firmas
-        doc.add_paragraph("\nFirma del Proveedor       Firma de Aceptación del Cliente")
+        doc.add_paragraph("\nInventario del Vehículo").bold = True
+        add_table(doc, inventory_data)
+        
+           # Sección de firmas
+        doc.add_paragraph("\n\n\n")
+        firmas = doc.add_paragraph()
+        firmas.alignment = 1
+        firmas.add_run("__________________________           __________________________\n").bold = True
+        firmas.add_run("Firma del Proveedor                   Firma del Cliente")
 
-        # Tabla para servicio solicitado
-        doc.add_heading('Servicio Solicitado', level=2)
+        # Agregar salto de página para la segunda página
+        doc.add_page_break()
 
-        service_table = doc.add_table(rows=1, cols=4)
-        service_table.style = 'Table Grid'
-        service_hdr_cells = service_table.rows[0].cells
-        service_hdr_cells[0].text = 'Servicio Solicitado'
-        service_hdr_cells[1].text = 'Recibió'
-        service_hdr_cells[2].text = 'Técnico'
-        service_hdr_cells[3].text = 'Orden'
+        # Texto del contrato para la segunda página
+        contrato_text = """ADEMAS DE LOS ELEMENTOS CONTENIDOS EN EL ANVERSO DEL PRESENTE CONTRATO DE PRESTACIÓN DE SERVICIOS DE REPARACIÓN DE VEHÍCULOS, LAS PARTES SE SUJETAN A LAS SIGUIENTES: Y MANT
 
-        # Agregar fila vacía o datos específicos según sea necesario
-        service_table.add_row().cells
+        CLAUSULAS
 
-        # Guardar en memoria
+        PRIMERA: EL PRESTADOR DEL SERVICIO realizará todas las operaciones y composturas descritas en el anverso del presente contrato, solicitadas por EL CONSUMIDOR suscribe el presente contrato, a las que se someterà el vehiculo para obtener condiciones de funcionamiento de acuerdo al estado de este Asimismo EL PRESTADOR DEL SERVICIO no condicionară la prestación de los servicios de reparación y/o mantenimiento de vehículos a la adquisición a renta de otros productos o servicios en el establecimiento o en otro taller o agencia predeterminada que
+
+        May
+
+        SEGUNDA: El precio total de los servicios contratados se establece en el presupuesto que forma parte del presente y se describe en el anverso del presente contrato, el cual sera pagado por EL CONSUMIDOR, de la siguiente forma: Al momento de celebrar el presente contrato por concepto de anticipo la cantidad que se indica en el anverso del presente contrato y el resto en la fecha de entrega del vehículo, Todo pago efectuado por EL CONSUMIDOR deberá realizarse en el establecimiento de EL PRESTADOR DEL SERVICIO, al contado y en moneda nacional o cualquier moneda extranjera aceptada por EL PRESTADOR DEL SERVICIO este último deberá estar conforme a la Ley Monetaria de los Estados Unidos Mexicanos.
+
+        El pago será en efectivo, salvo que las partes acuerden o acepten otra forma distinta, como pudiese ser en cheque tarjeta de crédito o deposito bancario.
+
+        TERCERA: EL PRESTADOR DEL SERVICIO pondrá a disposición de EL CONSUMIDOR los precios de los servicios, mano de obra, refacciones y materiales a usar en las reparaciones ofrecidas. Asimismo, previo a la realización del servicio EL PRESTADOR DEL SERVICIO presentará a EL CONSUMIDOR el presupuesto al que se refiere la cláusula Segunda del presente contrato. Una vez aprobado el presupuesto por EL CONSUMIDOR, EL PRESTADOR DE SERVICIO procederá a efectuar el servicio solicitado. Los incrementos que resulten durante la reparación por costos no previsibles en rubros específicos que su cotización este fuera de control de EL PRESTADOR DEL SERVICIO, deberán ser autorizados por EL CONSUMIDOR en forma escrita, siempre y cuando estos excedan al 20% del presupuesto. Si el incremento citado es inferior lo podrán autorizar telefónicamente. El tiempo, que en su caso, transcurra para requisitar esta condición se modificará la fecha de entrega, en la misma proporción.
+
+        CUARTA: La entrega del automóvil será en la fecha contemplada en el anverso del presente contrato. Para el caso de que EL CONSUMIDOR, sea el que proporcione las refacciones la fecha de entrega sera
+
+        QUINTA: EL PRESTADOR DEL SERVICIO exclusivamente utilizará para los servicios objeto de este contrato, partes, refacciones u otros materiales nuevos y apropiados para el vehiculo salvo que EL CONSUMIDOR autorice expresamente que se usen otras. SI SI EL EL PRESTADOR PRES DEL SERVICIO lo autoriza, EL CONSUMIDOR suministra las partes, refacciones o materiales necesarios para la reparación y/o mantenimiento del vehículo. En ambos casos, la autorización respectiva se hará constar en el anverso del presente contrato.
+
+        SEXTA: EL PRESTADOR DEL SERVICIO hará entrega de las refacciones, partes o plezas sustituidas en la reparación y/o mantenimiento del vehículo al momento de entrega de éste, salvo en los siguientes casos: a) cuando EL CONSUMIDOR, exprese lo contrario, b) as partes, refacciones o piezas sean cambiadas en uso de garantía, c) se trate de residuos considerados peligrosos de acuerdo con las disposiciones legales aplicables.
+
+        SEPTIMA: reparaciones a que se refiere el presupuesto aceptado por EL CONSUMIDOR Tienen una garantia de 60 días contados a partir de la fecha de entrega del vehiculo ya reparado en mano de obra, y refacciones la especificada por el fabricante, siempre y cuando no se manifieste mal uso, negligencia o descuido, lo anterior de conformidad a lo establecido con el articulo 77 de la Ley Federal de Protección al Consumidor. Si el vehiculo es intervenido por un tercero, "EL PRESTADOR DEL SERVICIO" no será responsable y la garantia quedara sin efecto. Las Jedara sin efecto. Las reclamaciones por garantia se harán en el establecimiento de EL PRESTADOR DEL SERVICIO para lo cual EL CONSUMIDOR deberá presentar damaciones por garantia se harán en el su vehiculo en dicho establecimiento. Las reparaciones nes efectuadas por EL PRESTADOR DEL SERVICIO en cumplimiento a la garantia del servicio, serán sin cargo alguno para EL CONSUMIDOR salvo aquellos trabajos que no deriven de las reparaciones aceptadas en el presupuesto. No se computara dentro del plazo de garantía, el tiempo que lleve la reparación yio mantenimiento del vehiculo para el cumplimiento de la misma. Los gastos en que incurra EL CONSUMIDOR para hacer valida la garantia en un domicilio diverso al de EL PRESTADOR DEL SERVICIO deberán ser cubiertos por este. STADOR DEL SERVICio pa
+
+        OCTAVA: EL CONSUMIDOR autoriza el uso del vehiculo en zonas aledañas con un radio de 5 Km al área del establecimiento a efectos de pruebas o verificación de las reparaciones a efectuar o efectuadas EL PRESTADOR DEL SERVICIO no podrá utilizar el vehiculo para uso personal, fines propios o de terceros.
+
+        NOVENA: EL PRESTADOR DEL SERVICIO se hace responsable por los daños causados al vehiculo de EL CONSUMIDOR, como consecuencia de los recorridos de prueba por parte del personal de EL PRESTADOR DEL SERVICIO. El riesgo en un recorrido de prueba es por cuenta de EL CONSUMIDOR cuando él mismo solicite que sera él o un representante suyo quien gule el vehiculo, Asimismo, EL PRESTADOR DEL SERVICIO se hace responsable por las descomposturas, daños perdidas parciales o totales, imputables a él o a sus empleados, que sufran los vehículos, el equipo y aditamentos que EL CONSUMIDOR haya notificado al momento de la recepción del vehiculo, mientras encuentren bajo su respons onsabilidad para llevar a cabo la reparación y/o mantenimiento solicitado, asi como para hacer efectiva la garantia otorgada, Para tal efecto EL PRESTADOR DEL SERVICIO SI )NO() cuenta con un seguro suficiente para cubrir dichas eventualidades, cuyo número de póliza es con la compañía EL PRESTADOR DEL SERVICIO no se hace responsable por la pérdida de objetos dejados en el interior del vehiculo, aún con la cajuela cerrada, salvo que estos hayan sido notificados y puestos bajo su resguardo al momento de la recepción del vehículo.
+
+        DECIMA: EL PRESTADOR DEL SERVICIO se obliga a expedir la factura o comprobante de pago por los trabajos efectuados, en la que se especificará los precios por mano de obra, refacciones, materiales y accesorios empleados, conforme al articulo 62 de la Ley Federal de Protección al Consumidor
+
+        DECIMA PRIMERA: Se establece como pena convencional por el incumplimiento de cualquiera de las partes a las obligaciones contraldas en el presente contrato, el 15% del precio total de la operación.
+
+        DECIMA SEGUNDA: En caso de que el vehículo no sea recogido por EL CONSUMIDOR en un plazo de 48 horas a partir de la fecha señalada para la entrega, pagará por concepto de deposito un salario mínimo vigente en el lugar que se celebre el presente contrato, por cada 24 hrs. que transcurran.
+
+        DECIMA TERCERA: EL CONSUMIDOR puede desistirse en cualquier momento de la nto de la contratación del servicio de reparación y/o mantenimiento del vehículo, en cuyo caso deberá cubrir en lugar del precio contratado el importe de los trabajos realizados hasta el retiro del vehículo, incluidas las partes, refacciones u otros materiales utilizados. DECIMA CUARTA: EL PRESTADOR DEL SERVICIO es responsable ante EL CONSUMIDOR por el incumplimiento de los servicios contratados, aún y cuando subcontrate con
+
+        lerceros dicha prestación.
+
+        DECIMA QUINTA: Cuando se preste el servicio a presentación vicio a domicilio, el personal de EL PRESTADOR DEL SERVICIO debe identificarse plenamente ante EL CONSUMIDOR, mediante la del documento que lo acredite para este proposito. En caso de que dicho servicio tenga un costo, este se indicara en el anverso del presente contrato.
+
+        DECIMA SEXTA: EL CONSUMIDOR libera a EL PRESTADOR DEL SERVICIO de cualquier responsabilidad que hubiere surgido o pudiese surgir con relación al origen, propiedad,
+
+        posesión o cualquier otro derecho inherente al vehículo o partes o componentes del mismo.
+
+        DECIMA SEPTIMA: EL PRESTADOR DEL SERVICIO se obliga a observar en lo relativo a información y publicidad, promociones y ofertas a lo dispuesto en los capítulos II y IV de la Ley Federal de Protección al Consumidor.
+
+        DECIMA NOVENA: La Procuraduría Federal del Consumidor es competente para conocer en la via administrativa, para resolver cualquier controversia que se suscite sobre la interpretación o cumplimiento del presente Contrato. Sin perjuicio de lo Sin perjuicio de lo anterior, las partes se someten a la jurisdicción de los tribunales competen competentes de la Ciudad de Victoria, Tam.. renunciando expresamente a cualquier otra jurisdicción que pudiera corresponderles por razón de sus domicilios presentes o futuros, o por cualquier otra razón.
+
+        EL PRESTADOR DEL SERVICIO
+
+        EL CONSUMIDOR
+
+        QUEJAS Y RECLAMACIONES A LOS TELEFONOS (834) 285 2869 y (834) 285 2872 Domicilio: 29 Guerrero y Bravo #422. Héroe de Nacozari. C.P. 87030 Ciudad Victoria, Tam.
+
+        M
+
+        TROTAMUNDOSS
+
+        {
+
+        TELEFONOS (834) 285 2869 y (834) 285 2872
+
+        Domicilio: 29 Guerrero y Bravo #422. Héroe de Nacozari. C.P. 87030 Ciudad Victoria, Tam
+        """
+        
+        parrafo = doc.add_paragraph(contrato_text)
+
+# Ajustar tamaño de la fuente
+        for run in parrafo.runs:
+            run.font.size = Pt(5)  # Cambiar el tamaño de la fuente a 6 puntos
+        
+        
+
+        # Guardar el documento en memoria
         file_stream = BytesIO()
         doc.save(file_stream)
         file_stream.seek(0)
 
-        # Devolver el archivo Word como una respuesta
         return file_stream
 
     except Exception as e:
         return {"error": str(e)}
 
-# Ruta para generar el archivo Word
-@app.post("/generate_word_orden")
+
+
+
+@app.get("/generate_and_download_orden")
 async def generate_and_download(clienteId: int):
-    try:
-        file_stream = generate_word_order(clienteId)
-        return StreamingResponse(file_stream, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                                 headers={"Content-Disposition": "attachment; filename=orden_servicio.docx"})
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+    file_stream = generate_word_order(clienteId)
     
+    if isinstance(file_stream, dict):  # Si hay error, devuelve mensaje
+        return file_stream
+    
+    return StreamingResponse(
+        file_stream, 
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": "attachment; filename=orden_servicio.docx"}
+    )
+       
 @app.post(
     path="/api/seguridad/iniciarsesion",
     name='Inicio de sesion',
@@ -1084,7 +1153,7 @@ def updateVehiculo(payload: VehiculoV2):
 def putcliente(payload: GetCliente ):
     query = f"exec [Clientes].[clienteinsupdel] @Accion = 3, @idCliente = {payload.ID}, @Nombre = '{payload.Nombre}', @Calle = '{payload.Calle}' \
         ,@Colonia = '{payload.Colonia}', @Ciudad = '{payload.Ciudad}',  @Estado = '{payload.Estado}', @Tel = '{payload.Tel}', @Cel = '{payload.Cel}' \
-        ,@Email = '{payload.Email}', @RFC = '{payload.RFC}', @Autorizacion_ext = '{payload.Autorizacion_ext}', @No_int = '{payload.No_int}',@Facturar_a = '{payload.Facturar_a}' \
+        ,@Email = '{payload.Email}', @RFC = '{payload.RFC}', @No_int = '{payload.No_int}',@Facturar_a = '{payload.Facturar_a}' \
         ,@IdUsuarioEmpleado = '{payload.Id_empleado}'"
     with engine.begin() as conn:
         conn.execution_options(autocommit = True)
@@ -1181,7 +1250,6 @@ def convert_html_to_pdf(clienteId: int):
         cel = roles_df['Cel'].iloc[0]
         email = roles_df['Email'].iloc[0]
         rfc = roles_df['RFC'].iloc[0]
-        autorizacion = roles_df['Autorizacion_ext'].iloc[0]
         marca = roles_df['Marca'].iloc[0]
         tipo = roles_df['Tipo'].iloc[0] 
         modelo = roles_df['Modelo'].iloc[0]
@@ -1372,9 +1440,7 @@ def convert_html_to_pdf(clienteId: int):
         <tr>
         <td>RFC:{rfc}</td> 
         </tr>
-        <tr>
-        <td>Autorización Externa:{autorizacion}</td>
-        </tr>
+    
         
              
         </table>

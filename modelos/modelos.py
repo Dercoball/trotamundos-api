@@ -337,7 +337,6 @@ class SaveOrdenServicio(OrdenServicio):
     Cel:str
     Email:str
     RFC:str
-    Autorizacion_ext:str
     No_int:str
     Usuario:str
     Facturar_a:str
