@@ -498,7 +498,7 @@ def generate_word_order(clienteId: int):
         return {"error": str(e)}
 
 # Ruta para generar el archivo Word
-@app.post("/generate_and_download/")
+@app.post("/generate_word_orden")
 async def generate_and_download(clienteId: int):
     try:
         file_stream = generate_word_order(clienteId)
