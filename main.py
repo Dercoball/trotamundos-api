@@ -498,20 +498,20 @@ def generate_word_order(clienteId: int):
         return {"error": str(e)}
 
 # Ruta para generar el archivo Word
-@app.get("/generar-word/{clienteId}")
-def generar_word(clienteId: int):
+def generate_word_order(clienteId: int):
     try:
-        # Generar el documento
-        doc_response = generate_word_order(clienteId)
-        
-        # Establecer el archivo como un StreamingResponse
-        return StreamingResponse(
-            doc_response,
-            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            headers={"Content-Disposition": f"attachment; filename=orden_servicio_{clienteId}.docx"}
-        )
+        # Lógica para generar el documento Word (como en tu ejemplo anterior)
+        doc = Document()
+        # Agregar contenido al documento Word
+
+        # Guardar el documento en un flujo de bytes
+        file_stream = BytesIO()
+        doc.save(file_stream)
+        file_stream.seek(0)  # Es importante que el puntero esté al inicio del flujo
+
+        return file_stream
     except Exception as e:
-        return {"error": str(e)}
+        raise Exception(f"Error al generar el documento: {str(e)}")
 
     
 @app.post(
