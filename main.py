@@ -374,10 +374,6 @@ class DocumentRequestOrden(BaseModel):
     logo_base64: Optional[str]
 
 
-from docx import Document
-from io import BytesIO
-from docx.shared import Pt
-
 def generate_word_order(clienteId: int):
     try:
         query = f"exec [Clientes].[ordendeservicio]  @idCliente = {clienteId}"
