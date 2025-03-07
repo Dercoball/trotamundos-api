@@ -502,11 +502,14 @@ def generate_word_order(clienteId: int):
 def generar_word(clienteId: int):
     try:
         # Generar el documento
-        file_stream = generate_word_order(clienteId)
+        doc_response = generate_word_order(clienteId)
         
-        # Establecer los headers y tipo de contenido adecuado para la descarga
-        return Response(content=file_stream.read(), media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document", headers={"Content-Disposition": f"attachment; filename=orden_servicio_{clienteId}.docx"})
-    
+        # Establecer el archivo como un StreamingResponse
+        return StreamingResponse(
+            doc_response,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": f"attachment; filename=orden_servicio_{clienteId}.docx"}
+        )
     except Exception as e:
         return {"error": str(e)}
 
