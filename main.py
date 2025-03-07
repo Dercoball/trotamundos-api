@@ -363,11 +363,6 @@ async def generate_and_download(request: DocumentRequest):
     
 # Definir el modelo para la entrada de datos
 
-
-
-from typing import Dict, Optional
-from pydantic import BaseModel
-
 class DocumentRequestOrden(BaseModel):
     cliente: str
     telefono: str
@@ -378,13 +373,14 @@ class DocumentRequestOrden(BaseModel):
     inventario: Dict[str, str]
     logo_base64: Optional[str]
 
+# Función para generar la orden de servicio en formato Word
 def generate_word_order(clienteId: int):
     try:
         query = f"exec [Clientes].[ordendeservicio]  @idCliente = {clienteId}"
         with engine.begin() as conn:
             conn.execution_options(autocommit=True)
             roles_df = pd.read_sql(query, conn)
-        
+
         # Obtener datos del cliente y vehículo
         orden = roles_df['idOrden'].iloc[0]
         nombre = roles_df['Nombre'].iloc[0]
@@ -405,7 +401,7 @@ def generate_word_order(clienteId: int):
         kms = roles_df['kms'].iloc[0]
         noserie = roles_df['No_Serie'].iloc[0]
         placa = roles_df['Placa'].iloc[0]
-        
+
         # Crear el diccionario de inventario
         inventario_data = {
             "Espejo Retrovisor": roles_df['Espejo_retrovisor'].iloc[0],
@@ -441,10 +437,10 @@ def generate_word_order(clienteId: int):
             logo_base64=None  # Si tienes un logo en base64, lo agregarías aquí
         )
         
-        # Crear documento Word (sin cambios en la creación del documento)
+        # Crear documento Word
         doc = Document()
         doc.add_heading('Orden de Servicio', level=1)
-        
+
         # Información del cliente
         doc.add_paragraph(f"Orden: {orden}")
         doc.add_paragraph(f"Facturar a: {factura}")
@@ -452,33 +448,33 @@ def generate_word_order(clienteId: int):
         doc.add_paragraph(f"Dirección: {calle}, {colonia}, {ciudad}, {estado}")
         doc.add_paragraph(f"Teléfono: {tel}, Celular: {cel}")
         doc.add_paragraph(f"Email: {email}, RFC: {rfc}")
-        
+
         doc.add_heading('Detalles del Vehículo', level=2)
         doc.add_paragraph(f"Marca: {marca}, Tipo: {tipo}")
         doc.add_paragraph(f"Modelo: {modelo}, Motor: {motor}, Color: {color}")
         doc.add_paragraph(f"Kilometraje: {kms}, No. Serie: {noserie}, Placa: {placa}")
-        
+
         # Inventario del Vehículo
         doc.add_heading('Inventario de Vehículo', level=2)
-        
+
         # Agregar tabla de inventario
         table = doc.add_table(rows=1, cols=2)
         table.style = 'Table Grid'
         hdr_cells = table.rows[0].cells
         hdr_cells[0].text = 'Elemento'
         hdr_cells[1].text = 'Estado'
-        
+
         for item, state in inventario_data.items():
             row_cells = table.add_row().cells
             row_cells[0].text = item
             row_cells[1].text = state
-        
+
         # Firmas
         doc.add_paragraph("\nFirma del Proveedor       Firma de Aceptación del Cliente")
-        
+
         # Tabla para servicio solicitado
         doc.add_heading('Servicio Solicitado', level=2)
-        
+
         service_table = doc.add_table(rows=1, cols=4)
         service_table.style = 'Table Grid'
         service_hdr_cells = service_table.rows[0].cells
@@ -486,23 +482,33 @@ def generate_word_order(clienteId: int):
         service_hdr_cells[1].text = 'Recibió'
         service_hdr_cells[2].text = 'Técnico'
         service_hdr_cells[3].text = 'Orden'
-        
+
         # Agregar fila vacía o datos específicos según sea necesario
         service_table.add_row().cells
-        
-        # Guardar en memoria y devolver
+
+        # Guardar en memoria
         file_stream = BytesIO()
         doc.save(file_stream)
         file_stream.seek(0)
-        
-        return document_request
-    
+
+        # Devolver el archivo Word como una respuesta
+        return file_stream
+
     except Exception as e:
         return {"error": str(e)}
 
+# Ruta para generar el archivo Word
 @app.get("/generar-word/{clienteId}")
 def generar_word(clienteId: int):
-    return generate_word_order(clienteId)
+    try:
+        # Generar el documento
+        file_stream = generate_word_order(clienteId)
+        
+        # Establecer los headers y tipo de contenido adecuado para la descarga
+        return Response(content=file_stream.read(), media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document", headers={"Content-Disposition": f"attachment; filename=orden_servicio_{clienteId}.docx"})
+    
+    except Exception as e:
+        return {"error": str(e)}
 
     
 @app.post(
