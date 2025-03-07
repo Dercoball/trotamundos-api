@@ -15,7 +15,7 @@ class SaveCliente(BaseModel):
     Colonia: Optional[str] = ""
     Ciudad: Optional[str] = ""
     Estado: Optional[str] = ""
-    No_int : Optional[str] = ""
+    No_int : int
     Tel : str
     Cel : str
     Email : Optional[str] = ""
