@@ -363,6 +363,11 @@ async def generate_and_download(request: DocumentRequest):
     
 # Definir el modelo para la entrada de datos
 
+
+
+from typing import Dict, Optional
+from pydantic import BaseModel
+
 class DocumentRequestOrden(BaseModel):
     cliente: str
     telefono: str
@@ -373,78 +378,133 @@ class DocumentRequestOrden(BaseModel):
     inventario: Dict[str, str]
     logo_base64: Optional[str]
 
-
-
-
-@app.get(
-    path="/api/obtener_orden_service/{IdCliente}",  # Se pasa como parámetro de la URL
-    name='Obtener ordenes de servicio',
-    tags=['Orden'],
-    description='Método para obtener la información de todas las ordenes de servicio por cliente'
-)
-def obtener_datos_orden_servicio(IdCliente: int):
-    query = f"exec [Clientes].[ordendeservicio] @idCliente = {IdCliente}"
-    roles_df = pd.read_sql(query, engine)
-    resultado = roles_df.to_dict(orient="records")
-    return JSONResponse(status_code=200, content=resultado)
-
-
-def generar_orden_servicio(datos: DocumentRequestOrden) -> BytesIO:
-    doc = Document()
-    
-    # Agregar logo desde base64 si está presente
-    if datos.logo_base64:
-        from io import BytesIO
-        import base64
-        logo_data = base64.b64decode(datos.logo_base64)
-        logo_stream = BytesIO(logo_data)
-        doc.add_picture(logo_stream, width=Inches(2))
-    
-    doc.add_paragraph("\nORDEN DE SERVICIO", style='Title')
-    
-    tabla = doc.add_table(rows=3, cols=2)
-    tabla.style = 'Table Grid'
-    
-    tabla.cell(0, 0).text = "Cliente: " + datos.cliente
-    tabla.cell(0, 1).text = "Teléfono: " + datos.telefono
-    tabla.cell(1, 0).text = "Vehículo: " + datos.vehiculo
-    tabla.cell(1, 1).text = "Placas: " + datos.placas
-    tabla.cell(2, 0).text = "Fecha: " + datos.fecha
-    tabla.cell(2, 1).text = "Kilometraje: " + datos.kilometraje
-    
-    doc.add_paragraph("\n")
-    
-    doc.add_paragraph("INVENTARIO DEL VEHÍCULO", style='Heading 2')
-    tabla_inv = doc.add_table(rows=len(datos.inventario) + 1, cols=2)
-    tabla_inv.style = 'Table Grid'
-    
-    tabla_inv.cell(0, 0).text = "Elemento"
-    tabla_inv.cell(0, 1).text = "Estado"
-    
-    for i, (elemento, estado) in enumerate(datos.inventario.items()):
-        tabla_inv.cell(i + 1, 0).text = elemento
-        tabla_inv.cell(i + 1, 1).text = estado
-    
-    word_stream = BytesIO()
-    doc.save(word_stream)
-    word_stream.seek(0)
-    
-    return word_stream
-
-@app.post("/generate_and_download_orden/")
-async def generate_and_download_orden(id_cliente: int):
+def generate_word_order(clienteId: int):
     try:
-        # Obtener los datos del SP
-        datos_orden = obtener_datos_orden_servicio(id_cliente)
+        query = f"exec [Clientes].[ordendeservicio]  @idCliente = {clienteId}"
+        with engine.begin() as conn:
+            conn.execution_options(autocommit=True)
+            roles_df = pd.read_sql(query, conn)
         
-        # Generar el documento
-        word_stream = generar_orden_servicio(datos_orden)
+        # Obtener datos del cliente y vehículo
+        orden = roles_df['idOrden'].iloc[0]
+        nombre = roles_df['Nombre'].iloc[0]
+        factura = roles_df['Facturar_a'].iloc[0]
+        calle = roles_df['Calle'].iloc[0]
+        colonia = roles_df['Colonia'].iloc[0]
+        ciudad = roles_df['Ciudad'].iloc[0]
+        estado = roles_df['Estado'].iloc[0]
+        tel = roles_df['Tel'].iloc[0]
+        cel = roles_df['Cel'].iloc[0]
+        email = roles_df['Email'].iloc[0]
+        rfc = roles_df['RFC'].iloc[0]
+        marca = roles_df['Marca'].iloc[0]
+        tipo = roles_df['Tipo'].iloc[0]
+        modelo = roles_df['Modelo'].iloc[0]
+        motor = roles_df['Motor'].iloc[0]
+        color = roles_df['Color'].iloc[0]
+        kms = roles_df['kms'].iloc[0]
+        noserie = roles_df['No_Serie'].iloc[0]
+        placa = roles_df['Placa'].iloc[0]
         
-        return StreamingResponse(word_stream,
-                                 media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                                 headers={"Content-Disposition": "attachment; filename=orden_servicio.docx"})
+        # Crear el diccionario de inventario
+        inventario_data = {
+            "Espejo Retrovisor": roles_df['Espejo_retrovisor'].iloc[0],
+            "Espejo Izquierdo": roles_df['Espejo_izquierdo'].iloc[0],
+            "Espejo Derecho": "",
+            "Antena": roles_df['Antena'].iloc[0],
+            "Tapones de Ruedas": roles_df['Tapones_ruedas'].iloc[0],
+            "Radio": roles_df['Radio'].iloc[0],
+            "Encendedor": roles_df['Encendedor'].iloc[0],
+            "Gato": roles_df['Gato'].iloc[0],
+            "Herramienta": roles_df['Herramienta'].iloc[0],
+            "Llanta de Refacción": roles_df['Llanta_refaccion'].iloc[0],
+            "Limpiadores": roles_df['Limpiadores'].iloc[0],
+            "Pintura Rayada": roles_df['Pintura_rayada'].iloc[0],
+            "Cristales Rotos": roles_df['Cristales_rotos'].iloc[0],
+            "Golpes": roles_df['Golpes'].iloc[0],
+            "Tapetes": roles_df['Tapetes'].iloc[0],
+            "Extintor": roles_df['Extintor'].iloc[0],
+            "Tapón de Gasolina": roles_df['Tapones_gasolina'].iloc[0],
+            "Calaveras Rotas": roles_df['Calaveras_rotas'].iloc[0],
+            "Molduras Completas": roles_df['Molduras_completas'].iloc[0],
+        }
+
+        # Crear el objeto DocumentRequestOrden
+        document_request = DocumentRequestOrden(
+            cliente=nombre,
+            telefono=tel,
+            vehiculo=modelo,  # Aquí podrías especificar la información que deseas
+            placas=placa,
+            fecha=str(roles_df['Fecha'].iloc[0]),  # Supuesto que hay un campo 'Fecha'
+            kilometraje=str(kms),
+            inventario=inventario_data,
+            logo_base64=None  # Si tienes un logo en base64, lo agregarías aquí
+        )
+        
+        # Crear documento Word (sin cambios en la creación del documento)
+        doc = Document()
+        doc.add_heading('Orden de Servicio', level=1)
+        
+        # Información del cliente
+        doc.add_paragraph(f"Orden: {orden}")
+        doc.add_paragraph(f"Facturar a: {factura}")
+        doc.add_paragraph(f"Nombre: {nombre}")
+        doc.add_paragraph(f"Dirección: {calle}, {colonia}, {ciudad}, {estado}")
+        doc.add_paragraph(f"Teléfono: {tel}, Celular: {cel}")
+        doc.add_paragraph(f"Email: {email}, RFC: {rfc}")
+        
+        doc.add_heading('Detalles del Vehículo', level=2)
+        doc.add_paragraph(f"Marca: {marca}, Tipo: {tipo}")
+        doc.add_paragraph(f"Modelo: {modelo}, Motor: {motor}, Color: {color}")
+        doc.add_paragraph(f"Kilometraje: {kms}, No. Serie: {noserie}, Placa: {placa}")
+        
+        # Inventario del Vehículo
+        doc.add_heading('Inventario de Vehículo', level=2)
+        
+        # Agregar tabla de inventario
+        table = doc.add_table(rows=1, cols=2)
+        table.style = 'Table Grid'
+        hdr_cells = table.rows[0].cells
+        hdr_cells[0].text = 'Elemento'
+        hdr_cells[1].text = 'Estado'
+        
+        for item, state in inventario_data.items():
+            row_cells = table.add_row().cells
+            row_cells[0].text = item
+            row_cells[1].text = state
+        
+        # Firmas
+        doc.add_paragraph("\nFirma del Proveedor       Firma de Aceptación del Cliente")
+        
+        # Tabla para servicio solicitado
+        doc.add_heading('Servicio Solicitado', level=2)
+        
+        service_table = doc.add_table(rows=1, cols=4)
+        service_table.style = 'Table Grid'
+        service_hdr_cells = service_table.rows[0].cells
+        service_hdr_cells[0].text = 'Servicio Solicitado'
+        service_hdr_cells[1].text = 'Recibió'
+        service_hdr_cells[2].text = 'Técnico'
+        service_hdr_cells[3].text = 'Orden'
+        
+        # Agregar fila vacía o datos específicos según sea necesario
+        service_table.add_row().cells
+        
+        # Guardar en memoria y devolver
+        file_stream = BytesIO()
+        doc.save(file_stream)
+        file_stream.seek(0)
+        
+        return document_request
+    
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generando el documento: {str(e)}")
+        return {"error": str(e)}
+
+@app.get("/generar-word/{clienteId}")
+def generar_word(clienteId: int):
+    return generate_word_order(clienteId)
+
+    
 @app.post(
     path="/api/seguridad/iniciarsesion",
     name='Inicio de sesion',
@@ -1313,196 +1373,7 @@ def convert_html_to_pdf(clienteId: int):
         <tr>
         <td>Autorización Externa:{autorizacion}</td>
         </tr>
-        <tr>
-        <th>Servicio</th>
-        </tr>
-
-        <tr>
         
-        <td>
-        <h3 style="text-align:center;">FILTROS</h3>
-        </td>
-        </tr>
-        
-        <tr>
-          <td>Filtro de Aire:</td>
-         
-          
-        </tr>
-        <tr>
-          <td>Filtro de Aceite:</td>
-         
-        </tr>
-        
-        <tr>
-          <td>Filtro de Cabina</td>
-         
-        </tr>
-        <tr>
-          <td>Filtro de Gasolina:</td>
-         
-          
-        </tr>
-        <tr>
-        </tr>
-         <tr>
-        
-        <td>
-        <h3 style="text-align:center;">LUBRICACIÓN</h3>
-        </td>
-        </tr>
-        <tr>
-          <td>Tapón de Carter:</td>
-        
-        </tr>
-        <tr>
-          <td>Aceite de Motor:</td> 
-          <td>W  /SAE</td>
-        
-        
-        </tr>
-        <tr>
-          <td>Aceite de Transmisión Automática:</td>
-    
-        </tr>
-          <tr>
-          <td>Aceite de Transmisión Estándar:</td>
-          <td>W  /SAE</td>
-        </tr>
-          <tr>
-          <td>Aceite de Diferencial:</td>
-          <td>W  /SAE</td>
-        </tr>
-          <tr>
-          <td>Dirección Hidráulica:</td>
-        
-        </tr>
-          <tr>
-          <td>Líquido de Frenos:</td>
-          <td>W  /SAE</td>
-       
-        </tr>
-          <tr>
-          <td>Líquido Limpiaparabrisas:</td>
-          <td>W  /SAE</td>
-        
-        </tr>
-          <tr>
-          <td>Aditivo:</td>
-        
-        </tr>
-           <tr>
-        
-        <td>
-        <h3 style="text-align:center;">BANDAS</h3>
-        </td>
-        </tr>
-          <tr>
-          <td>Poly-V:</td>
-        
-        </tr>
-          <tr>
-          <td>Alternador:</td>
-         
-        </tr>
-          <tr>
-          <td>Aire Acondicionado:</td>
-        
-        </tr>
-            <tr>
-          <td>Dirección Hidráulica:</td>
-         
-        </tr>
-            <tr>
-          <td>Banda de Tiempo:</td>
-        
-        </tr>
-
-        <tr>        
-        <td>
-        <h3 style="text-align:center;">ENFRIAMIENTO</h3>
-        </td>
-        </tr>
-         <tr>
-          <td>Manguera Superior Radiador:</td>
-         
-        </tr>
-           <tr>
-          <td>Refrigerante/ Anticongelante:</td>
-        
-        </tr>
-        
-           <tr>
-          <td>Bomba de Agua:</td>
-         
-        </tr>                  
-           <tr>
-          <td>Manguera Inferior Radiador:</td>
-          
-        </tr>
-        <tr>
-          <td>Tapón de Radiador:</td>
-          
-        </tr>
-
-        <tr>
-          
-          <td>
-          <h3 style="text-align:center;">AMORTIGUADORES/BASES</h3>
-          </td>
-         
-          </tr>
-          
-        <tr>
-            <td>Delanteros:</td>
-          
-          </tr>
-          <tr>
-            <td>Traseros:</td>
-            
-          </tr>
-        <tr>
-        
-        <td>
-        <h3 style="text-align:center;">MOTOR</h3>
-        </td>
-        
-        
-        </tr>
-        
-        <tr>
-          <td>Diagnóstico (Costo o revisión):</td>
-        
-        </tr>
-        
-        <tr>
-          <td>Afinación:</td>
-          <td>Menor 	Mayor 	Premium</td>
-        </tr>
-        
-        
-        <tr>
-          <td>Tapa de Distribuidor:</td>
-         
-        </tr>
-        
-        
-        <tr>
-          <td>Rotor de Distribuidor:</td>
-        </tr>              
-        <tr>
-          <td>Cables de Bujias:</td>
-        
-        </tr>
-        
-        <tr>
-          <td>Bujias:</td>
-          
-        </tr>                
-        <tr>
-          <td>Sensor:</td>
-         
-        </tr>
              
         </table>
         </div>
@@ -1521,10 +1392,8 @@ def convert_html_to_pdf(clienteId: int):
         <td>Color:{color}</td>
         <td>Kms:{kms}</td>
         </tr>
-        <tr>
-        
-        <td>N. Serie:{noserie}</td>
-          
+        <tr>       
+        <td>N. Serie:{noserie}</td>         
         </tr>
         <tr>
           <td>Placa:{placa}</td>
@@ -1532,230 +1401,95 @@ def convert_html_to_pdf(clienteId: int):
         <tr>
           <th>Inventario de Vehículo</th>
         </tr>
-
-
         <tr>
-        
-        
         <td>Espejo Retrovisor:</td>
         <td>{espejoretrovisor}</td>
-        
-        
         </tr>
         <tr>
-        
         <td>Espejo Izquierdo:</td>
         <td>{espejoizq}</td>
         </tr>
-          
-        <tr>
-            
+        <tr> 
         <td>Espejo Derecho:</td>
         <td></td>
         </tr>
         <tr>
-           
         <td>Antena:</td>
-        <td>{antena}</td>
-                  
+        <td>{antena}</td>        
         </tr>
-        <tr>
-                  
+        <tr>            
         <td>Tapones de Ruedas:</td>
         <td>{taponesruedas}</td>
         </tr>
-        <tr>
-         
-        
-        <tr>
-                  
+        <tr>    
+        <tr>                
         <td>Radio:</td>
         <td>{radio}</td>
         </tr>
-        <tr>
-                   
+        <tr>              
         <td>Encendedor:</td>
         <td>{encendedor}</td>
         </tr>
-        <tr>
-                   
+        <tr>                  
         <td>Gato:</td>
         <td>{gato}</td>
         </tr>
-        <tr>
-                   
+        <tr>                  
         <td>Herramienta:</td>
         <td>{herramienta}</td>
         </tr>
-        <tr>
-                    
+        <tr>                   
         <td>Llanta de Refacción:</td>
         <td>{llanarefaccion}</td>
         </tr>
-        <tr>
-        
+        <tr>      
         <td>Limpiadores:</td>
         <td>{limpiadores}</td>
         </tr>
-        <tr>
-                   
+        <tr>                
         <td>Pintura Rayada:</td>
         <td>{pintura}</td>
         </tr>
-        <tr>
-                    
+        <tr>              
         <td>Cristales Rotos:</td>
         <td>{cristales}</td>
         </tr>
-        <tr>
-                    
+        <tr>       
         <td>Golpes:</td>
         <td>{golpes}</td>
         </tr>
-
-        <tr>
-                    
+        <tr>       
         <td>Tapetes:</td>
         <td>{tapetes}</td>
         </tr>
-
         <tr>
-          
         <td>Extintor:</td>
         <td>{extintor}</td>
         </tr>
-
         <tr>
-          
         <td>Tapón de Gasolina:</td>
         <td>{tapones_gasolina}</td>
         </tr>
-
         <tr>
-          
         <td>Calaveras Rotas:</td>
         <td>{calaveras}</td>
         </tr>
-
         <tr>
-          
         <td>Molduras Completas:</td>
         <td>{molduras}</td>
         </tr>
-
-        <tr>
-        <th>
-        Servicio
-        </th>
-        </tr>
-        <tr> 
-        <td>
-        <h3 style="text-align:center;">LLANTAS</h3>
-        </td>
-        </tr>
-
-        <tr>
-        <td>Medida:</td>
-        </tr>
-        <tr>
-        <td>Alineación:</td>
-        </tr>
-        <tr>
-        <td>Balanceo:</td>
-        </tr>
-        <tr>
-        <td>Rotación:</td>
-        </tr>
-        <tr>
-        <td>Montaje:</td>
-        </tr>
-        <tr>
-        <td>Válvulas:</td>
-        </tr>
-        <tr> 
-        <td>
-        <h3 style="text-align:center;">FRENOS</h3>
-        </td>
-        </tr>
-        <tr>
-        <td>Generales:</td>
-        </tr>
-        <tr>
-        <td>Delanteros:</td>
-        </tr>
-        <tr>
-        <td>Traseros:</td>
-        </tr>
-        <tr>
-        <td>Discos (2) (4):</td>
-        </tr>
-        <tr>
-        <td>Tambores:</td>
-        </tr>
-        <tr>
-        <td>Cilindros:</td>
-        </tr>
-        <tr>
-        <td>Limpieza y Ajuste:</td>
-        </tr>
-        <tr>
-        <td>Rectificado Disc/Tam:</td>
-        </tr>
-        <tr> 
-        <td>
-        <h3 style="text-align:center;">OTROS</h3>
-        </td>
-        </tr>
-        <tr>
-        <td>Limpiaparabrisas:</td>
-        </tr>
-        <tr>
-        <td>Engrasado:</td>
-        </tr>
-        <tr>
-        <td>Químicos:</td>
-        </tr>
-
-
-
-        </table>
-        </div>
-		</div>
-
-		<table>
-		<th>
-		Observaciones
-		</th>
-		<tr>
-        <td>
-
-        </td>
-	    </tr>
-		</table>
-      
-
 		<div></div>
-      
-		<table> 
-         
-      
+		<table>       
 		<tr>
 		<td>
-		Firma del Proveedor
-      
+		Firma del Proveedor      
 		</td>
-
 		<td>
-		Firma de Aceptación del Cliente
-		
-		</td>
-		
-		</tr>
-		
+		Firma de Aceptación del Cliente		
+		</td>		
+		</tr>	
 		</table>
-		
 		<div></div>
-
 		<table>
 		<th>
 		Servicio Solicitado
@@ -1769,12 +1503,9 @@ def convert_html_to_pdf(clienteId: int):
 		<th>
 		Orden
 		</th>
-
-
 		<tr>
 		  <td></td>
 		</tr>
-
 		</table>
 		</body>
 		</html>"""
