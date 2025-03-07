@@ -545,7 +545,6 @@ def saveCliente(payload: SaveCliente):
     @Cel='{payload_dict['Cel']}', \
     @Email='{payload_dict['Email']}', \
     @RFC='{payload_dict['RFC']}', \
-    @Autorizacion_ext='{payload_dict['Autorizacion_ext']}', \
     @No_int='{payload_dict['No_int']}', \
     @Facturar_a='{payload_dict['Facturar_a']}', \
     @IdUsuarioEmpleado='{payload_dict['Id_empleado']}', @Accion = 1" 
