@@ -686,6 +686,39 @@ def saveCliente(payload: SaveCliente):
 
 #################################################################################################################
 @app.get(
+    path="/api/orderservice",
+    name='Obtener orden de servicio',
+    tags=['Orden'],
+    description='Método para obtener la información de una orden de servicio',
+    response_model=GetOrden
+)
+def getorder(clienteId=0):
+    query = f"exec [Clientes].[ordendeservicio]  @idCliente = {clienteId}"
+    cliente_df = pd.read_sql(query, engine)
+    resultado = cliente_df.to_dict(orient="records")
+    
+    # Verifica si el resultado no está vacío antes de devolver
+    if resultado:
+        return JSONResponse(status_code=200, content=resultado[0])
+    else:
+        return JSONResponse(status_code=404, content={"message": "Orden no encontrado."})
+@app.get(
+    path="/api/orderservices",
+    name='Obtener ordenes de servicio',
+    tags=['Orden'],
+    description='Método para obtener la información de todos las ordenes de servicio',
+    response_model=List[GetOrden]
+)
+def getorders():
+    query = f"exec [dbo].[OrdenDeServicioAll]"
+    orders_df = pd.read_sql(query, engine)
+    resultado = orders_df.to_dict(orient="records")
+    return JSONResponse(status_code=200,content=resultado)
+    
+    
+
+
+@app.get(
     path="/api/vehiculo",
     name='Obtener vehiculo',
     tags=['Vehiculo'],
