@@ -563,7 +563,6 @@ async def generate_and_download(clienteId: int):
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers={"Content-Disposition": "attachment; filename=orden_servicio.docx"}
     )
-       
 @app.post(
     path="/api/seguridad/iniciarsesion",
     name='Inicio de sesion',
