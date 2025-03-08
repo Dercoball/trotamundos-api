@@ -551,10 +551,6 @@ def generate_word_order(clienteId: int):
 
     except Exception as e:
         return {"error": str(e)}
-
-
-
-
 @app.get("/generate_and_download_orden")
 async def generate_and_download(clienteId: int):
     file_stream = generate_word_order(clienteId)
