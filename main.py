@@ -527,11 +527,7 @@ def generate_word_order(clienteId: int):
 
         QUEJAS Y RECLAMACIONES A LOS TELEFONOS (834) 285 2869 y (834) 285 2872 Domicilio: 29 Guerrero y Bravo #422. Héroe de Nacozari. C.P. 87030 Ciudad Victoria, Tam.
 
-        M
-
         TROTAMUNDOSS
-
-        {
 
         TELEFONOS (834) 285 2869 y (834) 285 2872
 
